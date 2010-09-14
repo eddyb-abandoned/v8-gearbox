@@ -1,0 +1,10 @@
+//#!/applications/v8-shell
+
+load("code/IrcClient.js");
+myIrcClient = new IrcClient("calvino.freenode.net", "jsirc", ["##eddyb"]);
+try {
+    myIrcClient.main();
+} catch(e) {
+    myIrcClient.deinit();
+    print("\n"+e+"\n");
+}
