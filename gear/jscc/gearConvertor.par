@@ -1,0 +1,432 @@
+[*
+
+/* Gathering utilities */
+
+function createClass(name, childs) {
+    var out = {type:'class', name:name, classes:{}, vars:{}, varsNative:{}, functions:{}};
+    for(c in childs) {
+        var node = childs[c];
+        switch(node.type) {
+            case 'class':
+                out.classes[node.name] = {classes:node.classes, vars:node.vars, varsNative:node.varsNative, functions:node.functions};
+                break;
+            case 'function':
+                if(!out.functions[node.name])
+                    out.functions[node.name] = [{args:node.args, code:node.code}];
+                else
+                    out.functions[node.name].push({args:node.args, code:node.code});
+                break;
+            case 'native-var':
+                out.varsNative[node.name] = {real:node.real, defval:node.defval};
+                break;
+            case 'var':
+                out.vars[node.name] = {real:node.real, defval:(node.defval||{real:node.real, value:baseTypesDefaults[node.real]})};
+                break;
+            case 'native-block':
+                throw Error("TODO: Native blocks in classes");
+        }
+    }
+    
+    return out;
+}
+
+function createNamespace(name, childs) {
+    var out = {type:'namespace', name:name, namespaces:{}, classes:{}, vars:{}, functions:{}, prelude:""};
+    for(c in childs) {
+        var node = childs[c];
+        switch(node.type) {
+            case 'namespace':
+                out.namespaces[node.name] = {namespaces:node.namespaces, classes:node.classes, vars:node.vars, functions:node.functions, prelude:node.prelude};
+                break;
+            case 'class':
+                out.classes[node.name] = {classes:node.classes, vars:node.vars, varsNative:node.varsNative, functions:node.functions};
+                break;
+            case 'function':
+                if(!out.functions[node.name])
+                    out.functions[node.name] = [{args:node.args, code:node.code}];
+                else
+                    out.functions[node.name].push({args:node.args, code:node.code});
+                break;
+            case 'native-var':
+                throw Error("TODO: Native Vars in namespaces");
+                break;
+            case 'var':
+                out.vars[node.name] = {real:node.real, defval:(node.defval||{real:node.real, value:baseTypesDefaults[node.real]})};
+                break;
+            case 'native-block':
+                if(c == 0)
+                    out.prelude += node.code + "\n";
+        }
+    }
+    
+    return out;
+}
+
+/* Generating code utilities */
+
+var baseTypesDefaults = {int:0, string:"", bool:false};
+var baseTypesCtors = {
+    int: function(val) {
+        return "v8::Integer::New(" + Math.floor(val) + ")";
+    },
+    string: function(val) {
+        return "v8::String::New(\"" + val.replace(/"/g,"\\\"").replace(/\n/g,"\\n").replace(/\t/g,"\\t") + "\")";
+    },
+    bool: function(val) {
+        return "v8::Boolean::New(" + !!val + ")";
+    }
+};
+
+function makeObjectReplacements(vars, objPath, getCode) {
+    var replaces = [];
+    for(v in vars) {
+        var varName = vars[v].name || v;
+        var varPath = "\\b" + objPath.concat([varName]).join("\\b\\.\\b") + "\\b";
+        
+        if(vars[v].real == "string") {
+            replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->V8Set(\""+varName+"\", v8::String::New($1));"});
+            replaces.push({regex:varPath+"\\.\\blength\\b", replace:"v8::String::Utf8Value("+getCode+"->V8Get(\""+varName+"\")).length()"});
+            replaces.push({regex:varPath, replace:"(*v8::String::Utf8Value("+getCode+"->V8Get(\""+varName+"\")))"});
+        } else if(vars[v].real == "int") {
+            replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->V8Set(\""+varName+"\", v8::Integer::New($1));"});
+            replaces.push({regex:varPath, replace:getCode+"->V8Get(\""+varName+"\")->IntegerValue()"});
+        }
+        else if(vars[v].real == "bool") {
+            replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->V8Set(\""+varName+"\", v8::Boolean::New($1));"});
+            replaces.push({regex:varPath, replace:getCode+"->V8Get(\""+varName+"\")->BooleanValue()"});
+        }
+        else if(vars[v].real.obj)
+            replaces = replaces.concat(makeObjectReplacements(vars[v].real.childs, objPath.concat([varName]), getCode+"->V8Get(\""+varName+"\")"));
+    }
+    return replaces;
+}
+
+function makeArgumentReplacements(args) {
+    var replaces = [], n = 0;
+    for(arg in args) {
+        if(args[arg].real == "string") {
+            replaces.push({regex:"\\b"+args[arg].name+"\\b\\.\\blength\\b", replace:"v8::String::Utf8Value(args["+n+"]).length()"});
+            replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"(*v8::String::Utf8Value(args["+n+"]))"});
+        } else if(args[arg].real == "int")
+            replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]->IntegerValue()"});
+        else if(args[arg].real == "bool")
+            replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]->BooleanValue()"});
+        else if(args[arg].real.obj)
+            replaces = replaces.concat(makeObjectReplacements(args[arg].real.childs, [args[arg].name], "args["+n+"]->ToObject()"));
+        
+        n++;
+    }
+    return replaces;
+}
+
+function makeNativeReplacements(natives, objPath, getCode) {
+    var replaces = [], n = 0;
+    for(_native in natives) {
+        var varPath = "\\b" + objPath.concat([_native]).join("\\b\\.\\b") + "\\b";
+        if(natives[_native].real.indexOf("*") > -1) {
+            replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->SetPointerInInternalField("+n+", $1);"});
+            replaces.push({regex:varPath, replace:"("+natives[_native].real+")("+getCode+"->GetPointerFromInternalField("+n+"))"});
+        }
+        
+        n++;
+    }
+    return replaces;
+}
+
+function makeTabs(n, ch) {
+    var s = "";
+    for(var i = 0; i < n; i++)
+        s += ch;
+    return s;
+}
+
+function generateFunctionCode(functions, name, parentObjName, code, class) {
+    var objName = parentObjName + "_" + name, replaces = [], funcCode = "", hasNoArgsVer = false;
+    functions.sort(function(a, b) {return b.args.length - a.args.length;});
+    for(f in functions) {
+        var func = functions[f], replaces = [], tbs = (func.args.length ? "\t\t" : "\t");
+        var actualCode = "\n" + tbs + func.code.trim() + "\n";
+        
+        replaces = replaces.concat(makeArgumentReplacements(func.args));
+        if(class) {
+            replaces = replaces.concat(makeObjectReplacements(class.vars, ["this"], "args.This()"));
+            replaces = replaces.concat(makeNativeReplacements(class.varsNative, ["this"], "args.This()"));
+        }
+        
+        actualCode += tbs + "return undefined;\n";
+        replaces.push({regex:"\n" + makeTabs(parentObjName.split("_").length, "    "), replace:"\n" + tbs});
+        replaces.push({regex:"\\b(String|Integer|Boolean)\\b\\s*\\(\\s*(\\S*)\\s*\\)", replace:"v8::$1::New($2)"});
+        replaces.push({regex:"\\bundefined\\b", replace:"v8::Undefined()"});
+        //print("===============  " + name + "  ===============");
+        //print(JSON.stringify(replaces, 0, 4));
+        
+        for(r in replaces) {
+            var replace = replaces[r];
+            actualCode = actualCode.replace(new RegExp(replace.regex, "g"), replace.replace);
+        }
+        
+        if(func.args.length)
+            funcCode += "\n\tif(args.Length() >= " + func.args.length + ")\n\t{" + actualCode + "\t}\n";
+        else {
+            funcCode += actualCode;
+            hasNoArgsVer = true;
+        }
+    }
+    
+    if(!hasNoArgsVer)
+        funcCode += "\tV8Assert(false, \"Invalid call to " + parentObjName.replace(/_/g, ".") + (class?".prototype":"") + "." + name + "\")\n";
+    
+    code.func += "V8FuncDef(" + objName + ")\n{" + funcCode + "}\n\n";
+}
+
+function generateClassCode(class, name, parentObjName, code) {
+    var objName = parentObjName + "_" + name;
+    
+    code.addClass(objName, name);
+    
+    if(Object.keys(class.varsNative).length)
+        code.setNativeVarNum(objName, Object.keys(class.varsNative).length);
+    
+    for(className in class.classes)
+        generateClassCode(class.classes[className], className, objName, code);
+    
+    for(funcName in class.functions) {
+        if(funcName != name)
+            code.setPrototype(objName, funcName, "V8Func(" + (objName + "_" + funcName) + ")->GetFunction()");
+        generateFunctionCode(class.functions[funcName], funcName, objName, code, class);
+    }
+    
+    for(varName in class.vars) {
+        var defval = class.vars[varName].defval;
+        code.setPrototype(objName, varName, baseTypesCtors[defval.real](defval.value));
+    }
+    
+    code.setStatic(parentObjName, name, objName + "->GetFunction()");
+}
+
+function generateNamespaceCode(namespace, name, parentObjName, code) {
+    var objName = parentObjName + "_" + name;
+    
+    code.addNamespace(objName);
+    code.setStatic(parentObjName, name, objName);
+    
+    for(className in namespace.classes)
+        generateClassCode(namespace.classes[className], className, objName, code);
+    
+    for(funcName in namespace.functions) {
+        code.setStatic(objName, funcName, "V8Func(" + (objName + "_" + funcName) + ")->GetFunction()");
+        generateFunctionCode(namespace.functions[funcName], funcName, objName, code);
+    }
+    
+    for(varName in namespace.vars) {
+        var defval = namespace.vars[varName].defval;
+        code.setPrototype(objName, varName, baseTypesCtors[defval.real](defval.value));
+    }
+}
+
+function generateCode(global) {
+    var code = {
+        func:"", init:"",
+        addNamespace: function(objName) {
+            this.init += "\tv8::Handle<v8::Object> " + objName + " = v8::Object::New();\n";
+        },
+        addClass: function(objName, ctor) {
+            this.init += "\tv8::Handle<v8::FunctionTemplate> " + objName + " = V8Func(" + objName + "_" + ctor + ");\n";
+        },
+        setStatic: function(parentObjName, name, value) {
+            this.init += "\t" + parentObjName + "->V8Set(\"" + name + "\", " + value + ");\n";
+        },
+        setPrototype: function(parentObjName, name, value) {
+            this.init += "\t" + parentObjName + "->PrototypeTemplate()->V8Set(\"" + name + "\", " + value + ");\n";
+        },
+        setNativeVarNum: function(objName, nativeVarNum) {
+            this.init += "\t" + objName + "->InstanceTemplate()->SetInternalFieldCount(" + nativeVarNum + ");\n";
+        }
+    };
+    
+    var namespaces = Object.keys(global.namespaces);
+    
+    if(!namespaces.length)
+        throw Error("No namespace");
+    else if(namespaces.length > 1)
+        throw Error("Too may namespaces");
+    else {
+        generateNamespaceCode(global.namespaces[namespaces[0]], namespaces[0], "global", code);
+        
+        var genCode = "\n"  + global.prelude.trim().replace(/\n    /g, "\n") + (global.prelude.trim()?"\n\n":"") + code.func + "\nvoid Setup" + namespaces[0] + "(v8::Handle<v8::Object> global)\n{\n" + code.init + "}";
+        genCode = genCode.replace(/\t/g, "    ");
+        print(genCode);
+        return;
+    }
+    
+}
+
+*]
+
+    '[ \r\n\t]+' WHTS
+    'namespace'
+    'class'
+    'native'
+    'int'
+    'string'
+    'bool'
+    'object'
+    'true'
+    'false'
+    'function'
+    '\{'
+    '\}'
+    '\('
+    '\)'
+    '='
+    ';'
+    ','
+    '\*'
+    '[A-Za-z_][A-Za-z0-9_]*'        Identifier
+    '\'([^\']|\\\')*\''             String                          [* %match = %match.substr(1, %match.length - 2).replace(/\\\'/g, "'" ); *]
+    '[0-9]+'                        Integer
+    '[^\{\}\(\) \r\n\t=;,\*]+'      Junk
+    ;
+
+##
+
+Global: NamespaceContents [* generateCode(createNamespace("global", %1)); *];
+
+Namespace: 'namespace' W Identifier W '{' W NamespaceContents W '}'     [* %% = createNamespace(%3, %7); *];
+
+NamespaceContents: NamespaceContents W NamespaceContent W [* %% = %1.concat([%3]); *] | W [* %% = []; *];
+                    
+NamespaceContent: Namespace | Class | VariableDef | Function | NativeBlock;
+
+Class: 'class' W Identifier W '{' W ClassContents W '}'     [* %% = createClass(%3, %7); *];
+
+ClassContents: ClassContents W ClassContent W [* %% = %1.concat([%3]); *] | W [* %% = []; *] ;
+                    
+ClassContent: Class | VariableDef | Function | NativeBlock;
+
+VariableDef: Variable W Identifier W ';' [* %% = {type:(%1)['native']?'native-var':'var', real:(%1).real, name:%3}; *]
+            |Variable W Identifier W '=' W Immediate W ';' [* %% = {type:(%1)['native']?'native-var':'var', real:(%1).real, name:%3, defval:%7}; *];
+
+Variable: 'native' W Identifier         [* %% = {'native':true, real:%3}; *]
+         |'native' W Identifier W '*'     [* %% = {'native':true, real:%3+'*'}; *]
+         |'int'                         [* %% = {real:%1}; *]
+         |'string'                      [* %% = {real:%1}; *]
+         |'bool'                        [* %% = {real:%1}; *]
+         |'object' W '(' W ArgumentList W ')' [* %% = {real:{obj:true, childs:%5}}; *]
+         ;
+    
+Immediate: String   [* %% = {real:'string', value:%1}; *]
+          |Integer  [* %% = {real:'int', value:%1}; *]
+          |'true'   [* %% = {real:'bool', value:true}; *]
+          |'false'  [* %% = {real:'bool', value:false}; *]
+          ;
+          
+Function: 'function' W Identifier W '(' W ArgumentList W ')' W '{' NativeCode '}' [* %% = {type:'function', name:%3, args:%7, code:%12}; *]
+         |'function' W Identifier W '(' W ')' W '{' NativeCode '}'              [* %% = {type:'function', name:%3, args:[], code:%10}; *]
+         ;
+
+ArgumentList: ArgumentList W ',' W Variable W Identifier  [* if((%5)['native'])throw Error("No natives allowed as arguments");%% = (%1).concat([{real:(%5).real, name:%7}]); *]
+             |Variable W Identifier                   [* if((%1)['native'])throw Error("No natives allowed as arguments");%% = [{real:(%1).real, name:%3}]; *]
+             ;
+
+NativeBlock: 'native' W '{' NativeCode '}'     [* %% = {type:'native-block', code:%4}; *];
+
+NativeCode: NativeCode PossibleJunk [* %% = %1 + %2; *] | [* %% = ""; *] ;
+
+PossibleJunk: Junk
+|'namespace'
+|'class'
+|'native'
+|'int'
+|'string'
+|'bool'
+|'true'
+|'false'
+|'function'
+|'{'
+|'}'
+|'('
+|')'
+|'='
+|';'
+|','
+|'*'
+|Identifier
+|String [* %% = "'"+(%1).replace(/'/g, "\\'")+"'"; *]
+|Integer
+|W
+;
+
+/~ PossibleJunk: PossibleJunkAssoc PossibleJunkAssoc [* %% = %1 + " " + %2; *]
+             |PossibleJunkAssoc
+             |PossibleJunkNonAssoc
+             ;
+
+PossibleJunkAssoc: Junk
+|'namespace'
+|'class'
+|'native'
+|'int'
+|'string'
+|'bool'
+|'true'
+|'false'
+|'function'
+|Identifier
+;
+
+PossibleJunkNonAssoc:
+'{'
+|'}'
+|'('
+|')'
+|'='
+|';' [* %% = %1 + "\n"; *]
+|',' [* %% = %1 + " "; *]
+|'*'
+|String [* %% = "'"+(%1).replace(/'/g, "\\'")+"'"; *]
+|Integer
+;
+~/
+
+W:WHTS|;
+
+[*
+function read_file(file)
+{
+    var src = new String();
+    
+    if(file_exists(file))
+        src = file_read(file);
+    else
+    {
+        print("unable to open file '" + file + "'");
+        quit();
+    }
+    
+    return src;
+}
+
+//##PREFIX##_dbg_withtrace = true;
+//##PREFIX##_dbg_withparsetree = true;
+//##PREFIX##_dbg_withstepbystep = true;
+
+if( arguments.length > 0 )
+{
+    var str         = read_file( arguments[0] );
+    var error_cnt   = 0;
+    var error_off   = new Array();
+    var error_la    = new Array();
+    
+    if( ( error_cnt = __##PREFIX##parse( str, error_off, error_la ) ) > 0 )
+    {
+        var i;
+        for( i = 0; i < error_cnt; i++ )
+            print( "Parse error near >" + str.substr( error_off[i], 30 ) + "<, expecting \"" + error_la[i].join() + "\"" );
+    }
+}
+else
+{
+    print( 'usage: ./gearConvertor <filename>' );
+}
+*]
