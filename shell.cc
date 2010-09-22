@@ -33,6 +33,7 @@
 #include <syslog.h>
 #include <sys/types.h>
 
+#include "Io.h"
 #include "Ncurses.h"
 #include "Network.h"
 #include "shell.h"
@@ -74,6 +75,8 @@ int RunMain(int argc, char* argv[])
     SetupNetwork(context->Global());
     // Setup Ncurses functions
     SetupNcurses(context->Global());
+    // Setup Io functions
+    SetupIo(context->Global());
 
     bool run_shell = (argc == 1);
     for (int i = 1; i < argc; i++)

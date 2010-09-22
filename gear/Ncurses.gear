@@ -1,0 +1,94 @@
+native {
+    #include <ncurses/ncurses.h>
+    
+    #include "Ncurses.h"
+    #include "shell.h"
+}
+
+namespace Ncurses {
+    class Window {
+        native WINDOW *win;
+        bool autoRefresh = true;
+        
+        function Window(int x, int y, int cols, int rows) {
+            this.win = newwin(rows, cols, y, x);
+            scrollok(this.win, true);
+            wtimeout(this.win, 0);
+        }
+        
+        function bold(bool on) {
+            if(on)
+                wattron(this.win, A_BOLD);
+            else
+                wattroff(this.win, A_BOLD);
+        }
+        
+        function border() {
+            wborder(this.win, 0, 0, 0, 0, 0, 0, 0, 0);
+            if(this.autoRefresh)
+                wrefresh(this.win);
+        }
+        
+        function border(object (int Ls, int Rs, int Ts, int Bs, int TLc, int TRc, int BLc, int BRc) obj) {
+            wborder(this.win, obj.Ls, obj.Rs, obj.Ts, obj.Bs, obj.TLc, obj.TRc, obj.BLc, obj.BRc);
+            if(this.autoRefresh)
+                wrefresh(this.win);
+        }
+        
+        function setBackground(string char) {
+            wbkgd(this.win, char[0]);
+            if(this.autoRefresh)
+                wrefresh(this.win);
+        }
+        
+        function print(string text) {
+            waddstr(this.win, text);
+            if(this.autoRefresh)
+                wrefresh(this.win);
+        }
+        
+        function clear() {
+            werase(this.win);
+            if(this.autoRefresh)
+                wrefresh(this.win);
+        }
+        
+        function touch() {
+            touchwin(this.win);
+            if(this.autoRefresh)
+                wrefresh(this.win);
+        }
+        
+        function move(int x, int y) {
+            wmove(this.win, y, x);
+            if(this.autoRefresh)
+                wrefresh(this.win);
+        }
+        
+        function getChar() {
+            int c = wgetch(this.win);
+            if(c > 0)
+                return Integer(c);
+        }
+    }
+    
+    function enter() {
+        initscr();
+        scrollok(stdscr, true);
+        timeout(0);
+        cbreak();
+        noecho();
+    }
+    
+    function exit() {
+        endwin();
+    }
+    
+    function cols() {
+        return Integer(getmaxx(stdscr));
+    }
+    
+    function rows() {
+        return Integer(getmaxy(stdscr));
+    }
+}

@@ -6,5 +6,5 @@ try {
     myIrcClient.main();
 } catch(e) {
     myIrcClient.deinit();
-    print("\n"+e+"\n");
+    throw e;
 }

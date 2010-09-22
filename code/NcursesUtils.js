@@ -58,7 +58,7 @@ Ncurses.tabbedWindow.prototype.switchTab = function(tabName) {
         return;
     if(this.activeTab) {
         this.contentWindows[this.activeTab].autoRefresh = false;
-        this.tabWindows[this.activeTab].border(0, 0, Ncurses.ACS_BTEE, Ncurses.ACS_BTEE);
+        this.tabWindows[this.activeTab].border({BLc:Ncurses.ACS_BTEE, BRc:Ncurses.ACS_BTEE});
     }
     
     this.contentWindows[tabName].autoRefresh = true;
@@ -66,10 +66,7 @@ Ncurses.tabbedWindow.prototype.switchTab = function(tabName) {
     this.contentWindows[tabName].print("");
     this.tabWindows[tabName].move(1, 1);
     this.tabWindows[tabName].print(tabName);
-    this.tabWindows[tabName].border(0, 0, Ncurses.ACS_LRCORNER, Ncurses.ACS_LLCORNER);
-    this.tabWindows[tabName].move(1, 2);
-    for(var i = 0; i < tabName.length; i++)
-        this.tabWindows[tabName].print(" ");
+    this.tabWindows[tabName].border({BLc:Ncurses.ACS_LRCORNER, BRc:Ncurses.ACS_LLCORNER, Bs:" ".charCodeAt()});
     this.activeTab = tabName;
 }
 

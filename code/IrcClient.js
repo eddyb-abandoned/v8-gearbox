@@ -64,10 +64,10 @@ IrcClient.prototype.ncs = false;
 IrcClient.prototype.init = function() {
     Ncurses.enter();
     this.ncs = true;
-    var size = Ncurses.getSize();
-    this.mainWindow = new Ncurses.tabbedWindow(0, 0, size.cols, size.rows - 1);
+    var cols = Ncurses.cols(), rows = Ncurses.rows();
+    this.mainWindow = new Ncurses.tabbedWindow(0, 0, cols, rows - 1);
     this.mainWindow.addTab(this.server);
-    this.inputWindow = new Ncurses.Window(0, size.rows-1, size.cols, 1);
+    this.inputWindow = new Ncurses.Window(0, rows - 1, cols, 1);
     this.inputWindow.clear();
     this.inputWindow.print("> ");
     
@@ -128,6 +128,7 @@ IrcClient.prototype.main = function() {
             this.process(toParse);
         }
         while(char = this.inputWindow.getChar()) {
+            char = String.fromCharCode(char);
             if(char =='\n') {
                 if(!input)
                     continue;
