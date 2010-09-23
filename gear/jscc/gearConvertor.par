@@ -111,7 +111,10 @@ function makeArgumentReplacements(args) {
             replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]->IntegerValue()"});
         else if(args[arg].real == "bool")
             replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]->BooleanValue()"});
-        else if(args[arg].real.obj)
+        else if(args[arg].real == "function") {
+            replaces.push({regex:"\\b"+args[arg].name+"\\b\\s*\\(\\s*\\)", replace:"V8FuncCall0(args.This(), args["+n+"])"});
+            replaces.push({regex:"\\b"+args[arg].name+"\\b\\s*\\(", replace:"V8FuncCall(args.This(), args["+n+"], "});
+        } else if(args[arg].real.obj)
             replaces = replaces.concat(makeObjectReplacements(args[arg].real.childs, [args[arg].name], "args["+n+"]->ToObject()"));
         
         n++;
@@ -155,7 +158,7 @@ function generateFunctionCode(functions, name, parentObjName, code, class) {
         
         actualCode += tbs + "return undefined;\n";
         replaces.push({regex:"\n" + makeTabs(parentObjName.split("_").length, "    "), replace:"\n" + tbs});
-        replaces.push({regex:"\\b(String|Integer|Boolean)\\b\\s*\\(\\s*(\\S*)\\s*\\)", replace:"v8::$1::New($2)"});
+        replaces.push({regex:"\\b(String|Integer|Boolean)\\b\\s*\\(\\s*([^\\)]*)\\s*\\)", replace:"v8::$1::New($2)"});
         replaces.push({regex:"\\bundefined\\b", replace:"v8::Undefined()"});
         //print("===============  " + name + "  ===============");
         //print(JSON.stringify(replaces, 0, 4));
@@ -308,10 +311,11 @@ VariableDef: Variable W Identifier W ';' [* %% = {type:(%1)['native']?'native-va
             |Variable W Identifier W '=' W Immediate W ';' [* %% = {type:(%1)['native']?'native-var':'var', real:(%1).real, name:%3, defval:%7}; *];
 
 Variable: 'native' W Identifier         [* %% = {'native':true, real:%3}; *]
-         |'native' W Identifier W '*'     [* %% = {'native':true, real:%3+'*'}; *]
+         |'native' W Identifier W '*'   [* %% = {'native':true, real:%3+'*'}; *]
          |'int'                         [* %% = {real:%1}; *]
          |'string'                      [* %% = {real:%1}; *]
          |'bool'                        [* %% = {real:%1}; *]
+         |'function'                    [* %% = {real:%1}; *]
          |'object' W '(' W ArgumentList W ')' [* %% = {real:{obj:true, childs:%5}}; *]
          ;
     
