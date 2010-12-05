@@ -1,7 +1,7 @@
 import os
 import re
 
-env = Environment(LIBS=['v8', 'readline', 'GL', 'GLU', 'glut'])
+env = Environment(LIBS=['v8', 'readline', 'GL', 'GLU', 'glut'], LINKFLAGS='-Wl,--no-warn-search-mismatch')
 env.VariantDir('build', 'src', duplicate=0)
 env.ParseConfig('mysql_config --cflags --libs')
 env.ParseConfig('sdl-config --cflags --libs')
