@@ -71,7 +71,7 @@ IrcClient.prototype.init = function() {
     this.inputWindow.clear();
     this.inputWindow.print("> ");
     
-    this.conn = new Network.Connection(this.server, 6667);
+    this.conn = new Network.TcpConnection(this.server, 6667);
     this.sendCommand("NICK", this.nick);
     this.sendCommand("USER", this.nick, "none", "none", ":JavaScript IRC Client");
     for(c in this.joinChannels)

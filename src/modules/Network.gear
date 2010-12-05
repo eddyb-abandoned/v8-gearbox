@@ -1,0 +1,49 @@
+native {
+    #include "Network.h"
+    #include "../shell.h"
+    
+#ifdef WINDOWS
+    #include <winsock.h>
+#else
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <netdb.h>
+#endif
+
+    #include <fcntl.h>
+    #include <v8.h>
+}
+
+namespace Network {
+    class TcpConnection {
+        native Integer socket;
+        
+        function TcpConnection(String host, Integer port) {
+            struct hostent *host_s = gethostbyname(host);
+            if(!host_s)
+                V8Throw("Unrecoverable name resolution failure");
+                
+            struct sockaddr_in server_addr;
+            server_addr.sin_family = AF_INET;
+            server_addr.sin_port = htons((uint32_t)port);
+            server_addr.sin_addr = *((struct in_addr *)host_s->h_addr);
+            
+            int sock = socket(AF_INET, SOCK_STREAM, 0);
+            connect(sock, (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
+            fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, NULL) | O_NONBLOCK);
+            
+            this.socket = sock;
+        }
+        
+        function receive() {
+            char buffer[1024];
+            int len = recv(this.socket, buffer, 1024, 0);
+            if(len > 0)
+                return String(buffer, len);
+        }
+        
+        function send(String data) {
+            send(this.socket, data, data.length, 0);
+        }
+    }
+}

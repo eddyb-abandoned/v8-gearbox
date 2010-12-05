@@ -64,16 +64,22 @@ function createNamespace(name, childs) {
 
 /* Generating code utilities */
 
-var baseTypesDefaults = {int:0, string:"", bool:false};
+var baseTypesDefaults = {Integer:0, "Number":0, "String":"", bool:false};
 var baseTypesCtors = {
-    int: function(val) {
+    Integer: function(val) {
         return "v8::Integer::New(" + Math.floor(val) + ")";
     },
-    string: function(val) {
+    "Number": function(val) {
+        return "v8::Number::New(" + (+val) + ")";
+    },
+    "String": function(val) {
         return "v8::String::New(\"" + val.replace(/"/g,"\\\"").replace(/\n/g,"\\n").replace(/\t/g,"\\t") + "\")";
     },
     bool: function(val) {
         return "v8::Boolean::New(" + !!val + ")";
+    },
+    "function": function() {
+        return "v8::Undefined()";
     }
 };
 
@@ -83,17 +89,28 @@ function makeObjectReplacements(vars, objPath, getCode) {
         var varName = vars[v].name || v;
         var varPath = "\\b" + objPath.concat([varName]).join("\\b\\.\\b") + "\\b";
         
-        if(vars[v].real == "string") {
+        if(vars[v].real == "String") {
             replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->V8Set(\""+varName+"\", v8::String::New($1));"});
             replaces.push({regex:varPath+"\\.\\blength\\b", replace:"v8::String::Utf8Value("+getCode+"->V8Get(\""+varName+"\")).length()"});
             replaces.push({regex:varPath, replace:"(*v8::String::Utf8Value("+getCode+"->V8Get(\""+varName+"\")))"});
-        } else if(vars[v].real == "int") {
+        }
+        else if(vars[v].real == "Integer") {
             replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->V8Set(\""+varName+"\", v8::Integer::New($1));"});
             replaces.push({regex:varPath, replace:getCode+"->V8Get(\""+varName+"\")->IntegerValue()"});
+        }
+        else if(vars[v].real == "Number") {
+            replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->V8Set(\""+varName+"\", v8::Number::New($1));"});
+            replaces.push({regex:varPath, replace:getCode+"->V8Get(\""+varName+"\")->NumberValue()"});
         }
         else if(vars[v].real == "bool") {
             replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->V8Set(\""+varName+"\", v8::Boolean::New($1));"});
             replaces.push({regex:varPath, replace:getCode+"->V8Get(\""+varName+"\")->BooleanValue()"});
+        }
+        else if(vars[v].real == "function") {
+            replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->V8Set(\""+varName+"\", v8::Function::New($1));"});
+            replaces.push({regex:varPath+"\\s*\\(\\s*\\)", replace:"V8FuncCall0(args.This(), "+getCode+"->V8Get(\""+varName+"\"))"});
+            replaces.push({regex:varPath+"\\s*\\(", replace:"V8FuncCall(args.This(), "+getCode+"->V8Get(\""+varName+"\"), "});
+            replaces.push({regex:varPath, replace:getCode+"->V8Get(\""+varName+"\")"});
         }
         else if(vars[v].real.obj)
             replaces = replaces.concat(makeObjectReplacements(vars[v].real.childs, objPath.concat([varName]), getCode+"->V8Get(\""+varName+"\")"));
@@ -104,18 +121,23 @@ function makeObjectReplacements(vars, objPath, getCode) {
 function makeArgumentReplacements(args) {
     var replaces = [], n = 0;
     for(arg in args) {
-        if(args[arg].real == "string") {
+        if(args[arg].real == "String") {
             replaces.push({regex:"\\b"+args[arg].name+"\\b\\.\\blength\\b", replace:"v8::String::Utf8Value(args["+n+"]).length()"});
             replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"(*v8::String::Utf8Value(args["+n+"]))"});
-        } else if(args[arg].real == "int")
+        } else if(args[arg].real == "Integer")
             replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]->IntegerValue()"});
+        else if(args[arg].real == "Number")
+            replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]->NumberValue()"});
         else if(args[arg].real == "bool")
             replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]->BooleanValue()"});
         else if(args[arg].real == "function") {
             replaces.push({regex:"\\b"+args[arg].name+"\\b\\s*\\(\\s*\\)", replace:"V8FuncCall0(args.This(), args["+n+"])"});
             replaces.push({regex:"\\b"+args[arg].name+"\\b\\s*\\(", replace:"V8FuncCall(args.This(), args["+n+"], "});
-        } else if(args[arg].real.obj)
+            replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]"});
+        } else if(args[arg].real.obj) {
             replaces = replaces.concat(makeObjectReplacements(args[arg].real.childs, [args[arg].name], "args["+n+"]->ToObject()"));
+            replaces.push({regex:"\\b"+args[arg].name+"\\b", replace:"args["+n+"]->ToObject()"});
+        }
         
         n++;
     }
@@ -128,7 +150,10 @@ function makeNativeReplacements(natives, objPath, getCode) {
         var varPath = "\\b" + objPath.concat([_native]).join("\\b\\.\\b") + "\\b";
         if(natives[_native].real.indexOf("*") > -1) {
             replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->SetPointerInInternalField("+n+", $1);"});
-            replaces.push({regex:varPath, replace:"("+natives[_native].real+")("+getCode+"->GetPointerFromInternalField("+n+"))"});
+            replaces.push({regex:varPath, replace:"(("+natives[_native].real+")"+getCode+"->GetPointerFromInternalField("+n+"))"});
+        } else if(natives[_native].real == "Integer") {
+            replaces.push({regex:varPath+"\\s*=\\s*([^;]*);", replace:getCode+"->SetInternalField("+n+", v8::Integer::New($1));"});
+            replaces.push({regex:varPath, replace:getCode+"->GetInternalField("+n+")->IntegerValue()"});
         }
         
         n++;
@@ -143,7 +168,7 @@ function makeTabs(n, ch) {
     return s;
 }
 
-function generateFunctionCode(functions, name, parentObjName, code, class) {
+function generateFunctionCode(functions, name, parentObjName, code, class, ctor) {
     var objName = parentObjName + "_" + name, replaces = [], funcCode = "", hasNoArgsVer = false;
     functions.sort(function(a, b) {return b.args.length - a.args.length;});
     for(f in functions) {
@@ -155,18 +180,19 @@ function generateFunctionCode(functions, name, parentObjName, code, class) {
             replaces = replaces.concat(makeObjectReplacements(class.vars, ["this"], "args.This()"));
             replaces = replaces.concat(makeNativeReplacements(class.varsNative, ["this"], "args.This()"));
         }
-        
-        actualCode += tbs + "return undefined;\n";
         replaces.push({regex:"\n" + makeTabs(parentObjName.split("_").length, "    "), replace:"\n" + tbs});
-        replaces.push({regex:"\\b(String|Integer|Boolean)\\b\\s*\\(\\s*([^\\)]*)\\s*\\)", replace:"v8::$1::New($2)"});
+        replaces.push({regex:"\\b(String|Integer|Number|Boolean)\\b\\s*\\(\\s*([^\\)]*)\\s*\\)", replace:"v8::$1::New($2)"});
+        replaces.push({regex:"\\breturn\\b\\s*;", replace:"return undefined;"});
         replaces.push({regex:"\\bundefined\\b", replace:"v8::Undefined()"});
-        //print("===============  " + name + "  ===============");
-        //print(JSON.stringify(replaces, 0, 4));
+        replaces.push({regex:"\\bthis\\b", replace:"args.This()"});
         
         for(r in replaces) {
             var replace = replaces[r];
             actualCode = actualCode.replace(new RegExp(replace.regex, "g"), replace.replace);
         }
+        
+        if(!new RegExp(tbs + "\\breturn\\b[^;]*;\\s*$").exec(actualCode))
+            actualCode += tbs + "return v8::Undefined();\n";
         
         if(func.args.length)
             funcCode += "\n\tif(args.Length() >= " + func.args.length + ")\n\t{" + actualCode + "\t}\n";
@@ -177,7 +203,7 @@ function generateFunctionCode(functions, name, parentObjName, code, class) {
     }
     
     if(!hasNoArgsVer)
-        funcCode += "\tV8Assert(false, \"Invalid call to " + parentObjName.replace(/_/g, ".") + (class?".prototype":"") + "." + name + "\")\n";
+        funcCode += "\tV8Throw(\"Invalid call to " + parentObjName.replace(/_/g, ".").replace(/^global\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\");\n";
     
     code.func += "V8FuncDef(" + objName + ")\n{" + funcCode + "}\n\n";
 }
@@ -194,9 +220,11 @@ function generateClassCode(class, name, parentObjName, code) {
         generateClassCode(class.classes[className], className, objName, code);
     
     for(funcName in class.functions) {
-        if(funcName != name)
-            code.setPrototype(objName, funcName, "V8Func(" + (objName + "_" + funcName) + ")->GetFunction()");
-        generateFunctionCode(class.functions[funcName], funcName, objName, code, class);
+        if(funcName != name) {
+            code.addFunction(objName, funcName);
+            code.setPrototype(objName, funcName, objName + "_" + funcName);
+        }
+        generateFunctionCode(class.functions[funcName], funcName, objName, code, class, funcName == name);
     }
     
     for(varName in class.vars) {
@@ -217,7 +245,8 @@ function generateNamespaceCode(namespace, name, parentObjName, code) {
         generateClassCode(namespace.classes[className], className, objName, code);
     
     for(funcName in namespace.functions) {
-        code.setStatic(objName, funcName, "V8Func(" + (objName + "_" + funcName) + ")->GetFunction()");
+        code.addFunction(objName, funcName);
+        code.setStatic(objName, funcName, objName + "_" + funcName);
         generateFunctionCode(namespace.functions[funcName], funcName, objName, code);
     }
     
@@ -233,8 +262,14 @@ function generateCode(global) {
         addNamespace: function(objName) {
             this.init += "\tv8::Handle<v8::Object> " + objName + " = v8::Object::New();\n";
         },
+        addFunction: function(objName, funcName) {
+            objName += "_" + funcName;
+            this.init += "\tv8::Handle<v8::Function> " + objName + " = V8Func(" + objName + ")->GetFunction();\n";
+            this.init += "\t" + objName + "->SetName(v8::String::New(\"" + funcName + "\"));\n";
+        },
         addClass: function(objName, ctor) {
             this.init += "\tv8::Handle<v8::FunctionTemplate> " + objName + " = V8Func(" + objName + "_" + ctor + ");\n";
+            this.init += "\t" + objName + "->SetClassName(v8::String::New(\"" + ctor + "\"));\n";
         },
         setStatic: function(parentObjName, name, value) {
             this.init += "\t" + parentObjName + "->V8Set(\"" + name + "\", " + value + ");\n";
@@ -258,8 +293,11 @@ function generateCode(global) {
         
         var genCode = "\n"  + global.prelude.trim().replace(/\n    /g, "\n") + (global.prelude.trim()?"\n\n":"") + code.func + "\nvoid Setup" + namespaces[0] + "(v8::Handle<v8::Object> global)\n{\n" + code.init + "}";
         genCode = genCode.replace(/\t/g, "    ");
-        print(genCode);
-        return;
+        Io.writeFileContents(gear.cc, genCode);
+        
+        var cappedName = baseName.toUpperCase();
+        var hCode = "#ifndef MODULE_"+cappedName+"_H\n#define MODULE_"+cappedName+"_H\n\n#include <v8.h>\n\nvoid Setup"+baseName+"(v8::Handle<v8::Object> global);\n\n#endif\n";
+        Io.writeFileContents(gear.h, hCode);
     }
     
 }
@@ -270,8 +308,9 @@ function generateCode(global) {
     'namespace'
     'class'
     'native'
-    'int'
-    'string'
+    'Integer'
+    'Number'
+    'String'
     'bool'
     'object'
     'true'
@@ -286,8 +325,9 @@ function generateCode(global) {
     ','
     '\*'
     '[A-Za-z_][A-Za-z0-9_]*'        Identifier
-    '\'([^\']|\\\')*\''             String                          [* %match = %match.substr(1, %match.length - 2).replace(/\\\'/g, "'" ); *]
-    '[0-9]+'                        Integer
+    '\'([^\']|\\\')*\''             _String                          [* %match = %match.substr(1, %match.length - 2).replace(/\\\'/g, "'" ); *]
+    '[0-9]+'                        _Integer
+    '[0-9]+\.[0-9]*|[0-9]*\.[0-9]+' _Number
     '[^\{\}\(\) \r\n\t=;,\*]+'      Junk
     ;
 
@@ -310,17 +350,21 @@ ClassContent: Class | VariableDef | Function | NativeBlock;
 VariableDef: Variable W Identifier W ';' [* %% = {type:(%1)['native']?'native-var':'var', real:(%1).real, name:%3}; *]
             |Variable W Identifier W '=' W Immediate W ';' [* %% = {type:(%1)['native']?'native-var':'var', real:(%1).real, name:%3, defval:%7}; *];
 
-Variable: 'native' W Identifier         [* %% = {'native':true, real:%3}; *]
+Variable:
+          'native' W 'Integer'          [* %% = {'native':true, real:%3}; *]
+         |'native' W 'Number'           [* %% = {'native':true, real:%3}; *]
          |'native' W Identifier W '*'   [* %% = {'native':true, real:%3+'*'}; *]
-         |'int'                         [* %% = {real:%1}; *]
-         |'string'                      [* %% = {real:%1}; *]
+         |'Integer'                     [* %% = {real:%1}; *]
+         |'Number'                      [* %% = {real:%1}; *]
+         |'String'                      [* %% = {real:%1}; *]
          |'bool'                        [* %% = {real:%1}; *]
          |'function'                    [* %% = {real:%1}; *]
          |'object' W '(' W ArgumentList W ')' [* %% = {real:{obj:true, childs:%5}}; *]
          ;
     
-Immediate: String   [* %% = {real:'string', value:%1}; *]
-          |Integer  [* %% = {real:'int', value:%1}; *]
+Immediate: _String   [* %% = {real:'String', value:%1}; *]
+          |_Integer  [* %% = {real:'Integer', value:%1}; *]
+          |_Number   [* %% = {real:'Number', value:%1}; *]
           |'true'   [* %% = {real:'bool', value:true}; *]
           |'false'  [* %% = {real:'bool', value:false}; *]
           ;
@@ -335,20 +379,21 @@ ArgumentList: ArgumentList W ',' W Variable W Identifier  [* if((%5)['native'])t
 
 NativeBlock: 'native' W '{' NativeCode '}'     [* %% = {type:'native-block', code:%4}; *];
 
-NativeCode: NativeCode PossibleJunk [* %% = %1 + %2; *] | [* %% = ""; *] ;
+NativeCode: NativeCode PossibleJunk [* %% = %1 + %2; *]
+            | NativeCode '{' NativeCode '}' [* %% = %1 + %2 + %3 + %4; *]
+            | [* %% = ""; *] ;
 
 PossibleJunk: Junk
 |'namespace'
 |'class'
 |'native'
-|'int'
-|'string'
+|'Integer'
+|'Number'
+|'String'
 |'bool'
 |'true'
 |'false'
 |'function'
-|'{'
-|'}'
 |'('
 |')'
 |'='
@@ -356,68 +401,24 @@ PossibleJunk: Junk
 |','
 |'*'
 |Identifier
-|String [* %% = "'"+(%1).replace(/'/g, "\\'")+"'"; *]
-|Integer
+|_String [* %% = "'"+(%1).replace(/'/g, "\\'")+"'"; *]
+|_Integer
+|_Number
 |W
 ;
-
-/~ PossibleJunk: PossibleJunkAssoc PossibleJunkAssoc [* %% = %1 + " " + %2; *]
-             |PossibleJunkAssoc
-             |PossibleJunkNonAssoc
-             ;
-
-PossibleJunkAssoc: Junk
-|'namespace'
-|'class'
-|'native'
-|'int'
-|'string'
-|'bool'
-|'true'
-|'false'
-|'function'
-|Identifier
-;
-
-PossibleJunkNonAssoc:
-'{'
-|'}'
-|'('
-|')'
-|'='
-|';' [* %% = %1 + "\n"; *]
-|',' [* %% = %1 + " "; *]
-|'*'
-|String [* %% = "'"+(%1).replace(/'/g, "\\'")+"'"; *]
-|Integer
-;
-~/
 
 W:WHTS|;
 
 [*
-function read_file(file)
-{
-    var src = new String();
-    
-    if(file_exists(file))
-        src = file_read(file);
-    else
-    {
-        print("unable to open file '" + file + "'");
-        quit();
-    }
-    
-    return src;
-}
 
 //##PREFIX##_dbg_withtrace = true;
 //##PREFIX##_dbg_withparsetree = true;
 //##PREFIX##_dbg_withstepbystep = true;
-
-if( arguments.length > 0 )
+var baseDir = arguments[1], baseName = arguments[2];
+var gear = {gear:baseDir+"/"+baseName+".gear", cc:baseDir+"/"+baseName+".cc", h:baseDir+"/"+baseName+".h"};
+if( arguments.length == 3 )
 {
-    var str         = read_file( arguments[0] );
+    var str         = Io.readFileContents(gear.gear);
     var error_cnt   = 0;
     var error_off   = new Array();
     var error_la    = new Array();
@@ -431,6 +432,7 @@ if( arguments.length > 0 )
 }
 else
 {
-    print( 'usage: ./gearConvertor <filename>' );
+    print( "usage: ./gearConvertor <directory> <baseName>" );
 }
+quit();
 *]

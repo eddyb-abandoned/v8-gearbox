@@ -1,5 +1,0 @@
-#!/bin/sh
-
-./v8sh jscc.js -v -w -o $1.par.js -p v8 -t driver_v8.js_ $1.par && \
-echo -e "#!/bin/sh\n\n./v8sh $1.par.js \$*" > $1
-chmod +x $1

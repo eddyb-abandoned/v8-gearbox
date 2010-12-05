@@ -4638,9 +4638,8 @@ function read_file( file )
 {
 	var src = new String();
 	
-	if( file_exists( file ) )
-		src = file_read( file );
-	else
+    src = Io.readFileContents(file);
+	if(!src)
 	{
 		_error( "unable to open file '" + file + "'" );
 		quit();
@@ -4651,18 +4650,12 @@ function read_file( file )
 
 function write_file( file, content )
 {
-	var f = file_write( file, content );
-		
-	if( !f )
-	{
-		_error( "unable to write '" + file + "'" );
-		return false;
-	}
+	Io.writeFileContents(file, content);
 
 	return true;
 }
 
-var args_global_var = arguments;
+var args_global_var = arguments.slice(1);
 function get_arguments()
 {
    return( args_global_var );

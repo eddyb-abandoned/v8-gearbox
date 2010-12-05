@@ -1,5 +1,5 @@
-#ifndef NETWORK_H
-#define NETWORK_H
+#ifndef MODULE_NETWORK_H
+#define MODULE_NETWORK_H
 
 #include <v8.h>
 

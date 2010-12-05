@@ -1,5 +1,5 @@
-#ifndef NCURSES_H
-#define NCURSES_H
+#ifndef MODULE_NCURSES_H
+#define MODULE_NCURSES_H
 
 #include <v8.h>
 

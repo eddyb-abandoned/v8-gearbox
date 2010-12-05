@@ -1,7 +1,7 @@
 //#!/applications/v8-shell
 
 load("code/IrcClient.js");
-myIrcClient = new IrcClient("calvino.freenode.net", "jsirc", ["##eddyb"]);
+myIrcClient = new IrcClient("irc.freenode.net", "eddyb2", ["##eddyb", "##wolfgame"]);
 try {
     myIrcClient.main();
 } catch(e) {

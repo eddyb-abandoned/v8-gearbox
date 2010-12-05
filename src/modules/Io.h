@@ -1,5 +1,5 @@
-#ifndef IO_H
-#define IO_H
+#ifndef MODULE_IO_H
+#define MODULE_IO_H
 
 #include <v8.h>
 

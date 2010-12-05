@@ -1,0 +1,122 @@
+native {
+    #include <GL/glut.h>
+    #include <GL/gl.h>
+    
+    #include "GL.h"
+    #include "../shell.h"
+    
+    static bool bGLIsUsed = false;
+    v8::Local<v8::Value> pGlutDisplayFunc;
+    v8::Local<v8::Value> pGlutKeyboardFunc;
+    v8::Local<v8::Value> pGlutReshapeFunc;
+    
+    void GLProxyDisplayFunc() {
+        V8FuncCall0(v8::Object::New(), pGlutDisplayFunc);
+    }
+    void GLProxyKeyboardFunc(unsigned char key, int x, int y) {
+        V8FuncCall(v8::Object::New(), pGlutKeyboardFunc, v8::Integer::New(key), v8::Integer::New(x), v8::Integer::New(y));
+    }
+    void GLProxyReshapeFunc(int w, int h) {
+        V8FuncCall(v8::Object::New(), pGlutReshapeFunc, v8::Integer::New(w), v8::Integer::New(h));
+    }
+    
+    #define CLIP(x, a, b) ((x) < (a) ? (a) : ((x) > (b) ? (a) : (x)))
+}
+
+namespace GL {
+    function initWindow(String name, Integer w, Integer h) {
+        if(bGLIsUsed)
+            V8Throw("GL is already being used");
+        int argc = 0;
+        glutInit(&argc, 0);
+        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+        glutInitWindowSize(w, h);
+        glutCreateWindow(name);
+    }
+    
+    function mainLoop(object (function redraw, function keyPress, function resize) handlers) {
+        pGlutDisplayFunc = handlers.redraw;
+        glutDisplayFunc(GLProxyDisplayFunc);
+        pGlutKeyboardFunc = handlers.keyPress;
+        glutKeyboardFunc(GLProxyKeyboardFunc);
+        pGlutReshapeFunc = handlers.resize;
+        glutReshapeFunc(GLProxyReshapeFunc);
+        glutMainLoop();
+    }
+    
+    function clear(Number r, Number g, Number b, Number a) {
+        glClearColor(r, g, b, a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+    
+    function clear(object (Number r, Number g, Number b, Number a) color) {
+        glClearColor(color.r, color.g, color.b, color.a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+    
+    function enableDepthTest() {
+        glEnable(GL_DEPTH_TEST);
+    }
+    
+    function enableLighting() {
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+    }
+    
+    function flush() {
+        glFlush();
+        glutSwapBuffers();
+    }
+    
+    function loadIdentity() {
+        glLoadIdentity();
+    }
+    
+    function pushMatrix() {
+        glPushMatrix();
+    }
+    
+    function popMatrix() {
+        glPopMatrix();
+    }
+    
+    function translate(Number x, Number y, Number z) {
+        glTranslated(x, y, z);
+    }
+    
+    function scale(Number x, Number y, Number z) {
+        glScaled(x, y, z);
+    }
+    
+    function rotate(Number angle, Number x, Number y, Number z) {
+        glRotated(angle, x, y, z);
+    }
+    
+    function color(Number r, Number g, Number b) {
+        glColor3d(r, g, b);
+    }
+    
+    function color(Number r, Number g, Number b, Number a) {
+        glColor4d(r, g, b, a);
+    }
+    
+    function beginPolygon() {
+        glBegin(GL_POLYGON);
+    }
+    
+    function beginTriangles() {
+        glBegin(GL_TRIANGLES);
+    }
+    
+    function end() {
+        glEnd();
+    }
+    
+    function vertex(Number x, Number y, Number z) {
+        glVertex3d(x, y, z);
+    }
+    
+    function normal(Number x, Number y, Number z) {
+        glNormal3d(x, y, z);
+    }
+}

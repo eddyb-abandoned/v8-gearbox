@@ -1,0 +1,164 @@
+native {
+    #include <stdlib.h>
+    #include <SDL.h>
+    
+    #include "SDL.h"
+    #include "../shell.h"
+    
+    static bool bSDLIsUsed = false;
+    
+    #define CLIP(x, a, b) ((x) < (a) ? (a) : ((x) > (b) ? (a) : (x)))
+    
+    Uint32 getPixel(SDL_Surface *surface, Uint32 x, Uint32 y)
+    {
+        int bpp = surface->format->BytesPerPixel;
+        /* Here p is the address to the pixel we want to retrieve */
+        Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+        
+        switch(bpp) {
+            case 1:
+                return *p;
+                break;
+                
+            case 2:
+                return *(Uint16 *)p;
+                break;
+                
+            case 3:
+                if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+                    return p[0] << 16 | p[1] << 8 | p[2];
+                else
+                    return p[0] | p[1] << 8 | p[2] << 16;
+                break;
+                
+            case 4:
+                return *(Uint32 *)p;
+                break;
+                
+            default:
+                return 0;       /* shouldn't happen, but avoids warnings */
+        }
+    }
+    
+    void setPixel(SDL_Surface *surface, Uint32 x, Uint32 y, Uint32 pixel)
+    {
+        int bpp = surface->format->BytesPerPixel;
+        /* Here p is the address to the pixel we want to set */
+        Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+        
+        switch(bpp) {
+            case 1:
+                *p = pixel;
+                break;
+                
+            case 2:
+                *(Uint16 *)p = pixel;
+                break;
+                
+            case 3:
+                if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+                    p[0] = (pixel >> 16) & 0xff;
+                    p[1] = (pixel >> 8) & 0xff;
+                    p[2] = pixel & 0xff;
+                } else {
+                    p[0] = pixel & 0xff;
+                    p[1] = (pixel >> 8) & 0xff;
+                    p[2] = (pixel >> 16) & 0xff;
+                }
+                break;
+                
+            case 4:
+                *(Uint32 *)p = pixel;
+                break;
+        }
+    }
+}
+
+namespace SDL {
+    class Window {
+        native SDL_Surface* surface;
+        
+        function Window(String name, Integer w, Integer h) {
+            if(bSDLIsUsed)
+                V8Throw("SDL is already being used");
+            SDL_Init(SDL_INIT_EVERYTHING);
+            this.surface = SDL_SetVideoMode(w, h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            SDL_WM_SetCaption(name, NULL);
+            bSDLIsUsed = true;
+        }
+    
+        function color(String htmlColor) {
+            Uint8 r = 0, g = 0, b = 0;
+            
+            if(htmlColor.length == 7) {
+                Uint32 color = strtoul(&htmlColor[1], 0, 16);
+                r = (color >> 16) & 0xff;
+                g = (color >> 8) & 0xff;
+                b = color & 0xff;
+            }
+            else if(htmlColor.length == 4) {
+                Uint32 color = strtoul(&htmlColor[1], 0, 16);
+                r = (color >> 8) & 0xf;
+                g = (color >> 4) & 0xf;
+                b = color & 0xf;
+                r = r | (r << 4);
+                g = g | (g << 4);
+                b = b | (b << 4);
+            }
+            return Integer(SDL_MapRGB((this.surface)->format, r, g, b));
+        }
+        
+        function color(Integer r, Integer g, Integer b) {
+            return Integer(SDL_MapRGB((this.surface)->format, CLIP(r, 0, 255), CLIP(g, 0, 255), CLIP(b, 0, 255)));
+        }
+        
+        function pixel(Integer x, Integer y, Integer color) {
+            setPixel(this.surface, CLIP(x, 0, this.surface->w - 1), CLIP(y, 0, this.surface->h - 1), color);
+            return this;
+        }
+        
+        function pixel(Integer x, Integer y) {
+            return Integer(getPixel(this.surface, CLIP(x, 0, this.surface->w - 1), CLIP(y, 0, this.surface->h - 1)));
+        }
+        
+        function update(Integer x, Integer y, Integer width, Integer height) {
+            SDL_UpdateRect(this.surface, CLIP(x, 0, this.surface->w - 1), CLIP(y, 0, this.surface->h - 1), CLIP(x + width, 0, this.surface->w - 1) - x, CLIP(y + height, 0, this.surface->h - 1) - y);
+            return this;
+        }
+        
+        function update() {
+            SDL_UpdateRect(this.surface, 0, 0, 0, 0);
+            return this;
+        }
+        
+        function checkEvent(object (function mouseMove, function quit) handlers) {
+            SDL_Event event;
+            if(!SDL_PollEvent(&event))
+                return;
+            switch(event.type) {
+                case SDL_QUIT:
+                    handlers.quit();
+                    break;
+            }
+        }
+    
+        function awaitEvent(object (function mouseMove, function quit) handlers) {
+            SDL_Event event;
+            if(SDL_WaitEvent(&event) < 0)
+                return;
+            switch(event.type) {
+                case SDL_QUIT:
+                    handlers.quit();
+                    break;
+            }
+        }
+    }
+    
+    class Image {
+        native SDL_Surface* surface;
+        
+        function Image(String path) {
+            this.surface = SDL_LoadBMP(path);
+        }
+    }
+}

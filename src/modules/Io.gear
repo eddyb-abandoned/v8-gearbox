@@ -1,0 +1,97 @@
+native {
+    #include <string>
+    #include <fstream>
+    #include <streambuf>
+    #include <stdio.h>
+    
+    #include "Io.h"
+    #include "../shell.h"
+    
+    using namespace std;
+    
+    #define fread_num(x, fp, dw) do {x i;fread(&i, sizeof(x), 1, fp);dw;} while(0)
+}
+
+namespace Io {
+    class File {
+        native FILE *f;
+        
+        function File(String path) {
+            this.f = fopen(path, "rw+");
+        }
+        
+        function File(String path, String mode) {
+            this.f = fopen(path, mode);
+        }
+        
+        function seekAbs(Integer pos) {
+            fseek(this.f, pos, SEEK_SET);
+        }
+        
+        function seekRel(Integer pos) {
+            fseek(this.f, pos, SEEK_CUR);
+        }
+        
+        function tell() {
+            return Integer(ftell(this.f));
+        }
+        
+        function readInt(Integer len) {
+            if(len == 1)
+                fread_num(uint8_t, this.f, return Integer(i));
+            if(len == 2)
+                fread_num(uint16_t, this.f, return Integer(i));
+            if(len == 4)
+                fread_num(uint32_t, this.f, return Integer(i));
+            if(len == 8)
+                fread_num(uint64_t, this.f, return Integer(i));
+        }
+        
+        function readFloat() {
+            fread_num(float, this.f, return Number(i));
+        }
+        
+        function readFloat(Integer prec) {
+            if(prec == 1)
+                fread_num(float, this.f, return Number(i));
+            if(prec == 2)
+                fread_num(double, this.f, return Number(i));
+            if(prec == 4)
+                fread_num(long double, this.f, return Number(i));
+        }
+    }
+    
+    function readFileContents(String path) {
+        ifstream file(path);
+        string str;
+        
+        file.seekg(0, std::ios::end);   
+        str.reserve(file.tellg());
+        file.seekg(0, std::ios::beg);
+        
+        str.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        
+        return String(str.c_str());
+    }
+    
+    function readFileContentsBinary(String path) {
+        ifstream file(path);
+        
+        file.seekg(0, std::ios::end);   
+        streamsize len = file.tellg();
+        file.seekg(0, std::ios::beg);
+        
+        char *ptr = new char [len];
+        file.read(ptr, len);
+        
+        v8::Handle<v8::Object> buffer = v8::Object::New();
+        buffer->SetIndexedPropertiesToExternalArrayData(ptr, v8::kExternalUnsignedByteArray, len);
+        
+        return buffer;
+    }
+    
+    function writeFileContents(String path, String contents) {
+        ofstream file(path);
+        file.write(contents, contents.length);
+    }
+}
