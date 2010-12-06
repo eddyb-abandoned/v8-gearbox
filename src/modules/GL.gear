@@ -6,18 +6,26 @@ native {
     #include "../shell.h"
     
     static bool bGLIsUsed = false;
-    v8::Local<v8::Value> pGlutDisplayFunc;
-    v8::Local<v8::Value> pGlutKeyboardFunc;
-    v8::Local<v8::Value> pGlutReshapeFunc;
+    v8::Local<v8::Value> pGlutRedrawFunc;
+    v8::Local<v8::Value> pGlutKeyPressFunc;
+    v8::Local<v8::Value> pGlutKeyUpFunc;
+    v8::Local<v8::Value> pGlutMouseMoveFunc;
+    v8::Local<v8::Value> pGlutResizeFunc;
     
     void GLProxyDisplayFunc() {
-        V8FuncCall0(v8::Object::New(), pGlutDisplayFunc);
+        V8FuncCall0(v8::Object::New(), pGlutRedrawFunc);
     }
     void GLProxyKeyboardFunc(unsigned char key, int x, int y) {
-        V8FuncCall(v8::Object::New(), pGlutKeyboardFunc, v8::Integer::New(key), v8::Integer::New(x), v8::Integer::New(y));
+        V8FuncCall(v8::Object::New(), pGlutKeyPressFunc, v8::Integer::New(key), v8::Integer::New(x), v8::Integer::New(y));
+    }
+    void GLProxyKeyboardUpFunc(unsigned char key, int x, int y) {
+        V8FuncCall(v8::Object::New(), pGlutKeyUpFunc, v8::Integer::New(key), v8::Integer::New(x), v8::Integer::New(y));
+    }
+    void GLProxyMotionFunc(int x, int y) {
+        V8FuncCall(v8::Object::New(), pGlutMouseMoveFunc, v8::Integer::New(x), v8::Integer::New(y));
     }
     void GLProxyReshapeFunc(int w, int h) {
-        V8FuncCall(v8::Object::New(), pGlutReshapeFunc, v8::Integer::New(w), v8::Integer::New(h));
+        V8FuncCall(v8::Object::New(), pGlutResizeFunc, v8::Integer::New(w), v8::Integer::New(h));
     }
     
     #define CLIP(x, a, b) ((x) < (a) ? (a) : ((x) > (b) ? (a) : (x)))
@@ -34,13 +42,23 @@ namespace GL {
         glutCreateWindow(name);
     }
     
-    function mainLoop(object (function redraw, function keyPress, function resize) handlers) {
-        pGlutDisplayFunc = handlers.redraw;
+    function mainLoop(object (function redraw, function keyPress, function keyUp, function mouseMove, function resize) handlers) {
+        pGlutRedrawFunc = handlers.redraw;
         glutDisplayFunc(GLProxyDisplayFunc);
-        pGlutKeyboardFunc = handlers.keyPress;
+        
+        pGlutKeyPressFunc = handlers.keyPress;
         glutKeyboardFunc(GLProxyKeyboardFunc);
-        pGlutReshapeFunc = handlers.resize;
+        
+        pGlutKeyUpFunc = handlers.keyUp;
+        glutKeyboardUpFunc(GLProxyKeyboardUpFunc);
+        
+        pGlutMouseMoveFunc = handlers.mouseMove;
+        glutMotionFunc(GLProxyMotionFunc);
+        glutPassiveMotionFunc(GLProxyMotionFunc);
+        
+        pGlutResizeFunc = handlers.resize;
         glutReshapeFunc(GLProxyReshapeFunc);
+        
         glutMainLoop();
     }
     
@@ -54,6 +72,14 @@ namespace GL {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     
+    function warpPointer(Integer x, Integer y) {
+        glutWarpPointer(x, y);
+    }
+    
+    function disableCursor() {
+        glutSetCursor(GLUT_CURSOR_NONE);
+    }
+    
     function enableDepthTest() {
         glEnable(GL_DEPTH_TEST);
     }
@@ -63,13 +89,39 @@ namespace GL {
         glEnable(GL_LIGHT0);
     }
     
+    function disableLighting() {
+        glDisable(GL_LIGHTING);
+        glDisable(GL_LIGHT0);
+    }
+    
     function flush() {
         glFlush();
         glutSwapBuffers();
     }
     
+    function needsRedraw() {
+        glutPostRedisplay();
+    }
+    
+    function bitmapCharacter(String char) {
+        if(char.length == 1)
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, char[0]);
+    }
+    
     function loadIdentity() {
         glLoadIdentity();
+    }
+    
+    function viewport(Integer x1, Integer y1, Integer x2, Integer y2) {
+        glViewport(x1, y1, x2, y2);
+    }
+    
+    function matrixModeProjection() {
+        glMatrixMode(GL_PROJECTION);
+    }
+    
+    function matrixModeModelView() {
+        glMatrixMode(GL_MODELVIEW);
     }
     
     function pushMatrix() {
@@ -78,6 +130,18 @@ namespace GL {
     
     function popMatrix() {
         glPopMatrix();
+    }
+    
+    function perspective(Number fovy, Number aspect, Number zNear, Number zFar) {
+        gluPerspective(fovy, aspect, zNear, zFar);
+    }
+    
+    function ortho2D(Number left, Number right, Number bottom, Number top) {
+        gluOrtho2D(left, right, bottom, top);
+    }
+    
+    function lookAt(Number eyeX, Number eyeY, Number eyeZ, Number centerX, Number centerY, Number centerZ, Number upX, Number upY, Number upZ) {
+        gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
     }
     
     function translate(Number x, Number y, Number z) {
@@ -108,6 +172,10 @@ namespace GL {
         glBegin(GL_TRIANGLES);
     }
     
+    function beginTriangleStrip() {
+        glBegin(GL_TRIANGLE_STRIP);
+    }
+    
     function end() {
         glEnd();
     }
@@ -118,5 +186,9 @@ namespace GL {
     
     function normal(Number x, Number y, Number z) {
         glNormal3d(x, y, z);
+    }
+    
+    function rasterPos(Number x, Number y) {
+        glRasterPos2d(x, y);
     }
 }
