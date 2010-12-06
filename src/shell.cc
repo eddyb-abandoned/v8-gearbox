@@ -85,11 +85,6 @@ int RunMain(int argc, char* argv[])
 
     // Setup global functions
     V8GlobFuncList(global->V8FuncSet);
-    // Setup "arguments"
-    v8::Handle<v8::Array> arguments = v8::Array::New(argc - 1);
-    for(int i = 1; i < argc; i++)
-        arguments->Set(i - 1, v8::String::New(argv[i]));
-    global->Set(v8::String::New("arguments"), arguments);
     // Setup Io functions
     SetupIo(global);
     // Setup MySQL functions
@@ -135,8 +130,16 @@ int RunMain(int argc, char* argv[])
                 printf("Error reading '%s'\n", str);
                 return 1;
             }
+            
+            // Setup "arguments"
+            v8::Handle<v8::Array> arguments = v8::Array::New(argc - i);
+            for(int j = i; j < argc; j++)
+                arguments->Set(j - i, v8::String::New(argv[j]));
+            global->Set(v8::String::New("arguments"), arguments);
+            
             if (!ExecuteString(source, file_name, false, true))
                 return 1;
+            return 0; // Execute only one file
         }
     }
     if(run_shell)
