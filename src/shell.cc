@@ -32,7 +32,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <syslog.h>
 #include <sys/types.h>
 #include <string>
 
