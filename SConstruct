@@ -12,13 +12,13 @@ if sys.platform == 'win32':
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'lib'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*'), strings=True))
     env.Append(CXXFLAGS = '-std=c++0x')
-    env.Append(LIBS = ['v8', 'readline', 'opengl32', 'glu32', 'freeglut', 'curses', 'mysql'])
+    env.Append(LIBS = ['v8', 'readline', 'OpenGL32', 'GLU32', 'freeglut', 'pdcurses', 'libmysql', 'ws2_32' , 'winmm', 'SDL', 'SDLmain'])
 else:
     env.ParseConfig('mysql_config --cflags --libs')
     env.ParseConfig('sdl-config --cflags --libs')
     env.ParseConfig('ncurses5-config --cflags --libs')
     env.Append(LINKFLAGS = '-Wl,--no-warn-search-mismatch')
-    env.Append(CXXFLAGS = '-std=c++0x')
+    env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments -ffast-math')
     env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut'])
 
 # Pretty output
