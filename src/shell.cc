@@ -25,118 +25,79 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <v8.h>
-#include <fcntl.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <string>
+#include <v8.h>
 
-using namespace std;
-
-#include "modules/Io.h"
-#include "modules/MySQL.h"
-#include "modules/Network.h"
-#include "modules/Ncurses.h"
-#include "modules/SDL.h"
-#include "modules/GL.h"
+#include "global.h"
 #include "shell.h"
+#include "Gearbox.h"
 
-#define V8GlobFuncList(f) \
-f(print);\
-f(read);\
-f(load);\
-f(quit);\
-f(version);\
+using namespace Gearbox;
 
-#ifndef APACHE_MODULE_GB_
-void RunShell(v8::Handle<v8::Context> context);
+#ifndef GEARBOX_APACHE_MOD
+    #include <readline/readline.h>
+    #include <readline/history.h>
+    #include <stdio.h>
+    void RunShell(v8::Handle<v8::Context> context);
+    #define _STR_NEWLINE "\n"
+    #define _STR_SPACE " "
 #else
-#include "apache2/mod_gearbox.h"
-extern ApacheRequestRec *g_pRequest;
-#define printf if(g_pRequest)g_pRequest->rprintf
+    #include "apache2/mod_gearbox.h"
+    extern ApacheRequestRec *g_pRequest;
+    #define printf if(g_pRequest)g_pRequest->rprintf
+    #define _STR_NEWLINE "<br>"
+    #define _STR_SPACE "&nbsp;"
 #endif
 
-bool ExecuteString(v8::Handle<v8::String> source,
-                   v8::Handle<v8::Value> name,
-                   bool print_result,
-                   bool report_exceptions);
+#ifndef GEARBOX_APACHE_MOD
 
-// Native global functions declaration
-V8GlobFuncList(V8FuncDef);
-v8::Handle<v8::String> ReadFile(const char* name);
-void ReportException(v8::TryCatch* handler);
-
-#ifndef APACHE_MODULE_GB_
-
-int RunMain(int argc, char* argv[])
-{
+int RunMain(int argc, char* argv[]) {
     v8::V8::SetFlagsFromCommandLine(&argc, argv, true);
     v8::HandleScope handle_scope;
     
     // Create and enter the context
     v8::Handle<v8::Context> context = v8::Context::New();
     v8::Context::Scope context_scope(context);
-    v8::Handle<v8::Object> global = context->Global();
+    var global = context->Global();
 
-    // Setup global functions
-    V8GlobFuncList(global->V8FuncSet);
-    // Setup Io functions
-    SetupIo(global);
-    // Setup MySQL functions
-    SetupMySQL(global);
-    // Setup Network functions
-    SetupNetwork(global);
-    // Setup Ncurses functions
-    SetupNcurses(global);
-    // Setup SDL functions
-    SetupSDL(global);
-    // Setup GL functions
-    SetupGL(global);
+    // Setup global context
+    SetupGlobal(v8::Handle<v8::Object>::Cast(global.operator v8::Handle<v8::Value>()));
+    
+    // Set the arguments array
+    var arguments = Array();//v8::Array::New(argc - i);
+    global["arguments"] = arguments;
 
     bool run_shell = (argc == 1);
-    for (int i = 1; i < argc; i++)
-    {
-        const char* str = argv[i];
-        if (strcmp(str, "--shell") == 0)
+    for (int i = 1; i < argc; i++) {
+        char* str = argv[i];
+        if(strcmp(str, "--shell") == 0)
             run_shell = true;
-        else if (strcmp(str, "-f") == 0)
-            // Ignore any -f flags for compatibility with the other stand-
-            // alone JavaScript engines.
+        else if(strcmp(str, "-f") == 0)
             continue;
-        else if (strncmp(str, "--", 2) == 0)
-            printf("Warning: unknown flag %s.\nTry --help for options\n", str);
-        else if (strcmp(str, "-e") == 0 && i + 1 < argc)
-        {
-            // Execute argument given to -e option directly
+        else if((!strcmp(str, "-e") || !strcmp(str, "--eval")) && i <= argc) {
+            // Execute argument given to -e / --eval option directly
             v8::HandleScope handle_scope;
-            v8::Handle<v8::String> file_name = V8Str("unnamed");
-            v8::Handle<v8::String> source = V8Str(argv[i + 1]);
-            if (!ExecuteString(source, file_name, false, true))
+            if(ExecuteString(argv[++i], "unnamed") == null)
                 return 1;
-            i++;
-        } else
-        {
+        } 
+        else if(!strncmp(str, "--", 2))
+            printf("Warning: unknown flag %s." _STR_NEWLINE "Try --help for options" _STR_NEWLINE, str);
+        else {
             // Use all other arguments as names of files to load and run.
             v8::HandleScope handle_scope;
-            v8::Handle<v8::String> file_name = V8Str(str);
-            v8::Handle<v8::String> source = ReadFile(str);
-            if (source.IsEmpty())
+            String file_name = str;
+            String source = ReadFile(str);
+            if(source.empty())
             {
-                printf("Error reading '%s'\n", str);
+                printf("Error reading '%s'" _STR_NEWLINE , str);
                 return 1;
             }
             
-            // Setup "arguments"
-            v8::Handle<v8::Array> arguments = v8::Array::New(argc - i);
+            // Set the rest of the arguments into the array
             for(int j = i; j < argc; j++)
-                arguments->Set(j - i, v8::String::New(argv[j]));
-            global->Set(v8::String::New("arguments"), arguments);
+                arguments[j - i] = argv[j];
             
-            if (!ExecuteString(source, file_name, false, true))
+            if(ExecuteString(source, file_name) == null)
                 return 1;
             return 0; // Execute only one file
         }
@@ -146,10 +107,36 @@ int RunMain(int argc, char* argv[])
     return 0;
 }
 
+#define GEARBOX_HISTORY_FILE "/.gearbox_history"
 
-int main(int argc, char* argv[])
-{
-    v8::V8::Dispose();
+void RunShell(v8::Handle<v8::Context> context) {
+    String history_file = String::concat(getenv("HOME"), GEARBOX_HISTORY_FILE);
+    read_history(history_file);
+    
+    printf("v8-gearbox [v8 version %s]" _STR_NEWLINE, v8::V8::GetVersion());
+    
+    while(true) {
+        char* str = readline("gearbox> ");
+        if(!str)
+            continue;
+        if(*str) {
+            HIST_ENTRY *lastEntry = history_get(history_length);
+            if(!lastEntry || strcmp(str, lastEntry->line)) {
+                add_history(str);
+                append_history(1, history_file);
+            }
+            
+            var result = ExecuteString(str, "(shell)");
+            if(result != null)
+                printf("%s" _STR_NEWLINE, *result.to<String>());
+        }
+        delete str;
+    }
+    printf(_STR_NEWLINE);
+}
+
+
+int main(int argc, char* argv[]) {
     int result = RunMain(argc, argv);
     v8::V8::Dispose();
     return result;
@@ -157,39 +144,30 @@ int main(int argc, char* argv[])
 
 #else
 
-#define FixHttpVar(x) ExecuteString(V8Str(\
-#x "=(function(d){var e={};d.split('&').forEach(function(a){if((a=a.split('='))[0]){var b=decodeURIComponent(a.shift().replace(/\\+/g, '%20')).replace(/\\[\\]$/,'');var c=a.join('=');if(c!=undefined)c=decodeURIComponent(c.replace(/\\+/g, '%20'));if(b in e){if(!Array.isArray(e[b]))e[b]=[e[b]];e[b].push(c)}else e[b]=c}});return e})(" #x ");"\
-)), V8Str("Fix " #x), false, true)
+#define FixHttpVar(x) ExecuteString(\
+x "=(function(d){var e={};d.split('&').forEach(function(a){if((a=a.split('='))[0]){var b=decodeURIComponent(a.shift().replace(/\\+/g, '%20')).replace(/\\[\\]$/,'');var c=a.join('=');if(c!=undefined)c=decodeURIComponent(c.replace(/\\+/g, '%20'));if(b in e){if(!Array.isArray(e[b]))e[b]=[e[b]];e[b].push(c)}else e[b]=c}});return e})(" x ");"\
+, "Fix " x)
 
-bool RunScript(const char *sScript)
-{
-    v8::V8::Dispose();
+bool RunScript(const char *sScript) {
     v8::HandleScope handle_scope;
     
     // Create and enter the context
     v8::Handle<v8::Context> context = v8::Context::New();
     v8::Context::Scope context_scope(context);
-    v8::Handle<v8::Object> global = context->Global();
+    var global = context->Global();
     
-    // Setup global functions
-    V8GlobFuncList(global->V8FuncSet);
-    // Setup Io functions
-    SetupIo(global);
-    // Setup MySQL functions
-    SetupMySQL(global);
-    // Setup Network functions
-    SetupNetwork(global);
-    // Setup Ncurses functions
-    SetupNcurses(global);
-    // Setup SDL functions
-    SetupSDL(global);
+    // Setup global context
+    SetupGlobal(global);
+    
+    // Empty arguments array
+    global["arguments"] = Array();
     
     if(g_pRequest && g_pRequest->args()) {
-        global->V8Set("GET", V8Str(g_pRequest->args()));
-        FixHttpVar(GET);
+        global["GET"] = g_pRequest->args();
+        FixHttpVar("GET");
     }
     else
-        global->V8Set("GET", v8::Object::New());
+        global["GET"] = Object();
     
     if(g_pRequest && g_pRequest->method_number() == M_POST) {
         ap_setup_client_block(g_pRequest->get_request_rec(), REQUEST_CHUNKED_ERROR);
@@ -197,19 +175,20 @@ bool RunScript(const char *sScript)
         size_t nPostBytes = g_pRequest->remaining();
         char *pPostData = new char[nPostBytes];
         g_pRequest->get_client_block(pPostData, nPostBytes);
-        global->V8Set("POST", V8Str(pPostData, nPostBytes));
-        FixHttpVar(POST);
+        global["POST"] = String(pPostData, nPostBytes));
+        delete pPostData;
+        FixHttpVar("POST");
     }
     else
-        global->V8Set("POST", v8::Object::New());
+        global["POST"] = Object();
     
     // Use all other arguments as names of files to load and run.
-    v8::Handle<v8::String> source = ReadFile(sScript);
-    if(source.IsEmpty()) {
+    String source = ReadFile(sScript);
+    if(source.empty()) {
         v8::V8::Dispose();
         return false;
     }
-    ExecuteString(source, V8Str(sScript), false, true);
+    ExecuteString(source, sScript);
     v8::V8::Dispose();
     return true;
 }
@@ -217,220 +196,81 @@ bool RunScript(const char *sScript)
 #endif
 
 
-// Extracts a C string from a V8 Utf8Value.
-const char* ToCString(const v8::String::Utf8Value& value)
-{
-    return *value ? *value : "<string conversion failed>";
-}
-
-
-// The callback that is invoked by v8 whenever the JavaScript 'print'
-// function is called.  Prints its arguments on stdout separated by
-// spaces and ending with a newline.
-V8FuncDef(print)
-{
-    if(!args.Length())
-        return v8::Undefined();
-    
-    printf("%s\n", ToCString(v8::String::Utf8Value(args[0])));
-    fflush(stdout);
-    
-    return v8::Undefined();
-}
-
-
-// The callback that is invoked by v8 whenever the JavaScript 'read'
-// function is called.  This function loads the content of the file named in
-// the argument into a JavaScript string.
-V8FuncDef(read)
-{
-    V8AssertArgs(1);
-    v8::String::Utf8Value file(args[0]);
-    if (*file == NULL)
-        return v8::ThrowException(V8Str("Error loading file"));
-    v8::Handle<v8::String> source = ReadFile(*file);
-    if (source.IsEmpty())
-        return v8::ThrowException(V8Str("Error loading file"));
-    return source;
-}
-
-
-// The callback that is invoked by v8 whenever the JavaScript 'load'
-// function is called.  Loads, compiles and executes its argument
-// JavaScript file.
-V8FuncDef(load)
-{
-    for (int i = 0; i < args.Length(); i++)
-    {
-        v8::HandleScope handle_scope;
-        v8::String::Utf8Value file(args[i]);
-        if (*file == NULL)
-            return v8::ThrowException(V8Str("Error loading file"));
-        v8::Handle<v8::String> source = ReadFile(*file);
-        if (source.IsEmpty())
-            return v8::ThrowException(V8Str("Error loading file"));
-        if (!ExecuteString(source, V8Str(*file), false, false))
-            return v8::ThrowException(V8Str("Error executing file"));
-    }
-    return v8::Undefined();
-}
-
-
-// The callback that is invoked by v8 whenever the JavaScript 'quit'
-// function is called.  Quits.
-V8FuncDef(quit)
-{
-    // If not arguments are given args[0] will yield undefined which
-    // converts to the integer value 0.
-    exit(args[0]->Int32Value());
-    return v8::Undefined();
-}
-
-V8FuncDef(version)
-{
-    return V8Str(v8::V8::GetVersion());
-}
-
-
 // Reads a file into a v8 string.
-v8::Handle<v8::String> ReadFile(const char* name)
-{
+String Gearbox::ReadFile(String name) {
     FILE* file = fopen(name, "rb");
     if (file == NULL)
-        return v8::Handle<v8::String>();
+        return String();
 
     fseek(file, 0, SEEK_END);
     int size = ftell(file);
     rewind(file);
 
     char* chars = new char[size + 1];
+    for(int i = 0; i < size;)
+        i += fread(&chars[i], 1, size - i, file);
     chars[size] = '\0';
-    for (int i = 0; i < size;)
-    {
-        int read = fread(&chars[i], 1, size - i, file);
-        i += read;
-    }
     fclose(file);
-    v8::Handle<v8::String> result = V8Str(chars, size);
-    delete[] chars;
+    
+    String result(chars, size);
+    delete [] chars;
     return result;
 }
 
-#ifndef APACHE_MODULE_GB_
-
-// The read-eval-execute loop of the shell.
-void RunShell(v8::Handle<v8::Context> context)
-{
-    printf("v8-gearbox [v8 version %s]\n", v8::V8::GetVersion());
-    while (true)
-    {
-        char* str = readline("> ");
-        if(!str)
-            continue;
-        if(*str) {
-            add_history(str);
-            v8::HandleScope handle_scope;
-            ExecuteString(V8Str(str), V8Str("(shell)"), true, true);
-        }
-        delete str;
-    }
-    printf("\n");
-}
-
-#endif
-
 // Executes a string within the current v8 context.
-bool ExecuteString(v8::Handle<v8::String> source,
-                   v8::Handle<v8::Value> name,
-                   bool print_result,
-                   bool report_exceptions)
+Value Gearbox::ExecuteString(String source, String name)
 {
     v8::HandleScope handle_scope;
     v8::TryCatch try_catch;
     v8::Handle<v8::Script> script = v8::Script::Compile(source, name);
-    if (script.IsEmpty())
+    if(script.IsEmpty())
     {
         // Print errors that happened during compilation.
-        if (report_exceptions)
-            ReportException(&try_catch);
-        return false;
+        ReportException(&try_catch);
+        return null;
     }
     else
     {
         v8::Handle<v8::Value> result = script->Run();
-        if (result.IsEmpty())
+        if(result.IsEmpty())
         {
             // Print errors that happened during execution.
-            if (report_exceptions)
-                ReportException(&try_catch);
-            return false;
+            ReportException(&try_catch);
+            return null;
         }
         else
-        {
-            if (print_result && !result->IsUndefined())
-            {
-                // If all went well and the result wasn't undefined then print
-                // the returned value.
-                v8::String::Utf8Value str(result);
-                const char* cstr = ToCString(str);
-                printf("%s\n", cstr);
-            }
-            return true;
-        }
+            return result;
     }
 }
 
 
-void ReportException(v8::TryCatch* try_catch)
+void Gearbox::ReportException(v8::TryCatch* try_catch)
 {
     v8::HandleScope handle_scope;
-    v8::String::Utf8Value exception(try_catch->Exception());
-    const char* exception_string = ToCString(exception);
+    String exception = Value(try_catch->Exception());
     v8::Handle<v8::Message> message = try_catch->Message();
     if (message.IsEmpty())
     {
         // V8 didn't provide any extra information about this error; just
         // print the exception.
-#ifndef APACHE_MODULE_GB_
-        printf("%s\n", exception_string);
-#else
-        printf("%s<br>", exception_string);
-#endif
+        printf("%s" _STR_NEWLINE, *exception);
     }
     else
     {
         // Print (filename):(line number): (message).
-        v8::String::Utf8Value filename(message->GetScriptResourceName());
-        const char* filename_string = ToCString(filename);
-        int linenum = message->GetLineNumber();
-#ifndef APACHE_MODULE_GB_
-        printf("%s:%i: %s\n", filename_string, linenum, exception_string);
-#else
-        printf("%s:%i: %s<br>", filename_string, linenum, exception_string);
-#endif
+        String filename = Value(message->GetScriptResourceName());
+        printf("%s:%i: %s" _STR_NEWLINE, *filename, message->GetLineNumber(), *exception);
         // Print line of source code.
-        v8::String::Utf8Value sourceline(message->GetSourceLine());
-        const char* sourceline_string = ToCString(sourceline);
-#ifndef APACHE_MODULE_GB_
-        printf("%s\n", sourceline_string);
-#else
-        printf("%s<br>", sourceline_string);
-#endif
+        String sourceline = Value(message->GetSourceLine());
+        printf("%s" _STR_NEWLINE, *sourceline);
+        
         // Print wavy underline (GetUnderline is deprecated).
         int start = message->GetStartColumn();
-        for (int i = 0; i < start; i++)
-#ifndef APACHE_MODULE_GB_
-            printf(" ");
-#else
-            printf("&nbsp;");
-#endif
         int end = message->GetEndColumn();
+        for (int i = 0; i < start; i++)
+            printf(_STR_SPACE);
         for (int i = start; i < end; i++)
             printf("^");
-#ifndef APACHE_MODULE_GB_
-        printf("\n");
-#else
-        printf("<br>");
-#endif
+        printf(_STR_NEWLINE);
     }
 }
