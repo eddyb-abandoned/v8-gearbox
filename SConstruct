@@ -7,6 +7,16 @@ env.VariantDir('build', 'src', duplicate=0)
 
 # Windows gets special treatement
 if sys.platform == 'win32':
+    if not os.path.exists('contrib'):
+        print ""
+        print "============================================================================="
+        print "For building v8-gearbox on windows you need to make a directory named contrib"
+        print "and put the following in there: v8 (you need to build it yourself), readline,"
+        print "freeglut, pdcurses, mysql-connector-c and SDL. Also, you can only use VC++ to"
+        print "build v8-gearbox. Have a nice day :)"
+        print "============================================================================="
+        print ""
+        sys.exit(1)
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include'), strings=True))
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'bin'), strings=True))
