@@ -8,6 +8,7 @@ env.VariantDir('build', 'src', duplicate=0)
 # Windows gets special treatement
 if sys.platform == 'win32':
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include'), strings=True))
+    env.Append(CPPPATH = Glob(os.path.join('contrib', '*'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'bin'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'lib'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*'), strings=True))
