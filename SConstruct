@@ -1,14 +1,28 @@
 import os
 import re
+import sys
 
-env = Environment(LIBS=['v8', 'readline', 'GL', 'GLU', 'glut'], LINKFLAGS='-Wl,--no-warn-search-mismatch')
+env = Environment()
 env.VariantDir('build', 'src', duplicate=0)
-env.ParseConfig('mysql_config --cflags --libs')
-env.ParseConfig('sdl-config --cflags --libs')
-env.ParseConfig('ncurses5-config --cflags --libs')
+
+# Windows gets special treatement
+if sys.platform == 'win32':
+    env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include'), strings=True))
+    env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'bin'), strings=True))
+    env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'lib'), strings=True))
+    env.Append(LIBPATH = Glob(os.path.join('contrib', '*'), strings=True))
+    env.Append(CXXFLAGS = '-std=c++0x')
+    env.Append(LIBS = ['v8', 'readline', 'opengl32', 'glu32', 'freeglut', 'curses', 'mysql'])
+else:
+    env.ParseConfig('mysql_config --cflags --libs')
+    env.ParseConfig('sdl-config --cflags --libs')
+    env.ParseConfig('ncurses5-config --cflags --libs')
+    env.Append(LINKFLAGS = '-Wl,--no-warn-search-mismatch')
+    env.Append(CXXFLAGS = '-std=c++0x')
+    env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut'])
 
 # Pretty output
-if os.environ['TERM'] == 'dumb' :
+if sys.platform == 'win32' or os.environ['TERM'] == 'dumb':
     env['CCCOMSTR']   =    '     Compiling $SOURCES -> $TARGET'
     env['CXXCOMSTR']  =    '     Compiling $SOURCES -> $TARGET'
     env['ASCOMSTR']   =    '    Assembling $SOURCES -> $TARGET'
@@ -34,19 +48,47 @@ else:
     env['GEAR2CCCOMSTR']  ='    Converting \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
 
 # Gearbox target
-gearbox = env.Program('build/gearbox', [Glob('build/*.cc'),Glob('build/modules/*.cc')])
+gearboxPath = os.path.join('build', 'gearbox')
+gearboxSources = [
+    'build/shell.cc',
+    'build/Gearbox.cc',
+    'build/global.cc',
+    'build/modules/GL.cc',
+    'build/modules/Io.cc',
+    'build/modules/MySQL.cc',
+    'build/modules/Ncurses.cc',
+    'build/modules/Network.cc',
+    'build/modules/SDL.cc',
+]
+gearbox = env.Program(gearboxPath, gearboxSources)
 env.Default(gearbox)
+env.Precious(gearbox)
 
-# Install target
-install = env.Install('/usr/bin', gearbox)
-env.Alias('install', install)
+# Install target (not on windows)
+if sys.platform != 'win32':
+    install = env.Install('/usr/bin', gearbox)
+    env.Alias('install', install)
 
 # Invocation of gear2cc in case gearbox exists
-if os.path.exists('build/gearbox'):
-    gear2cc = env.Command('gear2cc/gear2cc.js', 'gear2cc/gear2cc.par', 'build/gearbox gear2cc/jscc.js -v -o $TARGET -p v8 -t gear2cc/driver_v8.js_ $SOURCE')
-    gears = []
-    for gearFile in Glob('src/modules/*.gear', strings=True):
+gearboxPath += env['PROGSUFFIX']
+gears = []
+if os.path.exists(gearboxPath):
+    gear2ccPath = 'gear2cc' + os.sep
+    modulePath = os.path.join('src','modules') + os.sep
+    
+    # JsCC builder
+    env['BUILDERS']['JsCC'] = Builder(action=Action(gearboxPath+' '+gear2ccPath+'jscc.js -o $TARGET -p v8 -t '+gear2ccPath+'driver_v8.js_ $SOURCE', cmdstr=env['JSCCCOMSTR']))
+    gear2cc = env.JsCC(gear2ccPath+'gear2cc.js', gear2ccPath+'gear2cc.par')
+    
+    # Gear2CC builder
+    def gear2cc_action(target, source, env):
+        Execute(gearboxPath+' '+gear2ccPath+'gear2cc.js '+modulePath+' '+re.sub('\.gear$','',os.path.basename(source[0].rstr())), cmdstr=None)
+    env['BUILDERS']['Gear2CC'] = Builder(action=Action(gear2cc_action, cmdstr=env['GEAR2CCCOMSTR']))
+
+    # Build all gear files
+    for gearFile in Glob(os.path.join('src', 'modules', '*.gear'), strings=True):
         gearBase = re.sub('\.gear$', '', gearFile)
-        gears += [env.Command([gearBase+'.cc', gearBase+'.h'], gearFile, 'build/gearbox gear2cc/gear2cc.js src/modules/ '+re.sub('\.gear$', '', os.path.basename(gearFile)))]
-    env.Depends(gears, gear2cc)
-    env.Depends(gearbox, gears)
+        gear = env.Gear2CC([gearBase+'.cc', gearBase+'.h'], gearFile)
+        env.Depends(gear, gear2cc)
+        env.Depends(gearbox, gear)
+
