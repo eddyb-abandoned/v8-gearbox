@@ -1,11 +1,8 @@
-native {
+header {
     #include <string>
     #include <fstream>
     #include <streambuf>
     #include <stdio.h>
-    
-    #include "Io.h"
-    #include "../shell.h"
     
     using namespace std;
     
@@ -14,55 +11,55 @@ native {
 
 namespace Io {
     class File {
-        native FILE *f;
+        var f = 0;
         
-        function File(String path) {
-            this.f = fopen(path, "rw+");
+        function File(path) {
+            this["f"] = fopen(path.to<String>(), "rw+");
         }
         
-        function File(String path, String mode) {
-            this.f = fopen(path, mode);
+        function File(path, mode) {
+            this["f"] = fopen(path.to<String>(), mode.to<String>());
         }
         
-        function seekAbs(Integer pos) {
-            fseek(this.f, pos, SEEK_SET);
+        function seekAbs(pos) {
+            fseek(this["f"], pos.to<int>(), SEEK_SET);
         }
         
-        function seekRel(Integer pos) {
-            fseek(this.f, pos, SEEK_CUR);
+        function seekRel(pos) {
+            fseek(this["f"], pos.to<int>(), SEEK_CUR);
         }
         
         function tell() {
-            return Integer(ftell(this.f));
+            return Integer(ftell(this["f"]));
         }
         
-        function readInt(Integer len) {
+        function readInt(len) {
             if(len == 1)
-                fread_num(uint8_t, this.f, return Integer(i));
+                fread_num(uint8_t, this["f"], return Integer(i));
             if(len == 2)
-                fread_num(uint16_t, this.f, return Integer(i));
+                fread_num(uint16_t, this["f"], return Integer(i));
             if(len == 4)
-                fread_num(uint32_t, this.f, return Integer(i));
+                fread_num(uint32_t, this["f"], return Integer(i));
             if(len == 8)
-                fread_num(uint64_t, this.f, return Integer(i));
+                fread_num(uint64_t, this["f"], return Integer(i));
         }
         
         function readFloat() {
-            fread_num(float, this.f, return Number(i));
+            fread_num(float, this["f"], return Number(i));
         }
         
-        function readFloat(Integer prec) {
+        function readFloat(prec) {
             if(prec == 1)
-                fread_num(float, this.f, return Number(i));
+                fread_num(float, this["f"], return Number(i));
             if(prec == 2)
-                fread_num(double, this.f, return Number(i));
+                fread_num(double, this["f"], return Number(i));
             if(prec == 4)
-                fread_num(long double, this.f, return Number(i));
+                fread_num(long double, this["f"], return Number(i));
         }
     }
     
-    function readFileContents(String path) {
-        ifstream file(path);
+    function readFileContents(path) {
+        ifstream file(path.to<String>());
         string str;
         
         file.seekg(0, std::ios::end);   
@@ -74,8 +71,8 @@ namespace Io {
         return String(str.c_str());
     }
     
-    function readFileContentsBinary(String path) {
-        ifstream file(path);
+    function readFileContentsBinary(path) {
+        ifstream file(path.to<String>());
         
         file.seekg(0, std::ios::end);   
         streamsize len = file.tellg();
@@ -90,8 +87,8 @@ namespace Io {
         return buffer;
     }
     
-    function writeFileContents(String path, String contents) {
-        ofstream file(path);
-        file.write(contents, contents.length);
+    function writeFileContents(path, contents) {
+        ofstream file(path.to<String>());
+        file.write(contents.to<String>(), contents.length());
     }
 }

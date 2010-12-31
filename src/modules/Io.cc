@@ -1,96 +1,115 @@
 
+#include "../Gearbox.h"
+#include "Io.h"
+using namespace Gearbox;
+
+/** \file Io.cc */
+
+#line 1 "src/modules/Io.gear"
 #include <string>
 #include <fstream>
 #include <streambuf>
 #include <stdio.h>
 
-#include "Io.h"
-#include "../shell.h"
-
 using namespace std;
 
 #define fread_num(x, fp, dw) do {x i;fread(&i, sizeof(x), 1, fp);dw;} while(0)
 
-V8FuncDef(global_Io_File_File)
-{
+v8::Handle<v8::Value> __global_Io_File_File(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 2)
     {
-        args.This()->SetPointerInInternalField(0, fopen((*v8::String::Utf8Value(args[0])), (*v8::String::Utf8Value(args[1]))));
-        return v8::Undefined();
+        #line 20 "src/modules/Io.gear"
+        Value path(args[0]), mode(args[1]);
+        This["f"] = fopen(path.to<String>(), mode.to<String>());
+        return undefined;
     }
 
     if(args.Length() >= 1)
     {
-        args.This()->SetPointerInInternalField(0, fopen((*v8::String::Utf8Value(args[0])), "rw+"));
-        return v8::Undefined();
+        #line 16 "src/modules/Io.gear"
+        Value path(args[0]);
+        This["f"] = fopen(path.to<String>(), "rw+");
+        return undefined;
     }
-    V8Throw("Invalid call to Io.File");
+    return Error("Invalid call to Io.File");
 }
 
-V8FuncDef(global_Io_File_seekAbs)
-{
+v8::Handle<v8::Value> __global_Io_File_seekAbs(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 1)
     {
-        fseek(((FILE*)args.This()->GetPointerFromInternalField(0)), args[0]->IntegerValue(), SEEK_SET);
-        return v8::Undefined();
+        #line 24 "src/modules/Io.gear"
+        Value pos(args[0]);
+        fseek(This["f"], pos.to<int>(), SEEK_SET);
+        return undefined;
     }
-    V8Throw("Invalid call to Io.File.prototype.seekAbs");
+    return Error("Invalid call to Io.File.prototype.seekAbs");
 }
 
-V8FuncDef(global_Io_File_seekRel)
-{
+v8::Handle<v8::Value> __global_Io_File_seekRel(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 1)
     {
-        fseek(((FILE*)args.This()->GetPointerFromInternalField(0)), args[0]->IntegerValue(), SEEK_CUR);
-        return v8::Undefined();
+        #line 28 "src/modules/Io.gear"
+        Value pos(args[0]);
+        fseek(This["f"], pos.to<int>(), SEEK_CUR);
+        return undefined;
     }
-    V8Throw("Invalid call to Io.File.prototype.seekRel");
+    return Error("Invalid call to Io.File.prototype.seekRel");
 }
 
-V8FuncDef(global_Io_File_tell)
-{
-    return v8::Integer::New(ftell(((FILE*)args.This()->GetPointerFromInternalField(0))));
+v8::Handle<v8::Value> __global_Io_File_tell(const v8::Arguments& args) {
+    Value This(args.This());
+    #line 33 "src/modules/Io.gear"
+    return Integer(ftell(This["f"]));
 }
 
-V8FuncDef(global_Io_File_readInt)
-{
+v8::Handle<v8::Value> __global_Io_File_readInt(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 1)
     {
-        if(args[0]->IntegerValue() == 1)
-            fread_num(uint8_t, ((FILE*)args.This()->GetPointerFromInternalField(0)), return v8::Integer::New(i));
-        if(args[0]->IntegerValue() == 2)
-            fread_num(uint16_t, ((FILE*)args.This()->GetPointerFromInternalField(0)), return v8::Integer::New(i));
-        if(args[0]->IntegerValue() == 4)
-            fread_num(uint32_t, ((FILE*)args.This()->GetPointerFromInternalField(0)), return v8::Integer::New(i));
-        if(args[0]->IntegerValue() == 8)
-            fread_num(uint64_t, ((FILE*)args.This()->GetPointerFromInternalField(0)), return v8::Integer::New(i));
-        return v8::Undefined();
+        #line 36 "src/modules/Io.gear"
+        Value len(args[0]);
+        if(len == 1)
+            fread_num(uint8_t, This["f"], return Integer(i));
+        if(len == 2)
+            fread_num(uint16_t, This["f"], return Integer(i));
+        if(len == 4)
+            fread_num(uint32_t, This["f"], return Integer(i));
+        if(len == 8)
+            fread_num(uint64_t, This["f"], return Integer(i));
+        return undefined;
     }
-    V8Throw("Invalid call to Io.File.prototype.readInt");
+    return Error("Invalid call to Io.File.prototype.readInt");
 }
 
-V8FuncDef(global_Io_File_readFloat)
-{
+v8::Handle<v8::Value> __global_Io_File_readFloat(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 1)
     {
-        if(args[0]->IntegerValue() == 1)
-            fread_num(float, ((FILE*)args.This()->GetPointerFromInternalField(0)), return v8::Number::New(i));
-        if(args[0]->IntegerValue() == 2)
-            fread_num(double, ((FILE*)args.This()->GetPointerFromInternalField(0)), return v8::Number::New(i));
-        if(args[0]->IntegerValue() == 4)
-            fread_num(long double, ((FILE*)args.This()->GetPointerFromInternalField(0)), return v8::Number::New(i));
-        return v8::Undefined();
+        #line 51 "src/modules/Io.gear"
+        Value prec(args[0]);
+        if(prec == 1)
+            fread_num(float, This["f"], return Number(i));
+        if(prec == 2)
+            fread_num(double, This["f"], return Number(i));
+        if(prec == 4)
+            fread_num(long double, This["f"], return Number(i));
+        return undefined;
     }
 
-    fread_num(float, ((FILE*)args.This()->GetPointerFromInternalField(0)), return v8::Number::New(i));
-    return v8::Undefined();
+    #line 48 "src/modules/Io.gear"
+    fread_num(float, This["f"], return Number(i));
+    return undefined;
 }
 
-V8FuncDef(global_Io_readFileContents)
-{
+v8::Handle<v8::Value> __global_Io_readFileContents(const v8::Arguments& args) {
     if(args.Length() >= 1)
     {
-        ifstream file((*v8::String::Utf8Value(args[0])));
+        #line 61 "src/modules/Io.gear"
+        Value path(args[0]);
+        ifstream file(path.to<String>());
         string str;
         
         file.seekg(0, std::ios::end);   
@@ -99,16 +118,17 @@ V8FuncDef(global_Io_readFileContents)
         
         str.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         
-        return v8::String::New(str.c_str());
+        return String(str.c_str());
     }
-    V8Throw("Invalid call to Io.readFileContents");
+    return Error("Invalid call to Io.readFileContents");
 }
 
-V8FuncDef(global_Io_readFileContentsBinary)
-{
+v8::Handle<v8::Value> __global_Io_readFileContentsBinary(const v8::Arguments& args) {
     if(args.Length() >= 1)
     {
-        ifstream file((*v8::String::Utf8Value(args[0])));
+        #line 74 "src/modules/Io.gear"
+        Value path(args[0]);
+        ifstream file(path.to<String>());
         
         file.seekg(0, std::ios::end);   
         streamsize len = file.tellg();
@@ -122,51 +142,42 @@ V8FuncDef(global_Io_readFileContentsBinary)
         
         return buffer;
     }
-    V8Throw("Invalid call to Io.readFileContentsBinary");
+    return Error("Invalid call to Io.readFileContentsBinary");
 }
 
-V8FuncDef(global_Io_writeFileContents)
-{
+v8::Handle<v8::Value> __global_Io_writeFileContents(const v8::Arguments& args) {
     if(args.Length() >= 2)
     {
-        ofstream file((*v8::String::Utf8Value(args[0])));
-        file.write((*v8::String::Utf8Value(args[1])), v8::String::Utf8Value(args[1]).length());
-        return v8::Undefined();
+        #line 90 "src/modules/Io.gear"
+        Value path(args[0]), contents(args[1]);
+        ofstream file(path.to<String>());
+        file.write(contents.to<String>(), contents.length());
+        return undefined;
     }
-    V8Throw("Invalid call to Io.writeFileContents");
+    return Error("Invalid call to Io.writeFileContents");
+}
+
+v8::Handle<v8::Value> __global_Io_toString(const v8::Arguments& args) {
+    #line 13 "src/modules/Io.gear"
+    return String("[object Io]");
 }
 
 
-void SetupIo(v8::Handle<v8::Object> global)
-{
+#line 166 "src/modules/Io.cc"
+void SetupIo(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_Io = v8::Object::New();
-    global->V8Set("Io", global_Io);
-    v8::Handle<v8::FunctionTemplate> global_Io_File = V8Func(global_Io_File_File);
-    global_Io_File->SetClassName(v8::String::New("File"));
-    global_Io_File->InstanceTemplate()->SetInternalFieldCount(1);
-    v8::Handle<v8::Function> global_Io_File_seekAbs = V8Func(global_Io_File_seekAbs)->GetFunction();
-    global_Io_File_seekAbs->SetName(v8::String::New("seekAbs"));
-    global_Io_File->PrototypeTemplate()->V8Set("seekAbs", global_Io_File_seekAbs);
-    v8::Handle<v8::Function> global_Io_File_seekRel = V8Func(global_Io_File_seekRel)->GetFunction();
-    global_Io_File_seekRel->SetName(v8::String::New("seekRel"));
-    global_Io_File->PrototypeTemplate()->V8Set("seekRel", global_Io_File_seekRel);
-    v8::Handle<v8::Function> global_Io_File_tell = V8Func(global_Io_File_tell)->GetFunction();
-    global_Io_File_tell->SetName(v8::String::New("tell"));
-    global_Io_File->PrototypeTemplate()->V8Set("tell", global_Io_File_tell);
-    v8::Handle<v8::Function> global_Io_File_readInt = V8Func(global_Io_File_readInt)->GetFunction();
-    global_Io_File_readInt->SetName(v8::String::New("readInt"));
-    global_Io_File->PrototypeTemplate()->V8Set("readInt", global_Io_File_readInt);
-    v8::Handle<v8::Function> global_Io_File_readFloat = V8Func(global_Io_File_readFloat)->GetFunction();
-    global_Io_File_readFloat->SetName(v8::String::New("readFloat"));
-    global_Io_File->PrototypeTemplate()->V8Set("readFloat", global_Io_File_readFloat);
-    global_Io->V8Set("File", global_Io_File->GetFunction());
-    v8::Handle<v8::Function> global_Io_readFileContents = V8Func(global_Io_readFileContents)->GetFunction();
-    global_Io_readFileContents->SetName(v8::String::New("readFileContents"));
-    global_Io->V8Set("readFileContents", global_Io_readFileContents);
-    v8::Handle<v8::Function> global_Io_readFileContentsBinary = V8Func(global_Io_readFileContentsBinary)->GetFunction();
-    global_Io_readFileContentsBinary->SetName(v8::String::New("readFileContentsBinary"));
-    global_Io->V8Set("readFileContentsBinary", global_Io_readFileContentsBinary);
-    v8::Handle<v8::Function> global_Io_writeFileContents = V8Func(global_Io_writeFileContents)->GetFunction();
-    global_Io_writeFileContents->SetName(v8::String::New("writeFileContents"));
-    global_Io->V8Set("writeFileContents", global_Io_writeFileContents);
+    global->Set(String("Io"), global_Io);
+    v8::Handle<v8::FunctionTemplate> global_Io_File = v8::FunctionTemplate::New(__global_Io_File_File);
+    global_Io_File->SetClassName(String("File"));
+    global_Io_File->PrototypeTemplate()->Set("seekAbs", Function(__global_Io_File_seekAbs, "seekAbs"));
+    global_Io_File->PrototypeTemplate()->Set("seekRel", Function(__global_Io_File_seekRel, "seekRel"));
+    global_Io_File->PrototypeTemplate()->Set("tell", Function(__global_Io_File_tell, "tell"));
+    global_Io_File->PrototypeTemplate()->Set("readInt", Function(__global_Io_File_readInt, "readInt"));
+    global_Io_File->PrototypeTemplate()->Set("readFloat", Function(__global_Io_File_readFloat, "readFloat"));
+    global_Io_File->PrototypeTemplate()->Set("f", Value(0));
+    global_Io->Set(String("File"), global_Io_File->GetFunction());
+    global_Io->Set(String("readFileContents"), Function(__global_Io_readFileContents, "readFileContents"));
+    global_Io->Set(String("readFileContentsBinary"), Function(__global_Io_readFileContentsBinary, "readFileContentsBinary"));
+    global_Io->Set(String("writeFileContents"), Function(__global_Io_writeFileContents, "writeFileContents"));
+    global_Io->Set(String("toString"), Function(__global_Io_toString, "toString"));
 }

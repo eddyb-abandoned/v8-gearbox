@@ -1,49 +1,91 @@
-native {
-    #include "Network.h"
-    #include "../shell.h"
-    
-#ifdef WINDOWS
+header {    
+#ifdef _WIN32
     #include <winsock.h>
 #else
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <netdb.h>
-#endif
-
     #include <fcntl.h>
-    #include <v8.h>
+    #include <netdb.h>
+    #include <netinet/in.h>
+    #include <sys/socket.h>
+#endif
 }
 
 namespace Network {
-    class TcpConnection {
-        native Integer socket;
+    class Socket {
+        var socket = -1;
+        var family = -1;
+        var type = -1;
+        var isConnected = false;
         
-        function TcpConnection(String host, Integer port) {
-            struct hostent *host_s = gethostbyname(host);
+        function Socket(family, type) {
+            int sock = socket(family, type, 0);
+            if(sock == -1)
+                return Error("Unable to create socket");
+            
+            this["socket"] = Internal(sock);
+            this["family"] = Internal(family);
+            this["type"] = Internal(type);
+        }
+        
+        function connect(host, port) {
+            struct hostent *host_s = gethostbyname(host.to<String>());
             if(!host_s)
-                V8Throw("Unrecoverable name resolution failure");
+                return Error("Unable to resolve host");
                 
             struct sockaddr_in server_addr;
-            server_addr.sin_family = AF_INET;
-            server_addr.sin_port = htons((uint32_t)port);
+            server_addr.sin_family = this["family"];
+            server_addr.sin_port = htons(port.to<uint32_t>());
             server_addr.sin_addr = *((struct in_addr *)host_s->h_addr);
             
-            int sock = socket(AF_INET, SOCK_STREAM, 0);
-            connect(sock, (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
-            fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, NULL) | O_NONBLOCK);
+            int result = connect(this["socket"], (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
+            if(result == -1)
+                return Error("Unable to connect");
             
-            this.socket = sock;
+            this["isConnected"] = Internal(true);
         }
         
         function receive() {
-            char buffer[1024];
-            int len = recv(this.socket, buffer, 1024, 0);
-            if(len > 0)
-                return String(buffer, len);
+            int maxLen = 1024;//undefined == args[0] ? 1024 : Value(args[0]);
+            char *buffer = new char [maxLen];
+            int len = recv(this["socket"], buffer, maxLen, 0);
+            if(len > 0) {
+                String str(buffer, len);
+                delete [] buffer;
+                return str;
+            }
+            delete [] buffer;
         }
         
-        function send(String data) {
-            send(this.socket, data, data.length, 0);
+        function send(data) {
+            send(this["socket"], data.to<String>(), data.length(), 0);
         }
+        
+        function close() {
+            close(this["socket"]);
+        }
+        
+        function block(blocking) {
+#ifdef _WIN32
+            u_long mode = blocking ? 1 : 0;
+            ioctlsocket(this["socket"], FIONBIO, &mode);
+#else
+            int mode = fcntl(this["socket"], F_GETFL, 0);
+            if(blocking)
+                mode &= ~O_NONBLOCK;
+            else
+                mode |= O_NONBLOCK;
+            fcntl(this["socket"], F_SETFL, mode);
+#endif
+        }
+        
+        /** Constants */
+        
+        /** Socket families */
+        static var INET = AF_INET;
+        static var INET6 = AF_INET6;
+        static var UNIX = AF_UNIX;
+        
+        /** Socket types */
+        static var TCP = SOCK_STREAM;
+        static var UDP = SOCK_DGRAM;
     }
 }

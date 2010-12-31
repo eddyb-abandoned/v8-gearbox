@@ -1,70 +1,89 @@
 
+#include "../Gearbox.h"
+#include "MySQL.h"
+using namespace Gearbox;
+
+/** \file MySQL.cc */
+
+#line 1 "src/modules/MySQL.gear"
 #include <my_global.h>
 #include <mysql.h>
 
-#include "MySQL.h"
-#include "../shell.h"
-
-V8FuncDef(global_MySQL_Connection_Connection)
-{
+v8::Handle<v8::Value> __global_MySQL_Connection_Connection(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 4)
     {
-        args.This()->SetPointerInInternalField(0, mysql_init(NULL));
-        mysql_real_connect(((MYSQL*)args.This()->GetPointerFromInternalField(0)), (*v8::String::Utf8Value(args[0])), (*v8::String::Utf8Value(args[1])), (*v8::String::Utf8Value(args[2])), (*v8::String::Utf8Value(args[3])), 0, NULL, 0);
-        return v8::Undefined();
+        #line 10 "src/modules/MySQL.gear"
+        Value host(args[0]), user(args[1]), password(args[2]), db(args[3]);
+        MYSQL *pMYSQL = mysql_init(NULL);
+        mysql_real_connect(pMYSQL, host.to<String>(), user.to<String>(), password.to<String>(), db.to<String>(), 0, NULL, 0);
+        This["pMYSQL"] = pMYSQL;
+        return undefined;
     }
-    V8Throw("Invalid call to MySQL.Connection");
+    return Error("Invalid call to MySQL.Connection");
 }
 
-V8FuncDef(global_MySQL_Connection_query)
-{
+v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 1)
     {
-        v8::Handle<v8::Object> pQuery = v8::Array::New();
+        #line 16 "src/modules/MySQL.gear"
+        Value query(args[0]);
+        MYSQL *pMYSQL = This["pMYSQL"];
         
-        if(mysql_query(((MYSQL*)args.This()->GetPointerFromInternalField(0)), (*v8::String::Utf8Value(args[0]))))
-            V8Throw(mysql_error(((MYSQL*)args.This()->GetPointerFromInternalField(0))));
-        MYSQL_RES *pResult = mysql_store_result(((MYSQL*)args.This()->GetPointerFromInternalField(0)));
+        if(mysql_query(pMYSQL, query.to<String>()))
+            return Error(mysql_error(pMYSQL));
+        
+        var resultArray = Array();
+        MYSQL_RES *pResult = mysql_store_result(pMYSQL);
         MYSQL_ROW pRow;
         
         while((pRow = mysql_fetch_row(pResult))) {
-            v8::Handle<v8::Object> pHash = v8::Object::New();
+            var rowHash = Object();
             mysql_field_seek(pResult, 0);
             for(size_t i = 0; i < mysql_num_fields(pResult); i++) {
                 MYSQL_FIELD *pColumn = mysql_fetch_field(pResult);
-                const char *pValue = pRow[i] ? pRow[i] : "";
+                var value = pRow[i] ? pRow[i] : "";
                 switch(pColumn->type) {
                     case MYSQL_TYPE_DECIMAL:
                     case MYSQL_TYPE_TINY:
                     case MYSQL_TYPE_SHORT:
                     case MYSQL_TYPE_LONG:
+                    case MYSQL_TYPE_LONGLONG:
+                        // Force an Integer value
+                        rowHash[pColumn->name] = value.to<int64_t>();
+                        break;
                     case MYSQL_TYPE_FLOAT:
                     case MYSQL_TYPE_DOUBLE:
-                    case MYSQL_TYPE_LONGLONG:
-                        pHash->V8Set(pColumn->name, v8::Local<v8::Number>::Cast(v8::String::New(pValue)));
+                        // Force a Number value
+                        rowHash[pColumn->name] = value.to<double>();
                         break;
                     default:
-                        pHash->V8Set(pColumn->name, v8::String::New(pValue));
+                        rowHash[pColumn->name] = value;
                 }
             }
-            V8FuncCall(pQuery, pQuery->V8Get("push"), pHash);
+            resultArray[resultArray.length()] = rowHash;
         }
         mysql_free_result(pResult);
-        return pQuery;
+        return resultArray;
     }
-    V8Throw("Invalid call to MySQL.Connection.prototype.query");
+    return Error("Invalid call to MySQL.Connection.prototype.query");
+}
+
+v8::Handle<v8::Value> __global_MySQL_toString(const v8::Arguments& args) {
+    #line 7 "src/modules/MySQL.gear"
+    return String("[object MySQL]");
 }
 
 
-void SetupMySQL(v8::Handle<v8::Object> global)
-{
+#line 79 "src/modules/MySQL.cc"
+void SetupMySQL(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_MySQL = v8::Object::New();
-    global->V8Set("MySQL", global_MySQL);
-    v8::Handle<v8::FunctionTemplate> global_MySQL_Connection = V8Func(global_MySQL_Connection_Connection);
-    global_MySQL_Connection->SetClassName(v8::String::New("Connection"));
-    global_MySQL_Connection->InstanceTemplate()->SetInternalFieldCount(1);
-    v8::Handle<v8::Function> global_MySQL_Connection_query = V8Func(global_MySQL_Connection_query)->GetFunction();
-    global_MySQL_Connection_query->SetName(v8::String::New("query"));
-    global_MySQL_Connection->PrototypeTemplate()->V8Set("query", global_MySQL_Connection_query);
-    global_MySQL->V8Set("Connection", global_MySQL_Connection->GetFunction());
+    global->Set(String("MySQL"), global_MySQL);
+    v8::Handle<v8::FunctionTemplate> global_MySQL_Connection = v8::FunctionTemplate::New(__global_MySQL_Connection_Connection);
+    global_MySQL_Connection->SetClassName(String("Connection"));
+    global_MySQL_Connection->PrototypeTemplate()->Set("query", Function(__global_MySQL_Connection_query, "query"));
+    global_MySQL_Connection->PrototypeTemplate()->Set("pMYSQL", Value(0));
+    global_MySQL->Set(String("Connection"), global_MySQL_Connection->GetFunction());
+    global_MySQL->Set(String("toString"), Function(__global_MySQL_toString, "toString"));
 }

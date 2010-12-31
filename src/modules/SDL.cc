@@ -1,9 +1,13 @@
 
+#include "../Gearbox.h"
+#include "SDL.h"
+using namespace Gearbox;
+
+/** \file SDL.cc */
+
+#line 1 "src/modules/SDL.gear"
 #include <stdlib.h>
 #include <SDL.h>
-
-#include "SDL.h"
-#include "../shell.h"
 
 static bool bSDLIsUsed = false;
 
@@ -73,40 +77,46 @@ void setPixel(SDL_Surface *surface, Uint32 x, Uint32 y, Uint32 pixel)
     }
 }
 
-V8FuncDef(global_SDL_Window_Window)
-{
+v8::Handle<v8::Value> __global_SDL_Window_Window(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 3)
     {
+        #line 78 "src/modules/SDL.gear"
+        Value name(args[0]), w(args[1]), h(args[2]);
         if(bSDLIsUsed)
-            V8Throw("SDL is already being used");
+            return Error("SDL is already being used");
         SDL_Init(SDL_INIT_EVERYTHING);
-        args.This()->SetPointerInInternalField(0, SDL_SetVideoMode(args[1]->IntegerValue(), args[2]->IntegerValue(), 32, SDL_HWSURFACE | SDL_DOUBLEBUF));
-        SDL_WM_SetCaption((*v8::String::Utf8Value(args[0])), NULL);
+        This["surface"] = SDL_SetVideoMode(w.to<int>(), h.to<int>(), 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+        SDL_WM_SetCaption(name.to<String>(), NULL);
         bSDLIsUsed = true;
-        return v8::Undefined();
+        return undefined;
     }
-    V8Throw("Invalid call to SDL.Window");
+    return Error("Invalid call to SDL.Window");
 }
 
-V8FuncDef(global_SDL_Window_color)
-{
+v8::Handle<v8::Value> __global_SDL_Window_color(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 3)
     {
-        return v8::Integer::New(SDL_MapRGB((((SDL_Surface*)args.This()->GetPointerFromInternalField(0)))->format, CLIP(args[0]->IntegerValue(), 0, 255), CLIP(args[1]->IntegerValue(), 0, 255), CLIP(args[2]->IntegerValue(), 0, 255)));
+        #line 108 "src/modules/SDL.gear"
+        Value r(args[0]), g(args[1]), b(args[2]);
+        return Integer(SDL_MapRGB(This["surface"].to<SDL_Surface*>()->format, CLIP(r.to<int>(), 0, 255), CLIP(g.to<int>(), 0, 255), CLIP(b.to<int>(), 0, 255)));
     }
 
     if(args.Length() >= 1)
     {
+        #line 87 "src/modules/SDL.gear"
+        Value htmlColor(args[0]);
         Uint8 r = 0, g = 0, b = 0;
         
-        if(v8::String::Utf8Value(args[0]).length() == 7) {
-            Uint32 color = strtoul(&(*v8::String::Utf8Value(args[0]))[1], 0, 16);
+        if(htmlColor.length() == 7) {
+            Uint32 color = strtoul(htmlColor.to<String>()+1, 0, 16);
             r = (color >> 16) & 0xff;
             g = (color >> 8) & 0xff;
             b = color & 0xff;
         }
-        else if(v8::String::Utf8Value(args[0]).length() == 4) {
-            Uint32 color = strtoul(&(*v8::String::Utf8Value(args[0]))[1], 0, 16);
+        else if(htmlColor.length() == 4) {
+            Uint32 color = strtoul(htmlColor.to<String>()+1, 0, 16);
             r = (color >> 8) & 0xf;
             g = (color >> 4) & 0xf;
             b = color & 0xf;
@@ -114,108 +124,118 @@ V8FuncDef(global_SDL_Window_color)
             g = g | (g << 4);
             b = b | (b << 4);
         }
-        return v8::Integer::New(SDL_MapRGB((((SDL_Surface*)args.This()->GetPointerFromInternalField(0)))->format, r, g, b));
+        return Integer(SDL_MapRGB(This["surface"].to<SDL_Surface*>()->format, r, g, b));
     }
-    V8Throw("Invalid call to SDL.Window.prototype.color");
+    return Error("Invalid call to SDL.Window.prototype.color");
 }
 
-V8FuncDef(global_SDL_Window_pixel)
-{
+v8::Handle<v8::Value> __global_SDL_Window_pixel(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 3)
     {
-        setPixel(((SDL_Surface*)args.This()->GetPointerFromInternalField(0)), CLIP(args[0]->IntegerValue(), 0, ((SDL_Surface*)args.This()->GetPointerFromInternalField(0))->w - 1), CLIP(args[1]->IntegerValue(), 0, ((SDL_Surface*)args.This()->GetPointerFromInternalField(0))->h - 1), args[2]->IntegerValue());
-        return args.This();
+        #line 112 "src/modules/SDL.gear"
+        Value x(args[0]), y(args[1]), color(args[2]);
+        setPixel(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1), color.to<int>());
+        return This;
     }
 
     if(args.Length() >= 2)
     {
-        return v8::Integer::New(getPixel(((SDL_Surface*)args.This()->GetPointerFromInternalField(0)), CLIP(args[0]->IntegerValue(), 0, ((SDL_Surface*)args.This()->GetPointerFromInternalField(0))->w - 1), CLIP(args[1]->IntegerValue(), 0, ((SDL_Surface*)args.This()->GetPointerFromInternalField(0))->h - 1)));
+        #line 117 "src/modules/SDL.gear"
+        Value x(args[0]), y(args[1]);
+        return Integer(getPixel(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1)));
     }
-    V8Throw("Invalid call to SDL.Window.prototype.pixel");
+    return Error("Invalid call to SDL.Window.prototype.pixel");
 }
 
-V8FuncDef(global_SDL_Window_update)
-{
+v8::Handle<v8::Value> __global_SDL_Window_update(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 4)
     {
-        SDL_UpdateRect(((SDL_Surface*)args.This()->GetPointerFromInternalField(0)), CLIP(args[0]->IntegerValue(), 0, ((SDL_Surface*)args.This()->GetPointerFromInternalField(0))->w - 1), CLIP(args[1]->IntegerValue(), 0, ((SDL_Surface*)args.This()->GetPointerFromInternalField(0))->h - 1), CLIP(args[0]->IntegerValue() + args[2]->IntegerValue(), 0, ((SDL_Surface*)args.This()->GetPointerFromInternalField(0))->w - 1) - args[0]->IntegerValue(), CLIP(args[1]->IntegerValue() + args[3]->IntegerValue(), 0, ((SDL_Surface*)args.This()->GetPointerFromInternalField(0))->h - 1) - args[1]->IntegerValue());
-        return args.This();
+        #line 121 "src/modules/SDL.gear"
+        Value x(args[0]), y(args[1]), width(args[2]), height(args[3]);
+        SDL_UpdateRect(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1),
+                    CLIP(x.to<int>() + width.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1) - x.to<int>(), CLIP(y.to<int>() + height.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1) - y.to<int>());
+        return This;
     }
 
-    SDL_UpdateRect(((SDL_Surface*)args.This()->GetPointerFromInternalField(0)), 0, 0, 0, 0);
-    return args.This();
+    #line 128 "src/modules/SDL.gear"
+    SDL_UpdateRect(This["surface"], 0, 0, 0, 0);
+    return This;
 }
 
-V8FuncDef(global_SDL_Window_checkEvent)
-{
+v8::Handle<v8::Value> __global_SDL_Window_checkEvent(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 1)
     {
+        #line 132 "src/modules/SDL.gear"
+        Value handlers(args[0]);
         SDL_Event event;
         if(!SDL_PollEvent(&event))
-            return v8::Undefined();
+            return undefined;
         switch(event.type) {
             case SDL_QUIT:
-                V8FuncCall0(args.This(), args[0]->ToObject()->V8Get("quit"));
+                handlers["quit"]();
                 break;
         }
-        return v8::Undefined();
+        return undefined;
     }
-    V8Throw("Invalid call to SDL.Window.prototype.checkEvent");
+    return Error("Invalid call to SDL.Window.prototype.checkEvent");
 }
 
-V8FuncDef(global_SDL_Window_awaitEvent)
-{
+v8::Handle<v8::Value> __global_SDL_Window_awaitEvent(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 1)
     {
+        #line 143 "src/modules/SDL.gear"
+        Value handlers(args[0]);
         SDL_Event event;
         if(SDL_WaitEvent(&event) < 0)
-            return v8::Undefined();
+            return undefined;
         switch(event.type) {
             case SDL_QUIT:
-                V8FuncCall0(args.This(), args[0]->ToObject()->V8Get("quit"));
+                handlers["quit"]();
                 break;
         }
-        return v8::Undefined();
+        return undefined;
     }
-    V8Throw("Invalid call to SDL.Window.prototype.awaitEvent");
+    return Error("Invalid call to SDL.Window.prototype.awaitEvent");
 }
 
-V8FuncDef(global_SDL_Image_Image)
-{
+v8::Handle<v8::Value> __global_SDL_Image_Image(const v8::Arguments& args) {
+    Value This(args.This());
     if(args.Length() >= 1)
     {
-        args.This()->SetPointerInInternalField(0, SDL_LoadBMP((*v8::String::Utf8Value(args[0]))));
-        return v8::Undefined();
+        #line 158 "src/modules/SDL.gear"
+        Value path(args[0]);
+        This["surface"] = SDL_LoadBMP(path.to<String>());
+        return undefined;
     }
-    V8Throw("Invalid call to SDL.Image");
+    return Error("Invalid call to SDL.Image");
+}
+
+v8::Handle<v8::Value> __global_SDL_toString(const v8::Arguments& args) {
+    #line 75 "src/modules/SDL.gear"
+    return String("[object SDL]");
 }
 
 
-void SetupSDL(v8::Handle<v8::Object> global)
-{
+#line 223 "src/modules/SDL.cc"
+void SetupSDL(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_SDL = v8::Object::New();
-    global->V8Set("SDL", global_SDL);
-    v8::Handle<v8::FunctionTemplate> global_SDL_Window = V8Func(global_SDL_Window_Window);
-    global_SDL_Window->SetClassName(v8::String::New("Window"));
-    global_SDL_Window->InstanceTemplate()->SetInternalFieldCount(1);
-    v8::Handle<v8::Function> global_SDL_Window_color = V8Func(global_SDL_Window_color)->GetFunction();
-    global_SDL_Window_color->SetName(v8::String::New("color"));
-    global_SDL_Window->PrototypeTemplate()->V8Set("color", global_SDL_Window_color);
-    v8::Handle<v8::Function> global_SDL_Window_pixel = V8Func(global_SDL_Window_pixel)->GetFunction();
-    global_SDL_Window_pixel->SetName(v8::String::New("pixel"));
-    global_SDL_Window->PrototypeTemplate()->V8Set("pixel", global_SDL_Window_pixel);
-    v8::Handle<v8::Function> global_SDL_Window_update = V8Func(global_SDL_Window_update)->GetFunction();
-    global_SDL_Window_update->SetName(v8::String::New("update"));
-    global_SDL_Window->PrototypeTemplate()->V8Set("update", global_SDL_Window_update);
-    v8::Handle<v8::Function> global_SDL_Window_checkEvent = V8Func(global_SDL_Window_checkEvent)->GetFunction();
-    global_SDL_Window_checkEvent->SetName(v8::String::New("checkEvent"));
-    global_SDL_Window->PrototypeTemplate()->V8Set("checkEvent", global_SDL_Window_checkEvent);
-    v8::Handle<v8::Function> global_SDL_Window_awaitEvent = V8Func(global_SDL_Window_awaitEvent)->GetFunction();
-    global_SDL_Window_awaitEvent->SetName(v8::String::New("awaitEvent"));
-    global_SDL_Window->PrototypeTemplate()->V8Set("awaitEvent", global_SDL_Window_awaitEvent);
-    global_SDL->V8Set("Window", global_SDL_Window->GetFunction());
-    v8::Handle<v8::FunctionTemplate> global_SDL_Image = V8Func(global_SDL_Image_Image);
-    global_SDL_Image->SetClassName(v8::String::New("Image"));
-    global_SDL_Image->InstanceTemplate()->SetInternalFieldCount(1);
-    global_SDL->V8Set("Image", global_SDL_Image->GetFunction());
+    global->Set(String("SDL"), global_SDL);
+    v8::Handle<v8::FunctionTemplate> global_SDL_Window = v8::FunctionTemplate::New(__global_SDL_Window_Window);
+    global_SDL_Window->SetClassName(String("Window"));
+    global_SDL_Window->PrototypeTemplate()->Set("color", Function(__global_SDL_Window_color, "color"));
+    global_SDL_Window->PrototypeTemplate()->Set("pixel", Function(__global_SDL_Window_pixel, "pixel"));
+    global_SDL_Window->PrototypeTemplate()->Set("update", Function(__global_SDL_Window_update, "update"));
+    global_SDL_Window->PrototypeTemplate()->Set("checkEvent", Function(__global_SDL_Window_checkEvent, "checkEvent"));
+    global_SDL_Window->PrototypeTemplate()->Set("awaitEvent", Function(__global_SDL_Window_awaitEvent, "awaitEvent"));
+    global_SDL_Window->PrototypeTemplate()->Set("surface", Value(0));
+    global_SDL->Set(String("Window"), global_SDL_Window->GetFunction());
+    v8::Handle<v8::FunctionTemplate> global_SDL_Image = v8::FunctionTemplate::New(__global_SDL_Image_Image);
+    global_SDL_Image->SetClassName(String("Image"));
+    global_SDL_Image->PrototypeTemplate()->Set("surface", Value(0));
+    global_SDL->Set(String("Image"), global_SDL_Image->GetFunction());
+    global_SDL->Set(String("toString"), Function(__global_SDL_toString, "toString"));
 }

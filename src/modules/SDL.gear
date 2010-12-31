@@ -1,9 +1,6 @@
-native {
+header {
     #include <stdlib.h>
     #include <SDL.h>
-    
-    #include "SDL.h"
-    #include "../shell.h"
     
     static bool bSDLIsUsed = false;
     
@@ -76,28 +73,28 @@ native {
 
 namespace SDL {
     class Window {
-        native SDL_Surface* surface;
+        var surface = 0;
         
-        function Window(String name, Integer w, Integer h) {
+        function Window(name, w, h) {
             if(bSDLIsUsed)
-                V8Throw("SDL is already being used");
+                return Error("SDL is already being used");
             SDL_Init(SDL_INIT_EVERYTHING);
-            this.surface = SDL_SetVideoMode(w, h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
-            SDL_WM_SetCaption(name, NULL);
+            this["surface"] = SDL_SetVideoMode(w.to<int>(), h.to<int>(), 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            SDL_WM_SetCaption(name.to<String>(), NULL);
             bSDLIsUsed = true;
         }
     
-        function color(String htmlColor) {
+        function color(htmlColor) {
             Uint8 r = 0, g = 0, b = 0;
             
-            if(htmlColor.length == 7) {
-                Uint32 color = strtoul(&htmlColor[1], 0, 16);
+            if(htmlColor.length() == 7) {
+                Uint32 color = strtoul(htmlColor.to<String>()+1, 0, 16);
                 r = (color >> 16) & 0xff;
                 g = (color >> 8) & 0xff;
                 b = color & 0xff;
             }
-            else if(htmlColor.length == 4) {
-                Uint32 color = strtoul(&htmlColor[1], 0, 16);
+            else if(htmlColor.length() == 4) {
+                Uint32 color = strtoul(htmlColor.to<String>()+1, 0, 16);
                 r = (color >> 8) & 0xf;
                 g = (color >> 4) & 0xf;
                 b = color & 0xf;
@@ -105,60 +102,61 @@ namespace SDL {
                 g = g | (g << 4);
                 b = b | (b << 4);
             }
-            return Integer(SDL_MapRGB((this.surface)->format, r, g, b));
+            return Integer(SDL_MapRGB(this["surface"].to<SDL_Surface*>()->format, r, g, b));
         }
         
-        function color(Integer r, Integer g, Integer b) {
-            return Integer(SDL_MapRGB((this.surface)->format, CLIP(r, 0, 255), CLIP(g, 0, 255), CLIP(b, 0, 255)));
+        function color(r, g, b) {
+            return Integer(SDL_MapRGB(this["surface"].to<SDL_Surface*>()->format, CLIP(r.to<int>(), 0, 255), CLIP(g.to<int>(), 0, 255), CLIP(b.to<int>(), 0, 255)));
         }
         
-        function pixel(Integer x, Integer y, Integer color) {
-            setPixel(this.surface, CLIP(x, 0, this.surface->w - 1), CLIP(y, 0, this.surface->h - 1), color);
+        function pixel(x, y, color) {
+            setPixel(this["surface"], CLIP(x.to<int>(), 0, this["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, this["surface"].to<SDL_Surface*>()->h - 1), color.to<int>());
             return this;
         }
         
-        function pixel(Integer x, Integer y) {
-            return Integer(getPixel(this.surface, CLIP(x, 0, this.surface->w - 1), CLIP(y, 0, this.surface->h - 1)));
+        function pixel(x, y) {
+            return Integer(getPixel(this["surface"], CLIP(x.to<int>(), 0, this["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, this["surface"].to<SDL_Surface*>()->h - 1)));
         }
         
-        function update(Integer x, Integer y, Integer width, Integer height) {
-            SDL_UpdateRect(this.surface, CLIP(x, 0, this.surface->w - 1), CLIP(y, 0, this.surface->h - 1), CLIP(x + width, 0, this.surface->w - 1) - x, CLIP(y + height, 0, this.surface->h - 1) - y);
+        function update(x, y, width, height) {
+            SDL_UpdateRect(this["surface"], CLIP(x.to<int>(), 0, this["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, this["surface"].to<SDL_Surface*>()->h - 1),
+                        CLIP(x.to<int>() + width.to<int>(), 0, this["surface"].to<SDL_Surface*>()->w - 1) - x.to<int>(), CLIP(y.to<int>() + height.to<int>(), 0, this["surface"].to<SDL_Surface*>()->h - 1) - y.to<int>());
             return this;
         }
         
         function update() {
-            SDL_UpdateRect(this.surface, 0, 0, 0, 0);
+            SDL_UpdateRect(this["surface"], 0, 0, 0, 0);
             return this;
         }
         
-        function checkEvent(object (function mouseMove, function quit) handlers) {
+        function checkEvent(handlers) {
             SDL_Event event;
             if(!SDL_PollEvent(&event))
                 return;
             switch(event.type) {
                 case SDL_QUIT:
-                    handlers.quit();
+                    handlers["quit"]();
                     break;
             }
         }
     
-        function awaitEvent(object (function mouseMove, function quit) handlers) {
+        function awaitEvent(handlers) {
             SDL_Event event;
             if(SDL_WaitEvent(&event) < 0)
                 return;
             switch(event.type) {
                 case SDL_QUIT:
-                    handlers.quit();
+                    handlers["quit"]();
                     break;
             }
         }
     }
     
     class Image {
-        native SDL_Surface* surface;
+        var surface = 0;
         
-        function Image(String path) {
-            this.surface = SDL_LoadBMP(path);
+        function Image(path) {
+            this["surface"] = SDL_LoadBMP(path.to<String>());
         }
     }
 }

@@ -1,194 +1,931 @@
-native {
+header {
     #include <GL/glut.h>
     #include <GL/gl.h>
+    #include <stdio.h>
     
-    #include "GL.h"
-    #include "../shell.h"
-    
+    #include <map>
+
     static bool bGLIsUsed = false;
-    v8::Local<v8::Value> pGlutRedrawFunc;
-    v8::Local<v8::Value> pGlutKeyPressFunc;
-    v8::Local<v8::Value> pGlutKeyUpFunc;
-    v8::Local<v8::Value> pGlutMouseMoveFunc;
-    v8::Local<v8::Value> pGlutResizeFunc;
-    
+    Value pGlutRedrawFunc;
+    Value pGlutIdleFunc;
+    Value pGlutKeyPressFunc;
+    Value pGlutKeyUpFunc;
+    Value pGlutMouseMoveFunc;
+    Value pGlutResizeFunc;
+
+    struct TimerCallback {
+        TimerCallback(Value func) {
+            pTimerFunc = func;
+        }
+        Value pTimerFunc;
+        //Value pParam;
+    };
+
+    std::map<int, TimerCallback*> pTimers;
+    int nLastTimer = 0;
+
     void GLProxyDisplayFunc() {
-        V8FuncCall0(v8::Object::New(), pGlutRedrawFunc);
+        pGlutRedrawFunc();
+    }
+    void GLProxyIdleFunc() {
+        pGlutIdleFunc();
     }
     void GLProxyKeyboardFunc(unsigned char key, int x, int y) {
-        V8FuncCall(v8::Object::New(), pGlutKeyPressFunc, v8::Integer::New(key), v8::Integer::New(x), v8::Integer::New(y));
+        pGlutKeyPressFunc(Integer(key), Integer(x), Integer(y));
     }
     void GLProxyKeyboardUpFunc(unsigned char key, int x, int y) {
-        V8FuncCall(v8::Object::New(), pGlutKeyUpFunc, v8::Integer::New(key), v8::Integer::New(x), v8::Integer::New(y));
+        pGlutKeyUpFunc(Integer(key), Integer(x), Integer(y));
     }
     void GLProxyMotionFunc(int x, int y) {
-        V8FuncCall(v8::Object::New(), pGlutMouseMoveFunc, v8::Integer::New(x), v8::Integer::New(y));
+        pGlutMouseMoveFunc(Integer(x), Integer(y));
     }
     void GLProxyReshapeFunc(int w, int h) {
-        V8FuncCall(v8::Object::New(), pGlutResizeFunc, v8::Integer::New(w), v8::Integer::New(h));
+        pGlutResizeFunc(Integer(w), Integer(h));
+    }
+    void GLProxyTimerFunc(int value) {
+        if(!pTimers.count(value))
+            return;
+        TimerCallback *pTimer = pTimers[value];
+        pTimer->pTimerFunc();
+        pTimers.erase(value);
+        delete pTimer;
     }
     
-    #define CLIP(x, a, b) ((x) < (a) ? (a) : ((x) > (b) ? (a) : (x)))
+    Value GLError() {
+        String errorString = "";
+        while(GLenum error = glGetError()) {
+            if(errorString.length())
+                errorString += " | ";
+            switch(error) {
+                case GL_INVALID_ENUM:
+                    errorString += "INVALID_ENUM";
+                    break;
+                case GL_INVALID_VALUE:
+                    errorString += "INVALID_VALUE";
+                    break;
+                case GL_INVALID_OPERATION:
+                    errorString += "INVALID_OPERATION";
+                    break;
+                case GL_STACK_OVERFLOW:
+                    errorString += "STACK_OVERFLOW";
+                    break;
+                case GL_STACK_UNDERFLOW:
+                    errorString += "STACK_UNDERFLOW";
+                    break;
+                case GL_OUT_OF_MEMORY:
+                    errorString += "OUT_OF_MEMORY";
+                    break;
+            }
+        }
+        if(errorString.length())
+            return Error(String::concat("GL_ERROR: ", errorString));
+        else
+            return undefined;
+    }
 }
 
 namespace GL {
-    function initWindow(String name, Integer w, Integer h) {
+    function initWindow(name, w, h) {
         if(bGLIsUsed)
-            V8Throw("GL is already being used");
+            return Error("GL is already being used");
         int argc = 0;
         glutInit(&argc, 0);
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
         glutInitWindowSize(w, h);
-        glutCreateWindow(name);
+        glutCreateWindow(name.to<String>());
     }
     
-    function mainLoop(object (function redraw, function keyPress, function keyUp, function mouseMove, function resize) handlers) {
-        pGlutRedrawFunc = handlers.redraw;
+    function mainLoop(handlers) {
+        pGlutRedrawFunc = handlers["redraw"];
         glutDisplayFunc(GLProxyDisplayFunc);
         
-        pGlutKeyPressFunc = handlers.keyPress;
+        pGlutIdleFunc = handlers["idle"];
+        glutIdleFunc(GLProxyIdleFunc);
+        
+        pGlutKeyPressFunc = handlers["keyPress"];
         glutKeyboardFunc(GLProxyKeyboardFunc);
         
-        pGlutKeyUpFunc = handlers.keyUp;
+        pGlutKeyUpFunc = handlers["keyUp"];
         glutKeyboardUpFunc(GLProxyKeyboardUpFunc);
         
-        pGlutMouseMoveFunc = handlers.mouseMove;
+        pGlutMouseMoveFunc = handlers["mouseMove"];
         glutMotionFunc(GLProxyMotionFunc);
         glutPassiveMotionFunc(GLProxyMotionFunc);
         
-        pGlutResizeFunc = handlers.resize;
+        pGlutResizeFunc = handlers["resize"];
         glutReshapeFunc(GLProxyReshapeFunc);
         
         glutMainLoop();
     }
     
-    function clear(Number r, Number g, Number b, Number a) {
-        glClearColor(r, g, b, a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    function addTimer(ms, func) {
+        pTimers[nLastTimer] = new TimerCallback(func);
+        glutTimerFunc(ms, GLProxyTimerFunc, nLastTimer);
+        return Integer(nLastTimer++);
+    }
+
+    function cancelTimer(idx) {
+        if(!pTimers.count(idx))
+            return;
+        TimerCallback *pTimer = pTimers[idx];
+        pTimers.erase(idx.to<int>());
+        delete pTimer;
     }
     
-    function clear(object (Number r, Number g, Number b, Number a) color) {
-        glClearColor(color.r, color.g, color.b, color.a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    function ignoreKeyRepeat(ignore) {
+        glutIgnoreKeyRepeat(ignore);
     }
     
-    function warpPointer(Integer x, Integer y) {
+    function warpPointer(x, y) {
         glutWarpPointer(x, y);
     }
     
-    function disableCursor() {
-        glutSetCursor(GLUT_CURSOR_NONE);
+    function setCursor(cursor) {
+        glutSetCursor(cursor);
     }
     
-    function enableDepthTest() {
-        glEnable(GL_DEPTH_TEST);
+    function swapBuffers() {
+        glutSwapBuffers();
     }
     
-    function enableLighting() {
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
+    function postRedisplay() {
+        glutPostRedisplay();
     }
     
-    function disableLighting() {
-        glDisable(GL_LIGHTING);
-        glDisable(GL_LIGHT0);
+    function bitmapCharacter(c) {
+        if(c.length())
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, **c.to<String>());
+    }
+    
+    /** GLUT constants */
+    
+    /* GLUT API macro definitions -- the glutSetCursor parameters */
+    var CURSOR_RIGHT_ARROW = GLUT_CURSOR_RIGHT_ARROW;
+    var CURSOR_LEFT_ARROW = GLUT_CURSOR_LEFT_ARROW;
+    var CURSOR_INFO = GLUT_CURSOR_INFO;
+    var CURSOR_DESTROY = GLUT_CURSOR_DESTROY;
+    var CURSOR_HELP = GLUT_CURSOR_HELP;
+    var CURSOR_CYCLE = GLUT_CURSOR_CYCLE;
+    var CURSOR_SPRAY = GLUT_CURSOR_SPRAY;
+    var CURSOR_WAIT = GLUT_CURSOR_WAIT;
+    var CURSOR_TEXT = GLUT_CURSOR_TEXT;
+    var CURSOR_CROSSHAIR = GLUT_CURSOR_CROSSHAIR;
+    var CURSOR_UP_DOWN = GLUT_CURSOR_UP_DOWN;
+    var CURSOR_LEFT_RIGHT = GLUT_CURSOR_LEFT_RIGHT;
+    var CURSOR_TOP_SIDE = GLUT_CURSOR_TOP_SIDE;
+    var CURSOR_BOTTOM_SIDE = GLUT_CURSOR_BOTTOM_SIDE;
+    var CURSOR_LEFT_SIDE = GLUT_CURSOR_LEFT_SIDE;
+    var CURSOR_RIGHT_SIDE = GLUT_CURSOR_RIGHT_SIDE;
+    var CURSOR_TOP_LEFT_CORNER = GLUT_CURSOR_TOP_LEFT_CORNER;
+    var CURSOR_TOP_RIGHT_CORNER = GLUT_CURSOR_TOP_RIGHT_CORNER;
+    var CURSOR_BOTTOM_RIGHT_CORNER = GLUT_CURSOR_BOTTOM_RIGHT_CORNER;
+    var CURSOR_BOTTOM_LEFT_CORNER = GLUT_CURSOR_BOTTOM_LEFT_CORNER;
+    var CURSOR_INHERIT = GLUT_CURSOR_INHERIT;
+    var CURSOR_NONE = GLUT_CURSOR_NONE;
+    var CURSOR_FULL_CROSSHAIR = GLUT_CURSOR_FULL_CROSSHAIR;
+    
+    /** GLu functions */
+    
+    function perspective(fovy, aspect, zNear, zFar) {
+        gluPerspective(fovy, aspect, zNear, zFar);
+    }
+    
+    function ortho2D(left, right, bottom, top) {
+        gluOrtho2D(left, right, bottom, top);
+    }
+    
+    function lookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ) {
+        gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
+    }
+    
+    /** GL functions */
+    
+    function enable(that) {
+        glEnable(that);
+        return GLError();
+    }
+    
+    function disable(that) {
+        glDisable(that);
+        return GLError();
     }
     
     function flush() {
         glFlush();
-        glutSwapBuffers();
-    }
-    
-    function needsRedraw() {
-        glutPostRedisplay();
-    }
-    
-    function bitmapCharacter(String char) {
-        if(char.length == 1)
-            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, char[0]);
+        return GLError();
     }
     
     function loadIdentity() {
         glLoadIdentity();
+        return GLError();
     }
     
-    function viewport(Integer x1, Integer y1, Integer x2, Integer y2) {
+    function clearColor(r, g, b, a) {
+        glClearColor(r, g, b, a);
+        return GLError();
+    }
+    
+    function clear(bits) {
+        glClear(bits);
+        return GLError();
+    }
+    
+    function viewport(x1, y1, x2, y2) {
         glViewport(x1, y1, x2, y2);
+        return GLError();
     }
     
-    function matrixModeProjection() {
-        glMatrixMode(GL_PROJECTION);
-    }
-    
-    function matrixModeModelView() {
-        glMatrixMode(GL_MODELVIEW);
+    function matrixMode(mode) {
+        glMatrixMode(mode);
+        return GLError();
     }
     
     function pushMatrix() {
         glPushMatrix();
+        return GLError();
     }
     
     function popMatrix() {
         glPopMatrix();
+        return GLError();
     }
     
-    function perspective(Number fovy, Number aspect, Number zNear, Number zFar) {
-        gluPerspective(fovy, aspect, zNear, zFar);
-    }
-    
-    function ortho2D(Number left, Number right, Number bottom, Number top) {
-        gluOrtho2D(left, right, bottom, top);
-    }
-    
-    function lookAt(Number eyeX, Number eyeY, Number eyeZ, Number centerX, Number centerY, Number centerZ, Number upX, Number upY, Number upZ) {
-        gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
-    }
-    
-    function translate(Number x, Number y, Number z) {
+    function translate(x, y, z) {
         glTranslated(x, y, z);
+        return GLError();
     }
     
-    function scale(Number x, Number y, Number z) {
+    function scale(x, y, z) {
         glScaled(x, y, z);
+        return GLError();
     }
     
-    function rotate(Number angle, Number x, Number y, Number z) {
+    function rotate(angle, x, y, z) {
         glRotated(angle, x, y, z);
+        return GLError();
     }
     
-    function color(Number r, Number g, Number b) {
+    function color(r, g, b) {
         glColor3d(r, g, b);
+        return GLError();
     }
     
-    function color(Number r, Number g, Number b, Number a) {
+    function color(r, g, b, a) {
         glColor4d(r, g, b, a);
+        return GLError();
     }
     
-    function beginPolygon() {
-        glBegin(GL_POLYGON);
+    function light(which, type, a, b, c, d) {
+        float light[] = {a, b, c, d};
+        glLightfv(which, type, light);
+        return GLError();
     }
     
-    function beginTriangles() {
-        glBegin(GL_TRIANGLES);
+    function material(which, type, r, g, b, a) {
+        /*
+        // Create light components
+        float ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+        float diffuseLight[] = { 0.4f, 0.4f, 0.4, 1.0f };
+        float specularLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+        float position[] = { 0.0f, 20.0f, 0.0f, 1.0f };
+
+        // Assign created components to GL_LIGHT0
+        glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+        glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+        glLightfv(GL_LIGHT0, GL_POSITION, position);
+        */
+        
+        float material[] = {r.to<float>(), g.to<float>(), b.to<float>(), a.to<float>()};
+        //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);
+        glMaterialfv(which, type, material);
+        return GLError();
     }
     
-    function beginTriangleStrip() {
-        glBegin(GL_TRIANGLE_STRIP);
+    function begin(what) {
+        glBegin(what);
+        //return GLError();
     }
     
     function end() {
         glEnd();
+        return GLError();
     }
     
-    function vertex(Number x, Number y, Number z) {
+    function vertex(x, y, z) {
         glVertex3d(x, y, z);
+        //return GLError();
     }
     
-    function normal(Number x, Number y, Number z) {
+    function normal(x, y, z) {
         glNormal3d(x, y, z);
+        //return GLError();
     }
     
-    function rasterPos(Number x, Number y) {
+    function rasterPos(x, y) {
         glRasterPos2d(x, y);
+        return GLError();
     }
+    
+    /** GL constants */
+
+    /* Boolean values */
+    var FALSE = GL_FALSE;
+    var TRUE = GL_TRUE;
+
+    /* Data types */
+    var BYTE = GL_BYTE;
+    var UNSIGNED_BYTE = GL_UNSIGNED_BYTE;
+    var SHORT = GL_SHORT;
+    var UNSIGNED_SHORT = GL_UNSIGNED_SHORT;
+    var INT = GL_INT;
+    var UNSIGNED_INT = GL_UNSIGNED_INT;
+    var FLOAT = GL_FLOAT;
+    /*var 2_BYTES = GL_2_BYTES;
+    var 3_BYTES = GL_3_BYTES;
+    var 4_BYTES = GL_4_BYTES;*/
+    var DOUBLE = GL_DOUBLE;
+
+    /* Primitives */
+    var POINTS = GL_POINTS;
+    var LINES = GL_LINES;
+    var LINE_LOOP = GL_LINE_LOOP;
+    var LINE_STRIP = GL_LINE_STRIP;
+    var TRIANGLES = GL_TRIANGLES;
+    var TRIANGLE_STRIP = GL_TRIANGLE_STRIP;
+    var TRIANGLE_FAN = GL_TRIANGLE_FAN;
+    var QUADS = GL_QUADS;
+    var QUAD_STRIP = GL_QUAD_STRIP;
+    var POLYGON = GL_POLYGON;
+
+    /* Vertex Arrays */
+    var VERTEX_ARRAY = GL_VERTEX_ARRAY;
+    var NORMAL_ARRAY = GL_NORMAL_ARRAY;
+    var COLOR_ARRAY = GL_COLOR_ARRAY;
+    var INDEX_ARRAY = GL_INDEX_ARRAY;
+    var TEXTURE_COORD_ARRAY = GL_TEXTURE_COORD_ARRAY;
+    var EDGE_FLAG_ARRAY = GL_EDGE_FLAG_ARRAY;
+    var VERTEX_ARRAY_SIZE = GL_VERTEX_ARRAY_SIZE;
+    var VERTEX_ARRAY_TYPE = GL_VERTEX_ARRAY_TYPE;
+    var VERTEX_ARRAY_STRIDE = GL_VERTEX_ARRAY_STRIDE;
+    var NORMAL_ARRAY_TYPE = GL_NORMAL_ARRAY_TYPE;
+    var NORMAL_ARRAY_STRIDE = GL_NORMAL_ARRAY_STRIDE;
+    var COLOR_ARRAY_SIZE = GL_COLOR_ARRAY_SIZE;
+    var COLOR_ARRAY_TYPE = GL_COLOR_ARRAY_TYPE;
+    var COLOR_ARRAY_STRIDE = GL_COLOR_ARRAY_STRIDE;
+    var INDEX_ARRAY_TYPE = GL_INDEX_ARRAY_TYPE;
+    var INDEX_ARRAY_STRIDE = GL_INDEX_ARRAY_STRIDE;
+    var TEXTURE_COORD_ARRAY_SIZE = GL_TEXTURE_COORD_ARRAY_SIZE;
+    var TEXTURE_COORD_ARRAY_TYPE = GL_TEXTURE_COORD_ARRAY_TYPE;
+    var TEXTURE_COORD_ARRAY_STRIDE = GL_TEXTURE_COORD_ARRAY_STRIDE;
+    var EDGE_FLAG_ARRAY_STRIDE = GL_EDGE_FLAG_ARRAY_STRIDE;
+    var VERTEX_ARRAY_POINTER = GL_VERTEX_ARRAY_POINTER;
+    var NORMAL_ARRAY_POINTER = GL_NORMAL_ARRAY_POINTER;
+    var COLOR_ARRAY_POINTER = GL_COLOR_ARRAY_POINTER;
+    var INDEX_ARRAY_POINTER = GL_INDEX_ARRAY_POINTER;
+    var TEXTURE_COORD_ARRAY_POINTER = GL_TEXTURE_COORD_ARRAY_POINTER;
+    var EDGE_FLAG_ARRAY_POINTER = GL_EDGE_FLAG_ARRAY_POINTER;
+    var V2F = GL_V2F;
+    var V3F = GL_V3F;
+    var C4UB_V2F = GL_C4UB_V2F;
+    var C4UB_V3F = GL_C4UB_V3F;
+    var C3F_V3F = GL_C3F_V3F;
+    var N3F_V3F = GL_N3F_V3F;
+    var C4F_N3F_V3F = GL_C4F_N3F_V3F;
+    var T2F_V3F = GL_T2F_V3F;
+    var T4F_V4F = GL_T4F_V4F;
+    var T2F_C4UB_V3F = GL_T2F_C4UB_V3F;
+    var T2F_C3F_V3F = GL_T2F_C3F_V3F;
+    var T2F_N3F_V3F = GL_T2F_N3F_V3F;
+    var T2F_C4F_N3F_V3F = GL_T2F_C4F_N3F_V3F;
+    var T4F_C4F_N3F_V4F = GL_T4F_C4F_N3F_V4F;
+
+    /* Matrix Mode */
+    var MATRIX_MODE = GL_MATRIX_MODE;
+    var MODELVIEW = GL_MODELVIEW;
+    var PROJECTION = GL_PROJECTION;
+    var TEXTURE = GL_TEXTURE;
+
+    /* Points */
+    var POINT_SMOOTH = GL_POINT_SMOOTH;
+    var POINT_SIZE = GL_POINT_SIZE;
+    var POINT_SIZE_GRANULARITY = GL_POINT_SIZE_GRANULARITY;
+    var POINT_SIZE_RANGE = GL_POINT_SIZE_RANGE;
+
+    /* Lines */
+    var LINE_SMOOTH = GL_LINE_SMOOTH;
+    var LINE_STIPPLE = GL_LINE_STIPPLE;
+    var LINE_STIPPLE_PATTERN = GL_LINE_STIPPLE_PATTERN;
+    var LINE_STIPPLE_REPEAT = GL_LINE_STIPPLE_REPEAT;
+    var LINE_WIDTH = GL_LINE_WIDTH;
+    var LINE_WIDTH_GRANULARITY = GL_LINE_WIDTH_GRANULARITY;
+    var LINE_WIDTH_RANGE = GL_LINE_WIDTH_RANGE;
+
+    /* Polygons */
+    var POINT = GL_POINT;
+    var LINE = GL_LINE;
+    var FILL = GL_FILL;
+    var CW = GL_CW;
+    var CCW = GL_CCW;
+    var FRONT = GL_FRONT;
+    var BACK = GL_BACK;
+    var POLYGON_MODE = GL_POLYGON_MODE;
+    var POLYGON_SMOOTH = GL_POLYGON_SMOOTH;
+    var POLYGON_STIPPLE = GL_POLYGON_STIPPLE;
+    var EDGE_FLAG = GL_EDGE_FLAG;
+    var CULL_FACE = GL_CULL_FACE;
+    var CULL_FACE_MODE = GL_CULL_FACE_MODE;
+    var FRONT_FACE = GL_FRONT_FACE;
+    var POLYGON_OFFSET_FACTOR = GL_POLYGON_OFFSET_FACTOR;
+    var POLYGON_OFFSET_UNITS = GL_POLYGON_OFFSET_UNITS;
+    var POLYGON_OFFSET_POINT = GL_POLYGON_OFFSET_POINT;
+    var POLYGON_OFFSET_LINE = GL_POLYGON_OFFSET_LINE;
+    var POLYGON_OFFSET_FILL = GL_POLYGON_OFFSET_FILL;
+
+    /* Display Lists */
+    var COMPILE = GL_COMPILE;
+    var COMPILE_AND_EXECUTE = GL_COMPILE_AND_EXECUTE;
+    var LIST_BASE = GL_LIST_BASE;
+    var LIST_INDEX = GL_LIST_INDEX;
+    var LIST_MODE = GL_LIST_MODE;
+
+    /* Depth buffer */
+    var NEVER = GL_NEVER;
+    var LESS = GL_LESS;
+    var EQUAL = GL_EQUAL;
+    var LEQUAL = GL_LEQUAL;
+    var GREATER = GL_GREATER;
+    var NOTEQUAL = GL_NOTEQUAL;
+    var GEQUAL = GL_GEQUAL;
+    var ALWAYS = GL_ALWAYS;
+    var DEPTH_TEST = GL_DEPTH_TEST;
+    var DEPTH_BITS = GL_DEPTH_BITS;
+    var DEPTH_CLEAR_VALUE = GL_DEPTH_CLEAR_VALUE;
+    var DEPTH_FUNC = GL_DEPTH_FUNC;
+    var DEPTH_RANGE = GL_DEPTH_RANGE;
+    var DEPTH_WRITEMASK = GL_DEPTH_WRITEMASK;
+    var DEPTH_COMPONENT = GL_DEPTH_COMPONENT;
+
+    /* Lighting */
+    var LIGHTING = GL_LIGHTING;
+    var LIGHT0 = GL_LIGHT0;
+    var LIGHT1 = GL_LIGHT1;
+    var LIGHT2 = GL_LIGHT2;
+    var LIGHT3 = GL_LIGHT3;
+    var LIGHT4 = GL_LIGHT4;
+    var LIGHT5 = GL_LIGHT5;
+    var LIGHT6 = GL_LIGHT6;
+    var LIGHT7 = GL_LIGHT7;
+    var SPOT_EXPONENT = GL_SPOT_EXPONENT;
+    var SPOT_CUTOFF = GL_SPOT_CUTOFF;
+    var CONSTANT_ATTENUATION = GL_CONSTANT_ATTENUATION;
+    var LINEAR_ATTENUATION = GL_LINEAR_ATTENUATION;
+    var QUADRATIC_ATTENUATION = GL_QUADRATIC_ATTENUATION;
+    var AMBIENT = GL_AMBIENT;
+    var DIFFUSE = GL_DIFFUSE;
+    var SPECULAR = GL_SPECULAR;
+    var SHININESS = GL_SHININESS;
+    var EMISSION = GL_EMISSION;
+    var POSITION = GL_POSITION;
+    var SPOT_DIRECTION = GL_SPOT_DIRECTION;
+    var AMBIENT_AND_DIFFUSE = GL_AMBIENT_AND_DIFFUSE;
+    var COLOR_INDEXES = GL_COLOR_INDEXES;
+    var LIGHT_MODEL_TWO_SIDE = GL_LIGHT_MODEL_TWO_SIDE;
+    var LIGHT_MODEL_LOCAL_VIEWER = GL_LIGHT_MODEL_LOCAL_VIEWER;
+    var LIGHT_MODEL_AMBIENT = GL_LIGHT_MODEL_AMBIENT;
+    var FRONT_AND_BACK = GL_FRONT_AND_BACK;
+    var SHADE_MODEL = GL_SHADE_MODEL;
+    var FLAT = GL_FLAT;
+    var SMOOTH = GL_SMOOTH;
+    var COLOR_MATERIAL = GL_COLOR_MATERIAL;
+    var COLOR_MATERIAL_FACE = GL_COLOR_MATERIAL_FACE;
+    var COLOR_MATERIAL_PARAMETER = GL_COLOR_MATERIAL_PARAMETER;
+    var NORMALIZE = GL_NORMALIZE;
+
+    /* User clipping planes */
+    var CLIP_PLANE0 = GL_CLIP_PLANE0;
+    var CLIP_PLANE1 = GL_CLIP_PLANE1;
+    var CLIP_PLANE2 = GL_CLIP_PLANE2;
+    var CLIP_PLANE3 = GL_CLIP_PLANE3;
+    var CLIP_PLANE4 = GL_CLIP_PLANE4;
+    var CLIP_PLANE5 = GL_CLIP_PLANE5;
+
+    /* Accumulation buffer */
+    var ACCUM_RED_BITS = GL_ACCUM_RED_BITS;
+    var ACCUM_GREEN_BITS = GL_ACCUM_GREEN_BITS;
+    var ACCUM_BLUE_BITS = GL_ACCUM_BLUE_BITS;
+    var ACCUM_ALPHA_BITS = GL_ACCUM_ALPHA_BITS;
+    var ACCUM_CLEAR_VALUE = GL_ACCUM_CLEAR_VALUE;
+    var ACCUM = GL_ACCUM;
+    var ADD = GL_ADD;
+    var LOAD = GL_LOAD;
+    var MULT = GL_MULT;
+    var RETURN = GL_RETURN;
+
+    /* Alpha testing */
+    var ALPHA_TEST = GL_ALPHA_TEST;
+    var ALPHA_TEST_REF = GL_ALPHA_TEST_REF;
+    var ALPHA_TEST_FUNC = GL_ALPHA_TEST_FUNC;
+
+    /* Blending */
+    var BLEND = GL_BLEND;
+    var BLEND_SRC = GL_BLEND_SRC;
+    var BLEND_DST = GL_BLEND_DST;
+    var ZERO = GL_ZERO;
+    var ONE = GL_ONE;
+    var SRC_COLOR = GL_SRC_COLOR;
+    var ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR;
+    var SRC_ALPHA = GL_SRC_ALPHA;
+    var ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA;
+    var DST_ALPHA = GL_DST_ALPHA;
+    var ONE_MINUS_DST_ALPHA = GL_ONE_MINUS_DST_ALPHA;
+    var DST_COLOR = GL_DST_COLOR;
+    var ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR;
+    var SRC_ALPHA_SATURATE = GL_SRC_ALPHA_SATURATE;
+
+    /* Render Mode */
+    var FEEDBACK = GL_FEEDBACK;
+    var RENDER = GL_RENDER;
+    var SELECT = GL_SELECT;
+
+    /* Feedback */
+    /*var 2D = GL_2D;
+    var 3D = GL_3D;
+    var 3D_COLOR = GL_3D_COLOR;
+    var 3D_COLOR_TEXTURE = GL_3D_COLOR_TEXTURE;
+    var 4D_COLOR_TEXTURE = GL_4D_COLOR_TEXTURE;*/
+    var POINT_TOKEN = GL_POINT_TOKEN;
+    var LINE_TOKEN = GL_LINE_TOKEN;
+    var LINE_RESET_TOKEN = GL_LINE_RESET_TOKEN;
+    var POLYGON_TOKEN = GL_POLYGON_TOKEN;
+    var BITMAP_TOKEN = GL_BITMAP_TOKEN;
+    var DRAW_PIXEL_TOKEN = GL_DRAW_PIXEL_TOKEN;
+    var COPY_PIXEL_TOKEN = GL_COPY_PIXEL_TOKEN;
+    var PASS_THROUGH_TOKEN = GL_PASS_THROUGH_TOKEN;
+    var FEEDBACK_BUFFER_POINTER = GL_FEEDBACK_BUFFER_POINTER;
+    var FEEDBACK_BUFFER_SIZE = GL_FEEDBACK_BUFFER_SIZE;
+    var FEEDBACK_BUFFER_TYPE = GL_FEEDBACK_BUFFER_TYPE;
+
+    /* Selection */
+    var SELECTION_BUFFER_POINTER = GL_SELECTION_BUFFER_POINTER;
+    var SELECTION_BUFFER_SIZE = GL_SELECTION_BUFFER_SIZE;
+
+    /* Fog */
+    var FOG = GL_FOG;
+    var FOG_MODE = GL_FOG_MODE;
+    var FOG_DENSITY = GL_FOG_DENSITY;
+    var FOG_COLOR = GL_FOG_COLOR;
+    var FOG_INDEX = GL_FOG_INDEX;
+    var FOG_START = GL_FOG_START;
+    var FOG_END = GL_FOG_END;
+    var LINEAR = GL_LINEAR;
+    var EXP = GL_EXP;
+    var EXP2 = GL_EXP2;
+
+    /* Logic Ops */
+    var LOGIC_OP = GL_LOGIC_OP;
+    var INDEX_LOGIC_OP = GL_INDEX_LOGIC_OP;
+    var COLOR_LOGIC_OP = GL_COLOR_LOGIC_OP;
+    var LOGIC_OP_MODE = GL_LOGIC_OP_MODE;
+    var CLEAR = GL_CLEAR;
+    var SET = GL_SET;
+    var COPY = GL_COPY;
+    var COPY_INVERTED = GL_COPY_INVERTED;
+    var NOOP = GL_NOOP;
+    var INVERT = GL_INVERT;
+    var AND = GL_AND;
+    var NAND = GL_NAND;
+    var OR = GL_OR;
+    var NOR = GL_NOR;
+    var XOR = GL_XOR;
+    var EQUIV = GL_EQUIV;
+    var AND_REVERSE = GL_AND_REVERSE;
+    var AND_INVERTED = GL_AND_INVERTED;
+    var OR_REVERSE = GL_OR_REVERSE;
+    var OR_INVERTED = GL_OR_INVERTED;
+
+    /* Stencil */
+    var STENCIL_BITS = GL_STENCIL_BITS;
+    var STENCIL_TEST = GL_STENCIL_TEST;
+    var STENCIL_CLEAR_VALUE = GL_STENCIL_CLEAR_VALUE;
+    var STENCIL_FUNC = GL_STENCIL_FUNC;
+    var STENCIL_VALUE_MASK = GL_STENCIL_VALUE_MASK;
+    var STENCIL_FAIL = GL_STENCIL_FAIL;
+    var STENCIL_PASS_DEPTH_FAIL = GL_STENCIL_PASS_DEPTH_FAIL;
+    var STENCIL_PASS_DEPTH_PASS = GL_STENCIL_PASS_DEPTH_PASS;
+    var STENCIL_REF = GL_STENCIL_REF;
+    var STENCIL_WRITEMASK = GL_STENCIL_WRITEMASK;
+    var STENCIL_INDEX = GL_STENCIL_INDEX;
+    var KEEP = GL_KEEP;
+    var REPLACE = GL_REPLACE;
+    var INCR = GL_INCR;
+    var DECR = GL_DECR;
+
+    /* Buffers, Pixel Drawing/Reading */
+    var NONE = GL_NONE;
+    var LEFT = GL_LEFT;
+    var RIGHT = GL_RIGHT;
+    /*GL_FRONT                  0x0404 */
+    /*GL_BACK                   0x0405 */
+    /*GL_FRONT_AND_BACK             0x0408 */
+    var FRONT_LEFT = GL_FRONT_LEFT;
+    var FRONT_RIGHT = GL_FRONT_RIGHT;
+    var BACK_LEFT = GL_BACK_LEFT;
+    var BACK_RIGHT = GL_BACK_RIGHT;
+    var AUX0 = GL_AUX0;
+    var AUX1 = GL_AUX1;
+    var AUX2 = GL_AUX2;
+    var AUX3 = GL_AUX3;
+    var COLOR_INDEX = GL_COLOR_INDEX;
+    var RED = GL_RED;
+    var GREEN = GL_GREEN;
+    var BLUE = GL_BLUE;
+    var ALPHA = GL_ALPHA;
+    var LUMINANCE = GL_LUMINANCE;
+    var LUMINANCE_ALPHA = GL_LUMINANCE_ALPHA;
+    var ALPHA_BITS = GL_ALPHA_BITS;
+    var RED_BITS = GL_RED_BITS;
+    var GREEN_BITS = GL_GREEN_BITS;
+    var BLUE_BITS = GL_BLUE_BITS;
+    var INDEX_BITS = GL_INDEX_BITS;
+    var SUBPIXEL_BITS = GL_SUBPIXEL_BITS;
+    var AUX_BUFFERS = GL_AUX_BUFFERS;
+    var READ_BUFFER = GL_READ_BUFFER;
+    var DRAW_BUFFER = GL_DRAW_BUFFER;
+    var DOUBLEBUFFER = GL_DOUBLEBUFFER;
+    var STEREO = GL_STEREO;
+    var BITMAP = GL_BITMAP;
+    var COLOR = GL_COLOR;
+    var DEPTH = GL_DEPTH;
+    var STENCIL = GL_STENCIL;
+    var DITHER = GL_DITHER;
+    var RGB = GL_RGB;
+    var RGBA = GL_RGBA;
+
+    /* Implementation limits */
+    var MAX_LIST_NESTING = GL_MAX_LIST_NESTING;
+    var MAX_EVAL_ORDER = GL_MAX_EVAL_ORDER;
+    var MAX_LIGHTS = GL_MAX_LIGHTS;
+    var MAX_CLIP_PLANES = GL_MAX_CLIP_PLANES;
+    var MAX_TEXTURE_SIZE = GL_MAX_TEXTURE_SIZE;
+    var MAX_PIXEL_MAP_TABLE = GL_MAX_PIXEL_MAP_TABLE;
+    var MAX_ATTRIB_STACK_DEPTH = GL_MAX_ATTRIB_STACK_DEPTH;
+    var MAX_MODELVIEW_STACK_DEPTH = GL_MAX_MODELVIEW_STACK_DEPTH;
+    var MAX_NAME_STACK_DEPTH = GL_MAX_NAME_STACK_DEPTH;
+    var MAX_PROJECTION_STACK_DEPTH = GL_MAX_PROJECTION_STACK_DEPTH;
+    var MAX_TEXTURE_STACK_DEPTH = GL_MAX_TEXTURE_STACK_DEPTH;
+    var MAX_VIEWPORT_DIMS = GL_MAX_VIEWPORT_DIMS;
+    var MAX_CLIENT_ATTRIB_STACK_DEPTH = GL_MAX_CLIENT_ATTRIB_STACK_DEPTH;
+
+    /* Gets */
+    var ATTRIB_STACK_DEPTH = GL_ATTRIB_STACK_DEPTH;
+    var CLIENT_ATTRIB_STACK_DEPTH = GL_CLIENT_ATTRIB_STACK_DEPTH;
+    var COLOR_CLEAR_VALUE = GL_COLOR_CLEAR_VALUE;
+    var COLOR_WRITEMASK = GL_COLOR_WRITEMASK;
+    var CURRENT_INDEX = GL_CURRENT_INDEX;
+    var CURRENT_COLOR = GL_CURRENT_COLOR;
+    var CURRENT_NORMAL = GL_CURRENT_NORMAL;
+    var CURRENT_RASTER_COLOR = GL_CURRENT_RASTER_COLOR;
+    var CURRENT_RASTER_DISTANCE = GL_CURRENT_RASTER_DISTANCE;
+    var CURRENT_RASTER_INDEX = GL_CURRENT_RASTER_INDEX;
+    var CURRENT_RASTER_POSITION = GL_CURRENT_RASTER_POSITION;
+    var CURRENT_RASTER_TEXTURE_COORDS = GL_CURRENT_RASTER_TEXTURE_COORDS;
+    var CURRENT_RASTER_POSITION_VALID = GL_CURRENT_RASTER_POSITION_VALID;
+    var CURRENT_TEXTURE_COORDS = GL_CURRENT_TEXTURE_COORDS;
+    var INDEX_CLEAR_VALUE = GL_INDEX_CLEAR_VALUE;
+    var INDEX_MODE = GL_INDEX_MODE;
+    var INDEX_WRITEMASK = GL_INDEX_WRITEMASK;
+    var MODELVIEW_MATRIX = GL_MODELVIEW_MATRIX;
+    var MODELVIEW_STACK_DEPTH = GL_MODELVIEW_STACK_DEPTH;
+    var NAME_STACK_DEPTH = GL_NAME_STACK_DEPTH;
+    var PROJECTION_MATRIX = GL_PROJECTION_MATRIX;
+    var PROJECTION_STACK_DEPTH = GL_PROJECTION_STACK_DEPTH;
+    var RENDER_MODE = GL_RENDER_MODE;
+    var RGBA_MODE = GL_RGBA_MODE;
+    var TEXTURE_MATRIX = GL_TEXTURE_MATRIX;
+    var TEXTURE_STACK_DEPTH = GL_TEXTURE_STACK_DEPTH;
+    var VIEWPORT = GL_VIEWPORT;
+
+    /* Evaluators */
+    var AUTO_NORMAL = GL_AUTO_NORMAL;
+    var MAP1_COLOR_4 = GL_MAP1_COLOR_4;
+    var MAP1_INDEX = GL_MAP1_INDEX;
+    var MAP1_NORMAL = GL_MAP1_NORMAL;
+    var MAP1_TEXTURE_COORD_1 = GL_MAP1_TEXTURE_COORD_1;
+    var MAP1_TEXTURE_COORD_2 = GL_MAP1_TEXTURE_COORD_2;
+    var MAP1_TEXTURE_COORD_3 = GL_MAP1_TEXTURE_COORD_3;
+    var MAP1_TEXTURE_COORD_4 = GL_MAP1_TEXTURE_COORD_4;
+    var MAP1_VERTEX_3 = GL_MAP1_VERTEX_3;
+    var MAP1_VERTEX_4 = GL_MAP1_VERTEX_4;
+    var MAP2_COLOR_4 = GL_MAP2_COLOR_4;
+    var MAP2_INDEX = GL_MAP2_INDEX;
+    var MAP2_NORMAL = GL_MAP2_NORMAL;
+    var MAP2_TEXTURE_COORD_1 = GL_MAP2_TEXTURE_COORD_1;
+    var MAP2_TEXTURE_COORD_2 = GL_MAP2_TEXTURE_COORD_2;
+    var MAP2_TEXTURE_COORD_3 = GL_MAP2_TEXTURE_COORD_3;
+    var MAP2_TEXTURE_COORD_4 = GL_MAP2_TEXTURE_COORD_4;
+    var MAP2_VERTEX_3 = GL_MAP2_VERTEX_3;
+    var MAP2_VERTEX_4 = GL_MAP2_VERTEX_4;
+    var MAP1_GRID_DOMAIN = GL_MAP1_GRID_DOMAIN;
+    var MAP1_GRID_SEGMENTS = GL_MAP1_GRID_SEGMENTS;
+    var MAP2_GRID_DOMAIN = GL_MAP2_GRID_DOMAIN;
+    var MAP2_GRID_SEGMENTS = GL_MAP2_GRID_SEGMENTS;
+    var COEFF = GL_COEFF;
+    var ORDER = GL_ORDER;
+    var DOMAIN = GL_DOMAIN;
+
+    /* Hints */
+    var PERSPECTIVE_CORRECTION_HINT = GL_PERSPECTIVE_CORRECTION_HINT;
+    var POINT_SMOOTH_HINT = GL_POINT_SMOOTH_HINT;
+    var LINE_SMOOTH_HINT = GL_LINE_SMOOTH_HINT;
+    var POLYGON_SMOOTH_HINT = GL_POLYGON_SMOOTH_HINT;
+    var FOG_HINT = GL_FOG_HINT;
+    var DONT_CARE = GL_DONT_CARE;
+    var FASTEST = GL_FASTEST;
+    var NICEST = GL_NICEST;
+
+    /* Scissor box */
+    var SCISSOR_BOX = GL_SCISSOR_BOX;
+    var SCISSOR_TEST = GL_SCISSOR_TEST;
+
+    /* Pixel Mode / Transfer */
+    var MAP_COLOR = GL_MAP_COLOR;
+    var MAP_STENCIL = GL_MAP_STENCIL;
+    var INDEX_SHIFT = GL_INDEX_SHIFT;
+    var INDEX_OFFSET = GL_INDEX_OFFSET;
+    var RED_SCALE = GL_RED_SCALE;
+    var RED_BIAS = GL_RED_BIAS;
+    var GREEN_SCALE = GL_GREEN_SCALE;
+    var GREEN_BIAS = GL_GREEN_BIAS;
+    var BLUE_SCALE = GL_BLUE_SCALE;
+    var BLUE_BIAS = GL_BLUE_BIAS;
+    var ALPHA_SCALE = GL_ALPHA_SCALE;
+    var ALPHA_BIAS = GL_ALPHA_BIAS;
+    var DEPTH_SCALE = GL_DEPTH_SCALE;
+    var DEPTH_BIAS = GL_DEPTH_BIAS;
+    var PIXEL_MAP_S_TO_S_SIZE = GL_PIXEL_MAP_S_TO_S_SIZE;
+    var PIXEL_MAP_I_TO_I_SIZE = GL_PIXEL_MAP_I_TO_I_SIZE;
+    var PIXEL_MAP_I_TO_R_SIZE = GL_PIXEL_MAP_I_TO_R_SIZE;
+    var PIXEL_MAP_I_TO_G_SIZE = GL_PIXEL_MAP_I_TO_G_SIZE;
+    var PIXEL_MAP_I_TO_B_SIZE = GL_PIXEL_MAP_I_TO_B_SIZE;
+    var PIXEL_MAP_I_TO_A_SIZE = GL_PIXEL_MAP_I_TO_A_SIZE;
+    var PIXEL_MAP_R_TO_R_SIZE = GL_PIXEL_MAP_R_TO_R_SIZE;
+    var PIXEL_MAP_G_TO_G_SIZE = GL_PIXEL_MAP_G_TO_G_SIZE;
+    var PIXEL_MAP_B_TO_B_SIZE = GL_PIXEL_MAP_B_TO_B_SIZE;
+    var PIXEL_MAP_A_TO_A_SIZE = GL_PIXEL_MAP_A_TO_A_SIZE;
+    var PIXEL_MAP_S_TO_S = GL_PIXEL_MAP_S_TO_S;
+    var PIXEL_MAP_I_TO_I = GL_PIXEL_MAP_I_TO_I;
+    var PIXEL_MAP_I_TO_R = GL_PIXEL_MAP_I_TO_R;
+    var PIXEL_MAP_I_TO_G = GL_PIXEL_MAP_I_TO_G;
+    var PIXEL_MAP_I_TO_B = GL_PIXEL_MAP_I_TO_B;
+    var PIXEL_MAP_I_TO_A = GL_PIXEL_MAP_I_TO_A;
+    var PIXEL_MAP_R_TO_R = GL_PIXEL_MAP_R_TO_R;
+    var PIXEL_MAP_G_TO_G = GL_PIXEL_MAP_G_TO_G;
+    var PIXEL_MAP_B_TO_B = GL_PIXEL_MAP_B_TO_B;
+    var PIXEL_MAP_A_TO_A = GL_PIXEL_MAP_A_TO_A;
+    var PACK_ALIGNMENT = GL_PACK_ALIGNMENT;
+    var PACK_LSB_FIRST = GL_PACK_LSB_FIRST;
+    var PACK_ROW_LENGTH = GL_PACK_ROW_LENGTH;
+    var PACK_SKIP_PIXELS = GL_PACK_SKIP_PIXELS;
+    var PACK_SKIP_ROWS = GL_PACK_SKIP_ROWS;
+    var PACK_SWAP_BYTES = GL_PACK_SWAP_BYTES;
+    var UNPACK_ALIGNMENT = GL_UNPACK_ALIGNMENT;
+    var UNPACK_LSB_FIRST = GL_UNPACK_LSB_FIRST;
+    var UNPACK_ROW_LENGTH = GL_UNPACK_ROW_LENGTH;
+    var UNPACK_SKIP_PIXELS = GL_UNPACK_SKIP_PIXELS;
+    var UNPACK_SKIP_ROWS = GL_UNPACK_SKIP_ROWS;
+    var UNPACK_SWAP_BYTES = GL_UNPACK_SWAP_BYTES;
+    var ZOOM_X = GL_ZOOM_X;
+    var ZOOM_Y = GL_ZOOM_Y;
+
+    /* Texture mapping */
+    var TEXTURE_ENV = GL_TEXTURE_ENV;
+    var TEXTURE_ENV_MODE = GL_TEXTURE_ENV_MODE;
+    var TEXTURE_1D = GL_TEXTURE_1D;
+    var TEXTURE_2D = GL_TEXTURE_2D;
+    var TEXTURE_WRAP_S = GL_TEXTURE_WRAP_S;
+    var TEXTURE_WRAP_T = GL_TEXTURE_WRAP_T;
+    var TEXTURE_MAG_FILTER = GL_TEXTURE_MAG_FILTER;
+    var TEXTURE_MIN_FILTER = GL_TEXTURE_MIN_FILTER;
+    var TEXTURE_ENV_COLOR = GL_TEXTURE_ENV_COLOR;
+    var TEXTURE_GEN_S = GL_TEXTURE_GEN_S;
+    var TEXTURE_GEN_T = GL_TEXTURE_GEN_T;
+    var TEXTURE_GEN_MODE = GL_TEXTURE_GEN_MODE;
+    var TEXTURE_BORDER_COLOR = GL_TEXTURE_BORDER_COLOR;
+    var TEXTURE_WIDTH = GL_TEXTURE_WIDTH;
+    var TEXTURE_HEIGHT = GL_TEXTURE_HEIGHT;
+    var TEXTURE_BORDER = GL_TEXTURE_BORDER;
+    var TEXTURE_COMPONENTS = GL_TEXTURE_COMPONENTS;
+    var TEXTURE_RED_SIZE = GL_TEXTURE_RED_SIZE;
+    var TEXTURE_GREEN_SIZE = GL_TEXTURE_GREEN_SIZE;
+    var TEXTURE_BLUE_SIZE = GL_TEXTURE_BLUE_SIZE;
+    var TEXTURE_ALPHA_SIZE = GL_TEXTURE_ALPHA_SIZE;
+    var TEXTURE_LUMINANCE_SIZE = GL_TEXTURE_LUMINANCE_SIZE;
+    var TEXTURE_INTENSITY_SIZE = GL_TEXTURE_INTENSITY_SIZE;
+    var NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST;
+    var NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR;
+    var LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST;
+    var LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR;
+    var OBJECT_LINEAR = GL_OBJECT_LINEAR;
+    var OBJECT_PLANE = GL_OBJECT_PLANE;
+    var EYE_LINEAR = GL_EYE_LINEAR;
+    var EYE_PLANE = GL_EYE_PLANE;
+    var SPHERE_MAP = GL_SPHERE_MAP;
+    var DECAL = GL_DECAL;
+    var MODULATE = GL_MODULATE;
+    var NEAREST = GL_NEAREST;
+    var REPEAT = GL_REPEAT;
+    var CLAMP = GL_CLAMP;
+    var S = GL_S;
+    var T = GL_T;
+    var R = GL_R;
+    var Q = GL_Q;
+    var TEXTURE_GEN_R = GL_TEXTURE_GEN_R;
+    var TEXTURE_GEN_Q = GL_TEXTURE_GEN_Q;
+
+    /* Utility */
+    var VENDOR = GL_VENDOR;
+    var RENDERER = GL_RENDERER;
+    var VERSION = GL_VERSION;
+    var EXTENSIONS = GL_EXTENSIONS;
+
+    /* Errors */
+    var NO_ERROR = GL_NO_ERROR;
+    var INVALID_ENUM = GL_INVALID_ENUM;
+    var INVALID_VALUE = GL_INVALID_VALUE;
+    var INVALID_OPERATION = GL_INVALID_OPERATION;
+    var STACK_OVERFLOW = GL_STACK_OVERFLOW;
+    var STACK_UNDERFLOW = GL_STACK_UNDERFLOW;
+    var OUT_OF_MEMORY = GL_OUT_OF_MEMORY;
+
+    /* glPush/PopAttrib bits */
+    var CURRENT_BIT = GL_CURRENT_BIT;
+    var POINT_BIT = GL_POINT_BIT;
+    var LINE_BIT = GL_LINE_BIT;
+    var POLYGON_BIT = GL_POLYGON_BIT;
+    var POLYGON_STIPPLE_BIT = GL_POLYGON_STIPPLE_BIT;
+    var PIXEL_MODE_BIT = GL_PIXEL_MODE_BIT;
+    var LIGHTING_BIT = GL_LIGHTING_BIT;
+    var FOG_BIT = GL_FOG_BIT;
+    var DEPTH_BUFFER_BIT = GL_DEPTH_BUFFER_BIT;
+    var ACCUM_BUFFER_BIT = GL_ACCUM_BUFFER_BIT;
+    var STENCIL_BUFFER_BIT = GL_STENCIL_BUFFER_BIT;
+    var VIEWPORT_BIT = GL_VIEWPORT_BIT;
+    var TRANSFORM_BIT = GL_TRANSFORM_BIT;
+    var ENABLE_BIT = GL_ENABLE_BIT;
+    var COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT;
+    var HINT_BIT = GL_HINT_BIT;
+    var EVAL_BIT = GL_EVAL_BIT;
+    var LIST_BIT = GL_LIST_BIT;
+    var TEXTURE_BIT = GL_TEXTURE_BIT;
+    var SCISSOR_BIT = GL_SCISSOR_BIT;
+    var ALL_ATTRIB_BITS = GL_ALL_ATTRIB_BITS;
+
+
+    /* OpenGL 1.1 */
+    var PROXY_TEXTURE_1D = GL_PROXY_TEXTURE_1D;
+    var PROXY_TEXTURE_2D = GL_PROXY_TEXTURE_2D;
+    var TEXTURE_PRIORITY = GL_TEXTURE_PRIORITY;
+    var TEXTURE_RESIDENT = GL_TEXTURE_RESIDENT;
+    var TEXTURE_BINDING_1D = GL_TEXTURE_BINDING_1D;
+    var TEXTURE_BINDING_2D = GL_TEXTURE_BINDING_2D;
+    var TEXTURE_INTERNAL_FORMAT = GL_TEXTURE_INTERNAL_FORMAT;
+    var ALPHA4 = GL_ALPHA4;
+    var ALPHA8 = GL_ALPHA8;
+    var ALPHA12 = GL_ALPHA12;
+    var ALPHA16 = GL_ALPHA16;
+    var LUMINANCE4 = GL_LUMINANCE4;
+    var LUMINANCE8 = GL_LUMINANCE8;
+    var LUMINANCE12 = GL_LUMINANCE12;
+    var LUMINANCE16 = GL_LUMINANCE16;
+    var LUMINANCE4_ALPHA4 = GL_LUMINANCE4_ALPHA4;
+    var LUMINANCE6_ALPHA2 = GL_LUMINANCE6_ALPHA2;
+    var LUMINANCE8_ALPHA8 = GL_LUMINANCE8_ALPHA8;
+    var LUMINANCE12_ALPHA4 = GL_LUMINANCE12_ALPHA4;
+    var LUMINANCE12_ALPHA12 = GL_LUMINANCE12_ALPHA12;
+    var LUMINANCE16_ALPHA16 = GL_LUMINANCE16_ALPHA16;
+    var INTENSITY = GL_INTENSITY;
+    var INTENSITY4 = GL_INTENSITY4;
+    var INTENSITY8 = GL_INTENSITY8;
+    var INTENSITY12 = GL_INTENSITY12;
+    var INTENSITY16 = GL_INTENSITY16;
+    var R3_G3_B2 = GL_R3_G3_B2;
+    var RGB4 = GL_RGB4;
+    var RGB5 = GL_RGB5;
+    var RGB8 = GL_RGB8;
+    var RGB10 = GL_RGB10;
+    var RGB12 = GL_RGB12;
+    var RGB16 = GL_RGB16;
+    var RGBA2 = GL_RGBA2;
+    var RGBA4 = GL_RGBA4;
+    var RGB5_A1 = GL_RGB5_A1;
+    var RGBA8 = GL_RGBA8;
+    var RGB10_A2 = GL_RGB10_A2;
+    var RGBA12 = GL_RGBA12;
+    var RGBA16 = GL_RGBA16;
+    var CLIENT_PIXEL_STORE_BIT = GL_CLIENT_PIXEL_STORE_BIT;
+    var CLIENT_VERTEX_ARRAY_BIT = GL_CLIENT_VERTEX_ARRAY_BIT;
+    var ALL_CLIENT_ATTRIB_BITS = GL_ALL_CLIENT_ATTRIB_BITS;
+    var CLIENT_ALL_ATTRIB_BITS = GL_CLIENT_ALL_ATTRIB_BITS;
+    
 }
