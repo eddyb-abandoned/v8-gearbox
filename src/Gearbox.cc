@@ -1,7 +1,5 @@
 #include "Gearbox.h"
 
-#define CHECK_EMPTY if(m_hValue.IsEmpty())from(undefined)
-
 namespace Gearbox {
     
     //void ValueList::push(Value that) {
