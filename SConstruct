@@ -29,7 +29,7 @@ else:
     env.ParseConfig('sdl-config --cflags --libs')
     env.ParseConfig('ncurses5-config --cflags --libs')
     env.Append(LINKFLAGS = '-Wl,--no-warn-search-mismatch')
-    env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments -ffast-math')
+    env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments')
     env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut'])
 
 # Pretty output
