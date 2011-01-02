@@ -144,9 +144,7 @@ int main(int argc, char* argv[]) {
 
 #else
 
-#define FixHttpVar(x) ExecuteString(\
-x "=(function(d){var e={};d.split('&').forEach(function(a){if((a=a.split('='))[0]){var b=decodeURIComponent(a.shift().replace(/\\+/g, '%20')).replace(/\\[\\]$/,'');var c=a.join('=');if(c!=undefined)c=decodeURIComponent(c.replace(/\\+/g, '%20'));if(b in e){if(!Array.isArray(e[b]))e[b]=[e[b]];e[b].push(c)}else e[b]=c}});return e})(" x ");"\
-, "Fix " x)
+const char *sFixHttpVar = "function(d){var e={};d.split('&').forEach(function(a){if((a=a.split('='))[0]){var b=decodeURIComponent(a.shift().replace(/\\+/g, '%20')).replace(/\\[\\]$/,'');var c=a.join('=');if(c!=undefined)c=decodeURIComponent(c.replace(/\\+/g, '%20'));if(b in e){if(!Array.isArray(e[b]))e[b]=[e[b]];e[b].push(c)}else e[b]=c}});return e}";
 
 bool RunScript(const char *sScript) {
     v8::HandleScope handle_scope;
@@ -162,10 +160,11 @@ bool RunScript(const char *sScript) {
     // Empty arguments array
     global["arguments"] = Array();
     
-    if(g_pRequest && g_pRequest->args()) {
-        global["GET"] = g_pRequest->args();
-        FixHttpVar("GET");
-    }
+    // HTTP VAR fix function
+    var fixHttpVar = ExecuteString(sFixHttpVar, "");
+    
+    if(g_pRequest && g_pRequest->args())
+        global["GET"] = fixHttpVar(g_pRequest->args());
     else
         global["GET"] = Object();
     
@@ -175,14 +174,13 @@ bool RunScript(const char *sScript) {
         size_t nPostBytes = g_pRequest->remaining();
         char *pPostData = new char[nPostBytes];
         g_pRequest->get_client_block(pPostData, nPostBytes);
-        global["POST"] = String(pPostData, nPostBytes));
+        global["POST"] = fixHttpVar(String(pPostData, nPostBytes));
         delete pPostData;
-        FixHttpVar("POST");
     }
     else
         global["POST"] = Object();
     
-    // Use all other arguments as names of files to load and run.
+    // Try to read the file
     String source = ReadFile(sScript);
     if(source.empty()) {
         v8::V8::Dispose();
@@ -199,7 +197,7 @@ bool RunScript(const char *sScript) {
 // Reads a file into a v8 string.
 String Gearbox::ReadFile(String name) {
     FILE* file = fopen(name, "rb");
-    if (file == NULL)
+    if(!file)
         return String();
 
     fseek(file, 0, SEEK_END);
