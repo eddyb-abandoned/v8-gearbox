@@ -32,7 +32,7 @@ namespace Network {
                 return Error("Unable to resolve host");
                 
             struct sockaddr_in server_addr;
-            server_addr.sin_family = this["family"];
+            server_addr.sin_family = this["family"].to<uint32_t>();
             server_addr.sin_port = htons(port.to<uint32_t>());
             server_addr.sin_addr = *((struct in_addr *)host_s->h_addr);
             
@@ -60,7 +60,11 @@ namespace Network {
         }
         
         function close() {
+#ifdef _WIN32
+            closesocket(this["socket"]);
+#else
             close(this["socket"]);
+#endif
         }
         
         function block(blocking) {

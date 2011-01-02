@@ -6,6 +6,10 @@ using namespace Gearbox;
 /** \file MySQL.cc */
 
 #line 1 "src/modules/MySQL.gear"
+#ifdef _WIN32
+    #define HAVE_RINT
+    #define __CYGWIN__
+#endif
 #include <my_global.h>
 #include <mysql.h>
 
@@ -13,7 +17,7 @@ v8::Handle<v8::Value> __global_MySQL_Connection_Connection(const v8::Arguments& 
     Value This(args.This());
     if(args.Length() >= 4)
     {
-        #line 10 "src/modules/MySQL.gear"
+        #line 14 "src/modules/MySQL.gear"
         Value host(args[0]), user(args[1]), password(args[2]), db(args[3]);
         MYSQL *pMYSQL = mysql_init(NULL);
         mysql_real_connect(pMYSQL, host.to<String>(), user.to<String>(), password.to<String>(), db.to<String>(), 0, NULL, 0);
@@ -27,7 +31,7 @@ v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args)
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 16 "src/modules/MySQL.gear"
+        #line 20 "src/modules/MySQL.gear"
         Value query(args[0]);
         MYSQL *pMYSQL = This["pMYSQL"];
         
@@ -71,12 +75,12 @@ v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args)
 }
 
 v8::Handle<v8::Value> __global_MySQL_toString(const v8::Arguments& args) {
-    #line 7 "src/modules/MySQL.gear"
+    #line 11 "src/modules/MySQL.gear"
     return String("[object MySQL]");
 }
 
 
-#line 79 "src/modules/MySQL.cc"
+#line 83 "src/modules/MySQL.cc"
 void SetupMySQL(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_MySQL = v8::Object::New();
     global->Set(String("MySQL"), global_MySQL);

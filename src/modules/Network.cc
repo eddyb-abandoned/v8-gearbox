@@ -44,7 +44,7 @@ v8::Handle<v8::Value> __global_Network_Socket_connect(const v8::Arguments& args)
             return Error("Unable to resolve host");
             
         struct sockaddr_in server_addr;
-        server_addr.sin_family = This["family"];
+        server_addr.sin_family = This["family"].to<uint32_t>();
         server_addr.sin_port = htons(port.to<uint32_t>());
         server_addr.sin_addr = *((struct in_addr *)host_s->h_addr);
         
@@ -88,7 +88,11 @@ v8::Handle<v8::Value> __global_Network_Socket_send(const v8::Arguments& args) {
 v8::Handle<v8::Value> __global_Network_Socket_close(const v8::Arguments& args) {
     Value This(args.This());
     #line 63 "src/modules/Network.gear"
+    #ifdef _WIN32
+    closesocket(This["socket"]);
+#else
     close(This["socket"]);
+#endif
     return undefined;
 }
 
@@ -96,7 +100,7 @@ v8::Handle<v8::Value> __global_Network_Socket_block(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 66 "src/modules/Network.gear"
+        #line 70 "src/modules/Network.gear"
         Value blocking(args[0]);
         #ifdef _WIN32
         u_long mode = blocking ? 1 : 0;
@@ -120,7 +124,7 @@ v8::Handle<v8::Value> __global_Network_toString(const v8::Arguments& args) {
 }
 
 
-#line 123 "src/modules/Network.cc"
+#line 127 "src/modules/Network.cc"
 void SetupNetwork(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_Network = v8::Object::New();
     global->Set(String("Network"), global_Network);

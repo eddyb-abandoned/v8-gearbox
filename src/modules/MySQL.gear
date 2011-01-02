@@ -1,4 +1,8 @@
 header {
+    #ifdef _WIN32
+        #define HAVE_RINT
+        #define __CYGWIN__
+    #endif
     #include <my_global.h>
     #include <mysql.h>
 }

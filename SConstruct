@@ -12,7 +12,7 @@ if sys.platform == 'win32':
         print "============================================================================="
         print "For building v8-gearbox on windows you need to make a directory named contrib"
         print "and put the following in there: v8 (you need to build it yourself), readline,"
-        print "freeglut, pdcurses, mysql-connector-c and SDL. Also, you can only use VC++ to"
+        print "freeglut, pdcurses, mysql-connector-c and SDL. Also you can only use MinGW to"
         print "build v8-gearbox. Have a nice day :)"
         print "============================================================================="
         print ""
