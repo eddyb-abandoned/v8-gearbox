@@ -4,8 +4,8 @@
 
 namespace Gearbox {
     
-    Gearbox::String Gearbox::String::concat(Gearbox::String left, Gearbox::String right) {
-        return Gearbox::Value(v8::String::Concat(left, right));
+    String String::concat(String left, String right) {
+        return Value(v8::String::Concat(left, right));
     }
     
     //void ValueList::push(Value that) {

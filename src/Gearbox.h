@@ -105,30 +105,23 @@ namespace Gearbox {
     
     class String {
         public:
-            String() : m_pString(0), m_iLength(-1), m_bCloneOnUse(false) {}
-            String(char *pString, int iLength=-1)
-                : m_pString(clone(pString, iLength)), m_iLength(iLength), m_bCloneOnUse(false) {}
-            String(const char *pString, int iLength=-1)
-                : m_pString(const_cast<char*>(pString)/*clone(const_cast<char*>(pString), iLength)*/), m_iLength(iLength), m_bCloneOnUse(true) {}
-            ~String() {
-                if(m_pString && !m_bCloneOnUse) {
-                    delete m_pString;
-                }
+            String(char *pString=0, int iLength=-1) {
+                clone(pString, iLength);
             }
-            String(const String &that) : m_pString(clone(that.m_pString, that.m_iLength)), m_iLength(that.m_iLength), m_bCloneOnUse(false)  {
+            String(const char *pString, int iLength=-1) {
+                clone(const_cast<char*>(pString), iLength);
+            }
+            ~String() {
+                if(m_pString)
+                    delete m_pString;
+            }
+            String(const String &that) {
+                clone(that.m_pString, that.m_iLength);
             }
             String &operator =(const String &that) {
-                if(m_pString && !m_bCloneOnUse)
+                if(m_pString)
                     delete m_pString;
-                if(that.m_bCloneOnUse) {
-                    m_pString = that.m_pString;
-                    m_bCloneOnUse = true;
-                }
-                else {
-                    m_pString = clone(that.m_pString, that.m_iLength);
-                    m_iLength = that.m_iLength;
-                    m_bCloneOnUse = false;
-                }
+                clone(that.m_pString, that.m_iLength);
                 return *this;
             }
             bool empty() {
@@ -137,10 +130,7 @@ namespace Gearbox {
             int length() {
                 if(empty())
                     return 0;
-                else if(m_iLength > -1)
-                    return m_iLength;
-                else
-                    return strlen(m_pString);
+                return m_iLength;
             }
             char *operator*() {
                 return operator char*();
@@ -151,32 +141,37 @@ namespace Gearbox {
             operator char*() {
                 if(!m_pString)
                     return const_cast<char*>("");
-                if(m_bCloneOnUse) {
-                    m_pString = clone(m_pString, m_iLength);
-                    m_bCloneOnUse = false;
-                }
                 return m_pString;
-            }
-            operator v8::Handle<v8::Value>() {
-                return operator v8::Handle<v8::String>();
             }
             operator v8::Handle<v8::String>() {
                 return v8::String::New(m_pString, m_iLength);
             }
+            operator v8::Handle<v8::Value>() {
+                return operator v8::Handle<v8::String>();
+            }
             static String concat(String left, String right);
         private:
-            static char *clone(char *pString, int iLength) {
-                if(!pString)
-                    return 0;
-                if(iLength > -1)
-                    return strndup(pString, iLength);
-                else
-                    return strdup(pString);
+            void clone(char *pString, int iLength) {
+                if(!pString) {
+                    pString = 0;
+                    iLength = 0;
+                    return;
+                }
+                
+                // Use strlen to get the length if not provided
+                if(iLength == -1)
+                    iLength = strlen(pString);
+                
+                // End the string with \0 to make C stuff happy
+                char *result = new char [iLength + 1];
+                result[iLength] = '\0';
+                
+                m_pString = reinterpret_cast<char*>(memcpy(result, pString, iLength));
+                m_iLength = iLength;
             }
             
             char *m_pString;
             int m_iLength;
-            bool m_bCloneOnUse;
     };
     
     template <class Node, class Index>
