@@ -102,23 +102,20 @@ namespace Gearbox {
     
     static Primitive undefined;
     static Primitive null(Primitive::Null);
-#define printf(...)
+    
     class String {
         public:
-            String() : m_pString(0), m_iLength(-1), m_bCloneOnUse(false) {
-                    printf("String[%p]: null instantiation!!!\n", this);}
+            String() : m_pString(0), m_iLength(-1), m_bCloneOnUse(false) {}
             String(char *pString, int iLength=-1)
-                : m_pString(clone(pString, iLength)), m_iLength(iLength), m_bCloneOnUse(false) {printf("String[%p]: normal instantiation to %p %s\n", this, pString, pString);}
+                : m_pString(clone(pString, iLength)), m_iLength(iLength), m_bCloneOnUse(false) {}
             String(const char *pString, int iLength=-1)
-                : m_pString(const_cast<char*>(pString)/*clone(const_cast<char*>(pString), iLength)*/), m_iLength(iLength), m_bCloneOnUse(true) {printf("String[%p]: const instantiation to %p %s\n", this, pString, pString);}
+                : m_pString(const_cast<char*>(pString)/*clone(const_cast<char*>(pString), iLength)*/), m_iLength(iLength), m_bCloneOnUse(true) {}
             ~String() {
                 if(m_pString && !m_bCloneOnUse) {
-                    printf("String[%p]: deleting %p %s\n", this, m_pString, m_pString);
                     delete m_pString;
                 }
             }
             String(const String &that) : m_pString(clone(that.m_pString, that.m_iLength)), m_iLength(that.m_iLength), m_bCloneOnUse(false)  {
-                printf("String[%p]: MIRACULOUS instantiation to %p %s!!!\n", this, m_pString, m_pString);
             }
             String &operator =(const String &that) {
                 if(m_pString && !m_bCloneOnUse)
@@ -164,10 +161,8 @@ namespace Gearbox {
                 return operator v8::Handle<v8::String>();
             }
             operator v8::Handle<v8::String>() {
-                printf("String[%p]: using %p %s\n", this, m_pString, m_pString);
                 return v8::String::New(m_pString, m_iLength);
             }
-#undef printf
             static String concat(String left, String right);
         private:
             static char *clone(char *pString, int iLength) {
