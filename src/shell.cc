@@ -77,7 +77,7 @@ int RunMain(int argc, char* argv[]) {
         else if((!strcmp(str, "-e") || !strcmp(str, "--eval")) && i <= argc) {
             // Execute argument given to -e / --eval option directly
             v8::HandleScope handle_scope;
-            if(ExecuteString(argv[++i], "unnamed") == null)
+            if(ExecuteString(argv[++i], "unnamed") == fail)
                 return 1;
         } 
         else if(!strncmp(str, "--", 2))
@@ -97,7 +97,7 @@ int RunMain(int argc, char* argv[]) {
             for(int j = i; j < argc; j++)
                 arguments[j - i] = argv[j];
             
-            if(ExecuteString(source, file_name) == null)
+            if(ExecuteString(source, file_name) == fail)
                 return 1;
             return 0; // Execute only one file
         }
@@ -127,7 +127,7 @@ void RunShell(v8::Handle<v8::Context> context) {
             }
             
             var result = ExecuteString(str, "(shell)");
-            if(result != null)
+            if(result != fail)
                 printf("%s" _STR_NEWLINE, *result.to<String>());
         }
         delete str;
@@ -227,7 +227,7 @@ Value Gearbox::ExecuteString(String source, String name)
     {
         // Print errors that happened during compilation.
         ReportException(&try_catch);
-        return null;
+        return fail;
     }
     else
     {
@@ -236,7 +236,7 @@ Value Gearbox::ExecuteString(String source, String name)
         {
             // Print errors that happened during execution.
             ReportException(&try_catch);
-            return null;
+            return fail;
         }
         else
             return result;

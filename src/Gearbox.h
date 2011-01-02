@@ -23,6 +23,7 @@ namespace Gearbox {
             enum Kind {
                 Undefined=0,
                 Null,
+                Fail,
                 False,
                 True,
                 Integer,
@@ -46,6 +47,8 @@ namespace Gearbox {
                     return v8::Undefined();
                 else if(m_Kind == Null)
                     return v8::Null();
+                else if(m_Kind == Fail)
+                    return v8::ThrowException(v8::Exception::Error(String("A Fail Primitive breached into JavaScript")));
                 else if(m_Kind == False)
                     return v8::False();
                 else if(m_Kind == True)
@@ -83,7 +86,7 @@ namespace Gearbox {
             }
             
             bool operator ==(Primitive that) {
-                if(m_Kind <= Null && that.m_Kind <= Null)
+                if(m_Kind <= Fail)
                     return m_Kind == that.m_Kind;
                 return false;
             }
@@ -103,6 +106,7 @@ namespace Gearbox {
     
     static Primitive undefined;
     static Primitive null(Primitive::Null);
+    static Primitive fail(Primitive::Fail);
     
     template <class Node, class Index>
     class Assignable : public Node {
