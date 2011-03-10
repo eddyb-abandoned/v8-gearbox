@@ -15,7 +15,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_Window(const v8::Arguments& args) 
         #line 10 "src/modules/Ncurses.gear"
         Value x(args[0]), y(args[1]), cols(args[2]), rows(args[3]);
         This["win"] = newwin(rows.to<int>(), cols.to<int>(), y.to<int>(), x.to<int>());
-        scrollok(This["win"], true);
+        scrollok(This["win"].to<WINDOW*>(), true);
         wtimeout(This["win"], 0);
         return undefined;
     }

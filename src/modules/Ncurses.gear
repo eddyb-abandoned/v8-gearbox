@@ -9,7 +9,7 @@ namespace Ncurses {
         
         function Window(x, y, cols, rows) {
             this["win"] = newwin(rows.to<int>(), cols.to<int>(), y.to<int>(), x.to<int>());
-            scrollok(this["win"], true);
+            scrollok(this["win"].to<WINDOW*>(), true);
             wtimeout(this["win"], 0);
         }
         

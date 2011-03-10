@@ -3,10 +3,15 @@ import re
 import sys
 
 env = Environment()
+crossmingw = ARGUMENTS.get('crossmingw', 0)
+using_crossmingw = False
+if int(crossmingw):
+    env.Tool('crossmingw', toolpath = ['#tools'])
+    using_crossmingw = True
 env.VariantDir('build', 'src', duplicate=0)
 
 # Windows gets special treatement
-if sys.platform == 'win32':
+if sys.platform == 'win32' or using_crossmingw:
     if not os.path.exists('contrib'):
         print ""
         print "============================================================================="
@@ -18,12 +23,14 @@ if sys.platform == 'win32':
         print ""
         sys.exit(1)
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include'), strings=True))
+    env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include', 'SDL'), strings=True))
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'bin'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'lib'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*'), strings=True))
-    env.Append(CXXFLAGS = '-std=c++0x')
-    env.Append(LIBS = ['v8', 'readline', 'OpenGL32', 'GLU32', 'freeglut', 'pdcurses', 'libmysql', 'ws2_32' , 'winmm', 'SDL', 'SDLmain'])
+    env.Append(LINKFLAGS = '-static-libgcc -static-libstdc++')
+    env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments')
+    env.Append(LIBS = ['v8', 'readline', 'opengl32', 'glu32', 'freeglut', 'curses', 'pthread', 'mysql', 'ws2_32' , 'winmm', 'SDL', 'SDLmain'])
 else:
     env.ParseConfig('mysql_config --cflags --libs')
     env.ParseConfig('sdl-config --cflags --libs')
@@ -77,14 +84,14 @@ env.Default(gearbox)
 env.Precious(gearbox)
 
 # Install target (not on windows)
-if sys.platform != 'win32':
+if sys.platform != 'win32' and not using_crossmingw:
     install = env.Install('/usr/bin', gearbox)
     env.Alias('install', install)
 
 # Invocation of gear2cc in case gearbox exists
 gearboxPath += env['PROGSUFFIX']
 gears = []
-if os.path.exists(gearboxPath):
+if os.path.exists(gearboxPath) and not using_crossmingw:
     gear2ccPath = 'gear2cc' + os.sep
     modulePath = os.path.join('src','modules') + os.sep
     

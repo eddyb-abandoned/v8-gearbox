@@ -1075,6 +1075,6 @@ void SetupGL(v8::Handle<v8::Object> global) {
     global_GL->Set(String("RGBA16"), Value(GL_RGBA16));
     global_GL->Set(String("CLIENT_PIXEL_STORE_BIT"), Value(GL_CLIENT_PIXEL_STORE_BIT));
     global_GL->Set(String("CLIENT_VERTEX_ARRAY_BIT"), Value(GL_CLIENT_VERTEX_ARRAY_BIT));
-    global_GL->Set(String("ALL_CLIENT_ATTRIB_BITS"), Value(GL_ALL_CLIENT_ATTRIB_BITS));
+    //global_GL->Set(String("ALL_CLIENT_ATTRIB_BITS"), Value(GL_ALL_CLIENT_ATTRIB_BITS));
     global_GL->Set(String("CLIENT_ALL_ATTRIB_BITS"), Value(GL_CLIENT_ALL_ATTRIB_BITS));
 }

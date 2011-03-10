@@ -140,7 +140,6 @@ void SetupNetwork(v8::Handle<v8::Object> global) {
     global_Network_Socket->PrototypeTemplate()->Set("type", Value(-1));
     global_Network_Socket->PrototypeTemplate()->Set("isConnected", Value(false));
     global_Network_Socket->GetFunction()->Set(String("INET"), Value(AF_INET));
-    global_Network_Socket->GetFunction()->Set(String("INET6"), Value(AF_INET6));
     global_Network_Socket->GetFunction()->Set(String("UNIX"), Value(AF_UNIX));
     global_Network_Socket->GetFunction()->Set(String("TCP"), Value(SOCK_STREAM));
     global_Network_Socket->GetFunction()->Set(String("UDP"), Value(SOCK_DGRAM));

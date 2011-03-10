@@ -85,7 +85,7 @@ namespace Network {
         
         /** Socket families */
         static var INET = AF_INET;
-        static var INET6 = AF_INET6;
+        /*static var INET6 = AF_INET6;*/
         static var UNIX = AF_UNIX;
         
         /** Socket types */
