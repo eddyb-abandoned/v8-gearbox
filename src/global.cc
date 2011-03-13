@@ -39,7 +39,7 @@ v8::Handle<v8::Value> __global_load(const v8::Arguments& args) {
     return Error("Invalid call to load");
 }
 
-v8::Handle<v8::Value> __global_quit(const v8::Arguments& args) {
+v8::Handle<v8::Value> __global_exit(const v8::Arguments& args) {
     exit(Value(args[0]));
     return undefined;
 }
@@ -52,7 +52,7 @@ void SetupGlobal(v8::Handle<v8::Object> global) {
 #define GEARBOX_SET_FUNCTION(base, func) base->Set(String(#func), Function(__##base##_##func, #func))
     GEARBOX_SET_FUNCTION(global, print);
     GEARBOX_SET_FUNCTION(global, load);
-    GEARBOX_SET_FUNCTION(global, quit);
+    GEARBOX_SET_FUNCTION(global, exit);
     GEARBOX_SET_FUNCTION(global, version);
 #undef GEARBOX_SET_FUNCTION
     
