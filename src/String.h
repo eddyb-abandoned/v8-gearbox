@@ -1,6 +1,9 @@
 #ifndef GEARBOX_STRING_H
 #define GEARBOX_STRING_H
 
+#include <string.h>
+#include <v8.h>
+
 namespace Gearbox {
     class String {
         public:
@@ -44,6 +47,17 @@ namespace Gearbox {
                 return operator=(concat(*this, that));
             }
             
+            /** Compare operators */
+            bool operator==(const String &that) {
+                return compare(that);
+            }
+            bool operator==(char *that) {
+                return compare(that);
+            }
+            bool operator==(const char *that) {
+                return compare(that);
+            }
+            
             /** Convert operators */
             operator char*() {
                 if(!m_pString)
@@ -59,12 +73,29 @@ namespace Gearbox {
             operator v8::Handle<v8::Value>() {
                 return operator v8::Handle<v8::String>();
             }
+            
+            bool compare(const String &that, int len=0) {
+                int minLen = m_iLength > that.m_iLength ? that.m_iLength : m_iLength;
+                if(len) {
+                    if(len > minLen)
+                        return false;
+                }
+                else {
+                    if(minLen != m_iLength || minLen != that.m_iLength)
+                        return false;
+                    len = minLen;
+                }
+                for(int i = 0; i < len; i++)
+                    if(m_pString[i] != that.m_pString[i])
+                        return false;
+                return true;
+            }
             static String concat(String left, String right);
         private:
             void clone(char *pString, int iLength) {
                 if(!pString) {
-                    pString = 0;
-                    iLength = 0;
+                    m_pString = 0;
+                    m_iLength = 0;
                     return;
                 }
                 
