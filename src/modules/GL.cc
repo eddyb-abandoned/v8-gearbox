@@ -1,12 +1,13 @@
 
 #include "../Gearbox.h"
 #include "GL.h"
+
 using namespace Gearbox;
 
-/** \file GL.cc */
+/** \file GL.cc converted from GL.gear */
 
 #line 1 "src/modules/GL.gear"
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <GL/gl.h>
 #include <stdio.h>
 
@@ -32,30 +33,57 @@ std::map<int, TimerCallback*> pTimers;
 int nLastTimer = 0;
 
 void GLProxyDisplayFunc() {
-    pGlutRedrawFunc();
+    TryCatch tryCatch;
+    if(pGlutRedrawFunc)
+        pGlutRedrawFunc();
+    if(tryCatch.hasCaught())
+        glutLeaveMainLoop();
 }
 void GLProxyIdleFunc() {
-    pGlutIdleFunc();
+    TryCatch tryCatch;
+    if(pGlutIdleFunc)
+        pGlutIdleFunc();
+    if(tryCatch.hasCaught())
+        glutLeaveMainLoop();
 }
 void GLProxyKeyboardFunc(unsigned char key, int x, int y) {
-    pGlutKeyPressFunc(Integer(key), Integer(x), Integer(y));
+    TryCatch tryCatch;
+    if(pGlutKeyPressFunc)
+        pGlutKeyPressFunc(Integer(key), Integer(x), Integer(y));
+    if(tryCatch.hasCaught())
+        glutLeaveMainLoop();
 }
 void GLProxyKeyboardUpFunc(unsigned char key, int x, int y) {
-    pGlutKeyUpFunc(Integer(key), Integer(x), Integer(y));
+    TryCatch tryCatch;
+    if(pGlutKeyUpFunc)
+        pGlutKeyUpFunc(Integer(key), Integer(x), Integer(y));
+    if(tryCatch.hasCaught())
+        glutLeaveMainLoop();
 }
 void GLProxyMotionFunc(int x, int y) {
-    pGlutMouseMoveFunc(Integer(x), Integer(y));
+    TryCatch tryCatch;
+    if(pGlutMouseMoveFunc)
+        pGlutMouseMoveFunc(Integer(x), Integer(y));
+    if(tryCatch.hasCaught())
+        glutLeaveMainLoop();
 }
 void GLProxyReshapeFunc(int w, int h) {
-    pGlutResizeFunc(Integer(w), Integer(h));
+    TryCatch tryCatch;
+    if(pGlutResizeFunc)
+        pGlutResizeFunc(Integer(w), Integer(h));
+    if(tryCatch.hasCaught())
+        glutLeaveMainLoop();
 }
 void GLProxyTimerFunc(int value) {
+    TryCatch tryCatch;
     if(!pTimers.count(value))
         return;
     TimerCallback *pTimer = pTimers[value];
     pTimer->pTimerFunc();
     pTimers.erase(value);
     delete pTimer;
+    if(tryCatch.hasCaught())
+        glutLeaveMainLoop();
 }
 
 Value GLError() {
@@ -85,7 +113,7 @@ Value GLError() {
         }
     }
     if(errorString.length())
-        return Error(String::concat("GL_ERROR: ", errorString));
+        return Throw(Error(String::concat("GL_ERROR: ", errorString)));
     else
         return undefined;
 }
@@ -96,7 +124,7 @@ v8::Handle<v8::Value> __global_GL_initWindow(const v8::Arguments& args) {
         #line 88 "src/modules/GL.gear"
         Value name(args[0]), w(args[1]), h(args[2]);
         if(bGLIsUsed)
-            return Error("GL is already being used");
+            return Throw(Error("GL is already being used"));
         int argc = 0;
         glutInit(&argc, 0);
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -104,7 +132,7 @@ v8::Handle<v8::Value> __global_GL_initWindow(const v8::Arguments& args) {
         glutCreateWindow(name.to<String>());
         return undefined;
     }
-    return Error("Invalid call to GL.initWindow");
+    return Throw(Error("Invalid call to GL.initWindow"));
 }
 
 v8::Handle<v8::Value> __global_GL_mainLoop(const v8::Arguments& args) {
@@ -112,29 +140,40 @@ v8::Handle<v8::Value> __global_GL_mainLoop(const v8::Arguments& args) {
     {
         #line 98 "src/modules/GL.gear"
         Value handlers(args[0]);
-        pGlutRedrawFunc = handlers["redraw"];
-        glutDisplayFunc(GLProxyDisplayFunc);
+        if(handlers["redraw"]) {
+            pGlutRedrawFunc = handlers["redraw"];
+            glutDisplayFunc(GLProxyDisplayFunc);
+        }
         
-        pGlutIdleFunc = handlers["idle"];
-        glutIdleFunc(GLProxyIdleFunc);
+        if(handlers["idle"]) {
+            pGlutIdleFunc = handlers["idle"];
+            glutIdleFunc(GLProxyIdleFunc);
+        }
         
-        pGlutKeyPressFunc = handlers["keyPress"];
-        glutKeyboardFunc(GLProxyKeyboardFunc);
+        if(handlers["keyPress"]) {
+            pGlutKeyPressFunc = handlers["keyPress"];
+            glutKeyboardFunc(GLProxyKeyboardFunc);
+        }
         
-        pGlutKeyUpFunc = handlers["keyUp"];
-        glutKeyboardUpFunc(GLProxyKeyboardUpFunc);
+        if(handlers["keyUp"]) {
+            pGlutKeyUpFunc = handlers["keyUp"];
+            glutKeyboardUpFunc(GLProxyKeyboardUpFunc);
+        }
         
-        pGlutMouseMoveFunc = handlers["mouseMove"];
-        glutMotionFunc(GLProxyMotionFunc);
-        glutPassiveMotionFunc(GLProxyMotionFunc);
-        
-        pGlutResizeFunc = handlers["resize"];
-        glutReshapeFunc(GLProxyReshapeFunc);
-        
+        if(handlers["mouseMove"]) {
+            pGlutMouseMoveFunc = handlers["mouseMove"];
+            glutMotionFunc(GLProxyMotionFunc);
+            glutPassiveMotionFunc(GLProxyMotionFunc);
+        }
+            
+        if(handlers["resize"]) {
+            pGlutResizeFunc = handlers["resize"];
+            glutReshapeFunc(GLProxyReshapeFunc);
+        }
         glutMainLoop();
         return undefined;
     }
-    return Error("Invalid call to GL.mainLoop");
+    return Throw(Error("Invalid call to GL.mainLoop"));
 }
 
 v8::Handle<v8::Value> __global_GL_addTimer(const v8::Arguments& args) {
@@ -146,7 +185,7 @@ v8::Handle<v8::Value> __global_GL_addTimer(const v8::Arguments& args) {
         glutTimerFunc(ms, GLProxyTimerFunc, nLastTimer);
         return Integer(nLastTimer++);
     }
-    return Error("Invalid call to GL.addTimer");
+    return Throw(Error("Invalid call to GL.addTimer"));
 }
 
 v8::Handle<v8::Value> __global_GL_cancelTimer(const v8::Arguments& args) {
@@ -161,7 +200,7 @@ v8::Handle<v8::Value> __global_GL_cancelTimer(const v8::Arguments& args) {
         delete pTimer;
         return undefined;
     }
-    return Error("Invalid call to GL.cancelTimer");
+    return Throw(Error("Invalid call to GL.cancelTimer"));
 }
 
 v8::Handle<v8::Value> __global_GL_ignoreKeyRepeat(const v8::Arguments& args) {
@@ -172,7 +211,7 @@ v8::Handle<v8::Value> __global_GL_ignoreKeyRepeat(const v8::Arguments& args) {
         glutIgnoreKeyRepeat(ignore);
         return undefined;
     }
-    return Error("Invalid call to GL.ignoreKeyRepeat");
+    return Throw(Error("Invalid call to GL.ignoreKeyRepeat"));
 }
 
 v8::Handle<v8::Value> __global_GL_warpPointer(const v8::Arguments& args) {
@@ -183,7 +222,7 @@ v8::Handle<v8::Value> __global_GL_warpPointer(const v8::Arguments& args) {
         glutWarpPointer(x, y);
         return undefined;
     }
-    return Error("Invalid call to GL.warpPointer");
+    return Throw(Error("Invalid call to GL.warpPointer"));
 }
 
 v8::Handle<v8::Value> __global_GL_setCursor(const v8::Arguments& args) {
@@ -218,7 +257,7 @@ v8::Handle<v8::Value> __global_GL_bitmapCharacter(const v8::Arguments& args) {
             glutBitmapCharacter(GLUT_BITMAP_9_BY_15, **c.to<String>());
         return undefined;
     }
-    return Error("Invalid call to GL.bitmapCharacter");
+    return Throw(Error("Invalid call to GL.bitmapCharacter"));
 }
 
 v8::Handle<v8::Value> __global_GL_perspective(const v8::Arguments& args) {
@@ -229,7 +268,7 @@ v8::Handle<v8::Value> __global_GL_perspective(const v8::Arguments& args) {
         gluPerspective(fovy, aspect, zNear, zFar);
         return undefined;
     }
-    return Error("Invalid call to GL.perspective");
+    return Throw(Error("Invalid call to GL.perspective"));
 }
 
 v8::Handle<v8::Value> __global_GL_ortho2D(const v8::Arguments& args) {
@@ -240,7 +279,7 @@ v8::Handle<v8::Value> __global_GL_ortho2D(const v8::Arguments& args) {
         gluOrtho2D(left, right, bottom, top);
         return undefined;
     }
-    return Error("Invalid call to GL.ortho2D");
+    return Throw(Error("Invalid call to GL.ortho2D"));
 }
 
 v8::Handle<v8::Value> __global_GL_lookAt(const v8::Arguments& args) {
@@ -251,7 +290,7 @@ v8::Handle<v8::Value> __global_GL_lookAt(const v8::Arguments& args) {
         gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
         return undefined;
     }
-    return Error("Invalid call to GL.lookAt");
+    return Throw(Error("Invalid call to GL.lookAt"));
 }
 
 v8::Handle<v8::Value> __global_GL_enable(const v8::Arguments& args) {
@@ -262,7 +301,7 @@ v8::Handle<v8::Value> __global_GL_enable(const v8::Arguments& args) {
         glEnable(that);
         return GLError();
     }
-    return Error("Invalid call to GL.enable");
+    return Throw(Error("Invalid call to GL.enable"));
 }
 
 v8::Handle<v8::Value> __global_GL_disable(const v8::Arguments& args) {
@@ -273,7 +312,7 @@ v8::Handle<v8::Value> __global_GL_disable(const v8::Arguments& args) {
         glDisable(that);
         return GLError();
     }
-    return Error("Invalid call to GL.disable");
+    return Throw(Error("Invalid call to GL.disable"));
 }
 
 v8::Handle<v8::Value> __global_GL_flush(const v8::Arguments& args) {
@@ -296,7 +335,7 @@ v8::Handle<v8::Value> __global_GL_clearColor(const v8::Arguments& args) {
         glClearColor(r, g, b, a);
         return GLError();
     }
-    return Error("Invalid call to GL.clearColor");
+    return Throw(Error("Invalid call to GL.clearColor"));
 }
 
 v8::Handle<v8::Value> __global_GL_clear(const v8::Arguments& args) {
@@ -307,7 +346,7 @@ v8::Handle<v8::Value> __global_GL_clear(const v8::Arguments& args) {
         glClear(bits);
         return GLError();
     }
-    return Error("Invalid call to GL.clear");
+    return Throw(Error("Invalid call to GL.clear"));
 }
 
 v8::Handle<v8::Value> __global_GL_viewport(const v8::Arguments& args) {
@@ -318,7 +357,7 @@ v8::Handle<v8::Value> __global_GL_viewport(const v8::Arguments& args) {
         glViewport(x1, y1, x2, y2);
         return GLError();
     }
-    return Error("Invalid call to GL.viewport");
+    return Throw(Error("Invalid call to GL.viewport"));
 }
 
 v8::Handle<v8::Value> __global_GL_matrixMode(const v8::Arguments& args) {
@@ -329,7 +368,7 @@ v8::Handle<v8::Value> __global_GL_matrixMode(const v8::Arguments& args) {
         glMatrixMode(mode);
         return GLError();
     }
-    return Error("Invalid call to GL.matrixMode");
+    return Throw(Error("Invalid call to GL.matrixMode"));
 }
 
 v8::Handle<v8::Value> __global_GL_pushMatrix(const v8::Arguments& args) {
@@ -352,7 +391,7 @@ v8::Handle<v8::Value> __global_GL_translate(const v8::Arguments& args) {
         glTranslated(x, y, z);
         return GLError();
     }
-    return Error("Invalid call to GL.translate");
+    return Throw(Error("Invalid call to GL.translate"));
 }
 
 v8::Handle<v8::Value> __global_GL_scale(const v8::Arguments& args) {
@@ -363,7 +402,7 @@ v8::Handle<v8::Value> __global_GL_scale(const v8::Arguments& args) {
         glScaled(x, y, z);
         return GLError();
     }
-    return Error("Invalid call to GL.scale");
+    return Throw(Error("Invalid call to GL.scale"));
 }
 
 v8::Handle<v8::Value> __global_GL_rotate(const v8::Arguments& args) {
@@ -374,7 +413,7 @@ v8::Handle<v8::Value> __global_GL_rotate(const v8::Arguments& args) {
         glRotated(angle, x, y, z);
         return GLError();
     }
-    return Error("Invalid call to GL.rotate");
+    return Throw(Error("Invalid call to GL.rotate"));
 }
 
 v8::Handle<v8::Value> __global_GL_color(const v8::Arguments& args) {
@@ -383,7 +422,8 @@ v8::Handle<v8::Value> __global_GL_color(const v8::Arguments& args) {
         #line 273 "src/modules/GL.gear"
         Value r(args[0]), g(args[1]), b(args[2]), a(args[3]);
         glColor4d(r, g, b, a);
-        return GLError();
+        //return GLError();
+        return undefined;
     }
 
     if(args.Length() >= 3)
@@ -405,7 +445,7 @@ v8::Handle<v8::Value> __global_GL_light(const v8::Arguments& args) {
         glLightfv(which, type, light);
         return GLError();
     }
-    return Error("Invalid call to GL.light");
+    return Throw(Error("Invalid call to GL.light"));
 }
 
 v8::Handle<v8::Value> __global_GL_material(const v8::Arguments& args) {
@@ -432,7 +472,7 @@ v8::Handle<v8::Value> __global_GL_material(const v8::Arguments& args) {
         glMaterialfv(which, type, material);
         return GLError();
     }
-    return Error("Invalid call to GL.material");
+    return Throw(Error("Invalid call to GL.material"));
 }
 
 v8::Handle<v8::Value> __global_GL_begin(const v8::Arguments& args) {
@@ -444,7 +484,7 @@ v8::Handle<v8::Value> __global_GL_begin(const v8::Arguments& args) {
         //return GLError();
         return undefined;
     }
-    return Error("Invalid call to GL.begin");
+    return Throw(Error("Invalid call to GL.begin"));
 }
 
 v8::Handle<v8::Value> __global_GL_end(const v8::Arguments& args) {
@@ -462,7 +502,7 @@ v8::Handle<v8::Value> __global_GL_vertex(const v8::Arguments& args) {
         //return GLError();
         return undefined;
     }
-    return Error("Invalid call to GL.vertex");
+    return Throw(Error("Invalid call to GL.vertex"));
 }
 
 v8::Handle<v8::Value> __global_GL_normal(const v8::Arguments& args) {
@@ -474,7 +514,7 @@ v8::Handle<v8::Value> __global_GL_normal(const v8::Arguments& args) {
         //return GLError();
         return undefined;
     }
-    return Error("Invalid call to GL.normal");
+    return Throw(Error("Invalid call to GL.normal"));
 }
 
 v8::Handle<v8::Value> __global_GL_rasterPos(const v8::Arguments& args) {
@@ -485,7 +525,7 @@ v8::Handle<v8::Value> __global_GL_rasterPos(const v8::Arguments& args) {
         glRasterPos2d(x, y);
         return GLError();
     }
-    return Error("Invalid call to GL.rasterPos");
+    return Throw(Error("Invalid call to GL.rasterPos"));
 }
 
 v8::Handle<v8::Value> __global_GL_toString(const v8::Arguments& args) {
@@ -1075,6 +1115,5 @@ void SetupGL(v8::Handle<v8::Object> global) {
     global_GL->Set(String("RGBA16"), Value(GL_RGBA16));
     global_GL->Set(String("CLIENT_PIXEL_STORE_BIT"), Value(GL_CLIENT_PIXEL_STORE_BIT));
     global_GL->Set(String("CLIENT_VERTEX_ARRAY_BIT"), Value(GL_CLIENT_VERTEX_ARRAY_BIT));
-    //global_GL->Set(String("ALL_CLIENT_ATTRIB_BITS"), Value(GL_ALL_CLIENT_ATTRIB_BITS));
     global_GL->Set(String("CLIENT_ALL_ATTRIB_BITS"), Value(GL_CLIENT_ALL_ATTRIB_BITS));
 }
