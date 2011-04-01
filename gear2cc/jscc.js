@@ -4638,7 +4638,7 @@ function read_file( file )
 {
 	var src = new String();
 	
-    src = Io.readFileContents(file);
+    src = Io.read(file);
 	if(!src)
 	{
 		_error( "unable to open file '" + file + "'" );
@@ -4650,7 +4650,7 @@ function read_file( file )
 
 function write_file( file, content )
 {
-	Io.writeFileContents(file, content);
+	Io.write(file, content);
 
 	return true;
 }

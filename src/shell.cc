@@ -25,7 +25,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <stdlib.h>
+#include <fstream>
+#include <cstdlib>
 
 #include "Gearbox.h"
 #include "global.h"
@@ -172,26 +173,23 @@ bool RunScript(const char *sScript) {
 
 #endif
 
-
-// Reads a file into a v8 string.
-String Gearbox::ReadFile(String name) {
-    FILE* file = fopen(name, "rb");
-    if(!file)
+// Reads a file into a String.
+String Gearbox::ReadFile(String path) {
+    std::ifstream file(path, std::ifstream::in | std::ifstream::binary);
+    if(!file.good())
         return String();
-
-    fseek(file, 0, SEEK_END);
-    int size = ftell(file);
-    rewind(file);
-
-    char* chars = new char[size + 1];
-    for(int i = 0; i < size;)
-        i += fread(&chars[i], 1, size - i, file);
-    chars[size] = '\0';
-    fclose(file);
     
-    String result(chars, size);
-    delete [] chars;
-    return result;
+    file.seekg(0, std::ios::end);
+    size_t length = file.tellg();
+    file.seekg(0, std::ios::beg);
+    
+    char *pBuffer = new char [length];
+    
+    file.read(pBuffer, length);
+    String contents(pBuffer, length);
+    
+    delete [] pBuffer;
+    return contents;
 }
 
 // Executes a string within the current v8 context.

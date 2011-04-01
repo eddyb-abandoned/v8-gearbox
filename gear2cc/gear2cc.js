@@ -228,7 +228,7 @@ using namespace Gearbox;\n\
         (global.header.trim()?"\n\n":"") + code.func;
         ccCode += makeLine("",nLines(ccCode)+2).replace(".gear",".cc") + "\nvoid Setup" + baseName + "(v8::Handle<v8::Object> global) {\n" + code.init + "}";
         ccCode = ccCode.replace(/\t/g, "    ");
-        Io.writeFileContents(gear.cc, ccCode);
+        Io.write(gear.cc, ccCode);
         
         var hCode =
         "#ifndef MODULE_"+baseName.toUpperCase()+"_H\n"+
@@ -236,7 +236,7 @@ using namespace Gearbox;\n\
         "#include <v8.h>\n\n"+
         "void Setup"+baseName+"(v8::Handle<v8::Object> global);\n\n"+
         "#endif\n";
-        Io.writeFileContents(gear.h, hCode);
+        Io.write(gear.h, hCode);
     }
     
 }
@@ -1608,7 +1608,7 @@ var baseDir = arguments[1], baseName = arguments[2];
 var gear = {gear:baseDir+baseName+".gear", cc:baseDir+baseName+".cc", h:baseDir+baseName+".h"};
 if( arguments.length == 3 )
 {
-    var str         = Io.readFileContents(gear.gear);
+    var str         = Io.read(gear.gear);
     var error_cnt   = 0;
     var error_off   = [];
     var error_la    = [];
