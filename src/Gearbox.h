@@ -80,7 +80,7 @@ namespace Gearbox {
             bool operator ==(Primitive that) {
                 if(m_Kind <= Null)
                     return m_Kind == that.m_Kind;
-                return false;
+                return operator v8::Handle<v8::Value>()->Equals(that);
             }
             
             bool operator !=(Primitive that) {
@@ -235,6 +235,15 @@ namespace Gearbox {
             T to() {
                 return to(Type<T>());
             }
+            
+            v8::Handle<v8::Value> to(Type<v8::Handle<v8::Value>>);
+            v8::Handle<v8::Data> to(Type<v8::Handle<v8::Data>>) {
+                return to<v8::Handle<v8::Value>>();
+            }
+            template <class T>
+            v8::Handle<T> to(Type<v8::Handle<T>>) {
+                return v8::Handle<T>::Cast(to<v8::Handle<v8::Value>>());
+            }
             Primitive to(Type<Primitive>) {
                 if(m_hValue.IsEmpty())
                     return m_pValue;
@@ -244,6 +253,9 @@ namespace Gearbox {
             }
             String to(Type<String>);
             int64_t to(Type<int64_t>);
+            uint64_t to(Type<uint64_t>) {
+                return to<int64_t>();
+            }
             uint32_t to(Type<uint32_t>) {
                 return to<int64_t>();
             }
@@ -270,16 +282,27 @@ namespace Gearbox {
             
             /** Compare operators */
 #define DECLARE_OP(OP) \
-template <class T> \
-bool operator OP(T that) { \
-    return to<T>() OP that; \
+bool operator OP(Primitive that) { \
+    if(m_hValue.IsEmpty()) \
+        return m_pValue OP that; \
+    else \
+        return m_hValue->Equals(that);\
 }
-            DECLARE_OP(==)
-            DECLARE_OP(!=)
-            DECLARE_OP(>)
-            DECLARE_OP(<)
-            DECLARE_OP(>=)
-            DECLARE_OP(<=)
+            bool operator==(Value that) {
+                if(m_hValue.IsEmpty() && that.m_hValue.IsEmpty())
+                    return m_pValue == that.m_pValue;
+                else
+                    return to<v8::Handle<v8::Value>>()->Equals(that);
+            }
+            bool operator!=(Value that) {
+                return !operator==(that);
+            }
+            //DECLARE_OP(==)
+            //DECLARE_OP(!=)
+            //DECLARE_OP(>)
+            //DECLARE_OP(<)
+            //DECLARE_OP(>=)
+            //DECLARE_OP(<=)
 #undef DECLARE_OP
             
             /** Length, for Arrays and Strings */
@@ -321,12 +344,13 @@ bool operator OP(T that) { \
                     v8::Handle<v8::Object>::Cast(m_hValue)->Set(idx.operator v8::Handle<v8::Value>(), val);
             }
             
-            /** Convert operator */
-            operator v8::Handle<v8::Value>();
+            /** Returns true if this Value is an instance of class T */
             template <class T>
-            operator v8::Handle<T>() {
-                return operator v8::Handle<v8::Value>();
+            bool is() {
+                return T::is(*this);
             }
+            
+            /** Convert operator */
             template <class T>
             operator T() {
                 return to<T>();
@@ -360,9 +384,6 @@ bool operator OP(T that) { \
     static void PrintTrace() { 
         v8::Message::PrintCurrentStackTrace(stdout);
     }
-    static void *DebugChild(uintptr_t father, const char *kid) {
-        return Value(v8::Handle<v8::Value>(reinterpret_cast<v8::Value*>(father)));
-    }
 
     static Primitive Integer(int64_t val) {
         return Primitive(Primitive::Integer, val);
@@ -372,13 +393,21 @@ bool operator OP(T that) { \
         return Primitive(Primitive::Number, val);
     }
     
-    static Value Object() {
-        return v8::Object::New();
-    }
+    class Object : public Value {
+        public:
+            Object() : Value(v8::Object::New()) {}
+            static bool is(Value &that) {
+                return that.to<v8::Handle<v8::Value>>()->IsObject();
+            }
+    };
     
-    static Value Array(int length=0) {
-        return v8::Array::New(length);
-    }
+    class Array : public Value {
+        public:
+            Array(int length=0) : Value(v8::Array::New(length)) {}
+            static bool is(Value &that) {
+                return that.to<v8::Handle<v8::Value>>()->IsArray();
+            }
+    };
     
     static Value Function(v8::InvocationCallback __function, String name) {
         v8::Handle<v8::Function> function = v8::FunctionTemplate::New(__function)->GetFunction();

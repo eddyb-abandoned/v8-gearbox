@@ -3,7 +3,7 @@
 namespace Gearbox {
     
     //void ValueList::push(Value that) {
-    //    push(that.operator v8::Handle<v8::Value>());
+    //    push(that.to<v8::Handle<v8::Value>>());
     //}
     
     Value::~Value() {
@@ -70,12 +70,11 @@ namespace Gearbox {
         return m_hValue->BooleanValue();
     }
     
-    Value::operator v8::Handle<v8::Value>() {
-        //INSIDE(Value::operator v8::Handle<v8::Value>);
+    v8::Handle<v8::Value> Value::to(Type<v8::Handle<v8::Value>>){
         if(m_hValue.IsEmpty())
             return m_pValue;
         else
-            return m_hValue;//::Local<v8::Value>::New(m_hValue);
+            return m_hValue;
     }
     
     int Value::length() {
