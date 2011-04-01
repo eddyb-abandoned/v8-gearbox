@@ -2,6 +2,7 @@ header {
 #ifdef _WIN32
     #include <winsock.h>
 #else
+    #include <unistd.h>
     #include <fcntl.h>
     #include <netdb.h>
     #include <netinet/in.h>
@@ -19,7 +20,7 @@ namespace Network {
         function Socket(family, type) {
             int sock = socket(family, type, 0);
             if(sock == -1)
-                return Error("Unable to create socket");
+                return Throw(Error("Unable to create socket"));
             
             this["socket"] = Internal(sock);
             this["family"] = Internal(family);
@@ -29,7 +30,7 @@ namespace Network {
         function connect(host, port) {
             struct hostent *host_s = gethostbyname(host.to<String>());
             if(!host_s)
-                return Error("Unable to resolve host");
+                return Throw(Error("Unable to resolve host"));
                 
             struct sockaddr_in server_addr;
             server_addr.sin_family = this["family"].to<uint32_t>();
@@ -38,7 +39,7 @@ namespace Network {
             
             int result = connect(this["socket"], (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
             if(result == -1)
-                return Error("Unable to connect");
+                return Throw(Error("Unable to connect"));
             
             this["isConnected"] = Internal(true);
         }

@@ -132,7 +132,7 @@ function generateFunctionCode(functions, name, parentObjName, code, class, ctor)
         funcCode = "\n\tValue This(args.This());"+funcCode;
     
     if(!hasNoArgsVer)
-        funcCode += "\treturn Error(\"Invalid call to " + parentObjName.replace(/_/g, ".").replace(/^global\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\");\n";
+        funcCode += "\treturn Throw(Error(\"Invalid call to " + parentObjName.replace(/_/g, ".").replace(/^global\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\"));\n";
     
     code.func += "v8::Handle<v8::Value> __" + objName + "(const v8::Arguments& args) {" + funcCode + "}\n\n";
 }
@@ -211,15 +211,18 @@ function generateCode(global) {
     if(!namespaces.length)
         throw Error("No namespace");
     else if(namespaces.length > 1)
-        throw Error("Too may namespaces");
+        throw Error("Too many namespaces");
     else {
         generateNamespaceCode(global.namespaces[namespaces[0]], namespaces[0], "global", code);
         
-        var ccCode =
-        "\n#include \"../Gearbox.h\"\n"+
-        "#include \""+baseName+".h\"\n"+
-        "using namespace Gearbox;\n\n"+
-        "/** \\file "+baseName+".cc */\n"+
+        var ccCode = 
+'\n\
+#include "../Gearbox.h"\n\
+#include "'+baseName+'.h"\n\
+\n\
+using namespace Gearbox;\n\
+\n\
+/** \\file '+baseName+'.cc converted from '+baseName+'.gear */\n'+
         makeLine("",1) + "\n" +
         global.header.trim().replace(/\n    /g, "\n") +
         (global.header.trim()?"\n\n":"") + code.func;
@@ -1618,4 +1621,5 @@ if( arguments.length == 3 )
 }
 else
     print("usage: " + arguments[0] + " <directory> <baseName>");
+exit(); // Just in case v8-gearbox is a (bit) broken
 

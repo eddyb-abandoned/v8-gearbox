@@ -6,8 +6,7 @@ header {
     
     #define CLIP(x, a, b) ((x) < (a) ? (a) : ((x) > (b) ? (a) : (x)))
     
-    Uint32 getPixel(SDL_Surface *surface, Uint32 x, Uint32 y)
-    {
+    Uint32 getPixel(SDL_Surface *surface, Uint32 x, Uint32 y) {
         int bpp = surface->format->BytesPerPixel;
         /* Here p is the address to the pixel we want to retrieve */
         Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
@@ -37,8 +36,7 @@ header {
         }
     }
     
-    void setPixel(SDL_Surface *surface, Uint32 x, Uint32 y, Uint32 pixel)
-    {
+    void setPixel(SDL_Surface *surface, Uint32 x, Uint32 y, Uint32 pixel) {
         int bpp = surface->format->BytesPerPixel;
         /* Here p is the address to the pixel we want to set */
         Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
@@ -77,7 +75,7 @@ namespace SDL {
         
         function Window(name, w, h) {
             if(bSDLIsUsed)
-                return Error("SDL is already being used");
+                return Throw(Error("SDL is already being used"));
             SDL_Init(SDL_INIT_EVERYTHING);
             this["surface"] = SDL_SetVideoMode(w.to<int>(), h.to<int>(), 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
             SDL_WM_SetCaption(name.to<String>(), NULL);

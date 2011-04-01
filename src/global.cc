@@ -1,6 +1,7 @@
 
 #include "global.h"
 #include "Gearbox.h"
+
 using namespace Gearbox;
 
 /** \file global.cc */
@@ -21,7 +22,7 @@ v8::Handle<v8::Value> __global_print(const v8::Arguments& args) {
             printf("%s\n", *Value(args[i]).to<String>());
         return undefined;
     }
-    return Error("Invalid call to print");
+    return Throw(Error("Invalid call to print"));
 }
 
 v8::Handle<v8::Value> __global_load(const v8::Arguments& args) {
@@ -30,13 +31,13 @@ v8::Handle<v8::Value> __global_load(const v8::Arguments& args) {
         v8::HandleScope handle_scope;
         String file = Value(args[0]);
         if(file.empty())
-            return Error("Error loading file");
+            return Throw(Error("Error loading file"));
         String source = ReadFile(file);
         if(source.empty())
-            return Error("Error loading file");
+            return Throw(Error("Error loading file"));
         return ExecuteString(source, file);
     }
-    return Error("Invalid call to load");
+    return Throw(Error("Invalid call to load"));
 }
 
 v8::Handle<v8::Value> __global_exit(const v8::Arguments& args) {

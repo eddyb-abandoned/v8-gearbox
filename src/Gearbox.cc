@@ -89,8 +89,8 @@ namespace Gearbox {
     }
     
     void Value::weakCallback(v8::Persistent<v8::Value> that, void*) {
-        if(that->IsExternal() || that->ToObject()->HasIndexedPropertiesInExternalArrayData())
-            printf("TODO: need to delete user-related stuff on disposal\n");
+        //if(that->IsExternal() || that->ToObject()->HasIndexedPropertiesInExternalArrayData())
+         //   printf("TODO: need to delete user-related stuff on disposal\n");
         that.Dispose();
     }
 }

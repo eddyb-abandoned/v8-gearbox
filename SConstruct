@@ -71,6 +71,7 @@ gearboxSources = [
     'build/shell.cc',
     'build/Gearbox.cc',
     'build/String.cc',
+    'build/TryCatch.cc',
     'build/global.cc',
     'build/modules/GL.cc',
     'build/modules/Io.cc',

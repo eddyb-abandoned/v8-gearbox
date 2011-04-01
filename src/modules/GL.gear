@@ -1,5 +1,5 @@
 header {
-    #include <GL/glut.h>
+    #include <GL/freeglut.h>
     #include <GL/gl.h>
     #include <stdio.h>
     
@@ -25,30 +25,57 @@ header {
     int nLastTimer = 0;
 
     void GLProxyDisplayFunc() {
-        pGlutRedrawFunc();
+        TryCatch tryCatch;
+        if(pGlutRedrawFunc)
+            pGlutRedrawFunc();
+        if(tryCatch.hasCaught())
+            glutLeaveMainLoop();
     }
     void GLProxyIdleFunc() {
-        pGlutIdleFunc();
+        TryCatch tryCatch;
+        if(pGlutIdleFunc)
+            pGlutIdleFunc();
+        if(tryCatch.hasCaught())
+            glutLeaveMainLoop();
     }
     void GLProxyKeyboardFunc(unsigned char key, int x, int y) {
-        pGlutKeyPressFunc(Integer(key), Integer(x), Integer(y));
+        TryCatch tryCatch;
+        if(pGlutKeyPressFunc)
+            pGlutKeyPressFunc(Integer(key), Integer(x), Integer(y));
+        if(tryCatch.hasCaught())
+            glutLeaveMainLoop();
     }
     void GLProxyKeyboardUpFunc(unsigned char key, int x, int y) {
-        pGlutKeyUpFunc(Integer(key), Integer(x), Integer(y));
+        TryCatch tryCatch;
+        if(pGlutKeyUpFunc)
+            pGlutKeyUpFunc(Integer(key), Integer(x), Integer(y));
+        if(tryCatch.hasCaught())
+            glutLeaveMainLoop();
     }
     void GLProxyMotionFunc(int x, int y) {
-        pGlutMouseMoveFunc(Integer(x), Integer(y));
+        TryCatch tryCatch;
+        if(pGlutMouseMoveFunc)
+            pGlutMouseMoveFunc(Integer(x), Integer(y));
+        if(tryCatch.hasCaught())
+            glutLeaveMainLoop();
     }
     void GLProxyReshapeFunc(int w, int h) {
-        pGlutResizeFunc(Integer(w), Integer(h));
+        TryCatch tryCatch;
+        if(pGlutResizeFunc)
+            pGlutResizeFunc(Integer(w), Integer(h));
+        if(tryCatch.hasCaught())
+            glutLeaveMainLoop();
     }
     void GLProxyTimerFunc(int value) {
+        TryCatch tryCatch;
         if(!pTimers.count(value))
             return;
         TimerCallback *pTimer = pTimers[value];
         pTimer->pTimerFunc();
         pTimers.erase(value);
         delete pTimer;
+        if(tryCatch.hasCaught())
+            glutLeaveMainLoop();
     }
     
     Value GLError() {
@@ -78,7 +105,7 @@ header {
             }
         }
         if(errorString.length())
-            return Error(String::concat("GL_ERROR: ", errorString));
+            return Throw(Error(String::concat("GL_ERROR: ", errorString)));
         else
             return undefined;
     }
@@ -87,7 +114,7 @@ header {
 namespace GL {
     function initWindow(name, w, h) {
         if(bGLIsUsed)
-            return Error("GL is already being used");
+            return Throw(Error("GL is already being used"));
         int argc = 0;
         glutInit(&argc, 0);
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -96,25 +123,36 @@ namespace GL {
     }
     
     function mainLoop(handlers) {
-        pGlutRedrawFunc = handlers["redraw"];
-        glutDisplayFunc(GLProxyDisplayFunc);
+        if(handlers["redraw"]) {
+            pGlutRedrawFunc = handlers["redraw"];
+            glutDisplayFunc(GLProxyDisplayFunc);
+        }
         
-        pGlutIdleFunc = handlers["idle"];
-        glutIdleFunc(GLProxyIdleFunc);
+        if(handlers["idle"]) {
+            pGlutIdleFunc = handlers["idle"];
+            glutIdleFunc(GLProxyIdleFunc);
+        }
         
-        pGlutKeyPressFunc = handlers["keyPress"];
-        glutKeyboardFunc(GLProxyKeyboardFunc);
+        if(handlers["keyPress"]) {
+            pGlutKeyPressFunc = handlers["keyPress"];
+            glutKeyboardFunc(GLProxyKeyboardFunc);
+        }
         
-        pGlutKeyUpFunc = handlers["keyUp"];
-        glutKeyboardUpFunc(GLProxyKeyboardUpFunc);
+        if(handlers["keyUp"]) {
+            pGlutKeyUpFunc = handlers["keyUp"];
+            glutKeyboardUpFunc(GLProxyKeyboardUpFunc);
+        }
         
-        pGlutMouseMoveFunc = handlers["mouseMove"];
-        glutMotionFunc(GLProxyMotionFunc);
-        glutPassiveMotionFunc(GLProxyMotionFunc);
-        
-        pGlutResizeFunc = handlers["resize"];
-        glutReshapeFunc(GLProxyReshapeFunc);
-        
+        if(handlers["mouseMove"]) {
+            pGlutMouseMoveFunc = handlers["mouseMove"];
+            glutMotionFunc(GLProxyMotionFunc);
+            glutPassiveMotionFunc(GLProxyMotionFunc);
+        }
+            
+        if(handlers["resize"]) {
+            pGlutResizeFunc = handlers["resize"];
+            glutReshapeFunc(GLProxyReshapeFunc);
+        }
         glutMainLoop();
     }
     
@@ -267,7 +305,7 @@ namespace GL {
     
     function color(r, g, b) {
         glColor3d(r, g, b);
-        return GLError();
+        //return GLError();
     }
     
     function color(r, g, b, a) {
@@ -296,7 +334,7 @@ namespace GL {
         glLightfv(GL_LIGHT0, GL_POSITION, position);
         */
         
-        float material[] = {r.to<float>(), g.to<float>(), b.to<float>(), a.to<float>()};
+        float material[] = {r, g, b, a};
         //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);
         glMaterialfv(which, type, material);
         return GLError();
@@ -925,7 +963,7 @@ namespace GL {
     var RGBA16 = GL_RGBA16;
     var CLIENT_PIXEL_STORE_BIT = GL_CLIENT_PIXEL_STORE_BIT;
     var CLIENT_VERTEX_ARRAY_BIT = GL_CLIENT_VERTEX_ARRAY_BIT;
-    var ALL_CLIENT_ATTRIB_BITS = GL_ALL_CLIENT_ATTRIB_BITS;
+    /*var ALL_CLIENT_ATTRIB_BITS = GL_ALL_CLIENT_ATTRIB_BITS;*/
     var CLIENT_ALL_ATTRIB_BITS = GL_CLIENT_ALL_ATTRIB_BITS;
     
 }

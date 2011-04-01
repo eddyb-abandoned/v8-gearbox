@@ -1,14 +1,16 @@
 
 #include "../Gearbox.h"
 #include "Network.h"
+
 using namespace Gearbox;
 
-/** \file Network.cc */
+/** \file Network.cc converted from Network.gear */
 
 #line 1 "src/modules/Network.gear"
 #ifdef _WIN32
 #include <winsock.h>
 #else
+#include <unistd.h>
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -19,29 +21,29 @@ v8::Handle<v8::Value> __global_Network_Socket_Socket(const v8::Arguments& args) 
     Value This(args.This());
     if(args.Length() >= 2)
     {
-        #line 19 "src/modules/Network.gear"
+        #line 20 "src/modules/Network.gear"
         Value family(args[0]), type(args[1]);
         int sock = socket(family, type, 0);
         if(sock == -1)
-            return Error("Unable to create socket");
+            return Throw(Error("Unable to create socket"));
         
         This["socket"] = Internal(sock);
         This["family"] = Internal(family);
         This["type"] = Internal(type);
         return undefined;
     }
-    return Error("Invalid call to Network.Socket");
+    return Throw(Error("Invalid call to Network.Socket"));
 }
 
 v8::Handle<v8::Value> __global_Network_Socket_connect(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 2)
     {
-        #line 29 "src/modules/Network.gear"
+        #line 30 "src/modules/Network.gear"
         Value host(args[0]), port(args[1]);
         struct hostent *host_s = gethostbyname(host.to<String>());
         if(!host_s)
-            return Error("Unable to resolve host");
+            return Throw(Error("Unable to resolve host"));
             
         struct sockaddr_in server_addr;
         server_addr.sin_family = This["family"].to<uint32_t>();
@@ -50,17 +52,17 @@ v8::Handle<v8::Value> __global_Network_Socket_connect(const v8::Arguments& args)
         
         int result = connect(This["socket"], (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
         if(result == -1)
-            return Error("Unable to connect");
+            return Throw(Error("Unable to connect"));
         
         This["isConnected"] = Internal(true);
         return undefined;
     }
-    return Error("Invalid call to Network.Socket.prototype.connect");
+    return Throw(Error("Invalid call to Network.Socket.prototype.connect"));
 }
 
 v8::Handle<v8::Value> __global_Network_Socket_receive(const v8::Arguments& args) {
     Value This(args.This());
-    #line 47 "src/modules/Network.gear"
+    #line 48 "src/modules/Network.gear"
     int maxLen = 1024;//undefined == args[0] ? 1024 : Value(args[0]);
     char *buffer = new char [maxLen];
     int len = recv(This["socket"], buffer, maxLen, 0);
@@ -77,17 +79,17 @@ v8::Handle<v8::Value> __global_Network_Socket_send(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 58 "src/modules/Network.gear"
+        #line 59 "src/modules/Network.gear"
         Value data(args[0]);
         send(This["socket"], data.to<String>(), data.length(), 0);
         return undefined;
     }
-    return Error("Invalid call to Network.Socket.prototype.send");
+    return Throw(Error("Invalid call to Network.Socket.prototype.send"));
 }
 
 v8::Handle<v8::Value> __global_Network_Socket_close(const v8::Arguments& args) {
     Value This(args.This());
-    #line 63 "src/modules/Network.gear"
+    #line 64 "src/modules/Network.gear"
     #ifdef _WIN32
     closesocket(This["socket"]);
 #else
@@ -100,7 +102,7 @@ v8::Handle<v8::Value> __global_Network_Socket_block(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 70 "src/modules/Network.gear"
+        #line 71 "src/modules/Network.gear"
         Value blocking(args[0]);
         #ifdef _WIN32
         u_long mode = blocking ? 1 : 0;
@@ -115,16 +117,16 @@ v8::Handle<v8::Value> __global_Network_Socket_block(const v8::Arguments& args) {
 #endif
         return undefined;
     }
-    return Error("Invalid call to Network.Socket.prototype.block");
+    return Throw(Error("Invalid call to Network.Socket.prototype.block"));
 }
 
 v8::Handle<v8::Value> __global_Network_toString(const v8::Arguments& args) {
-    #line 13 "src/modules/Network.gear"
+    #line 14 "src/modules/Network.gear"
     return String("[object Network]");
 }
 
 
-#line 127 "src/modules/Network.cc"
+#line 129 "src/modules/Network.cc"
 void SetupNetwork(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_Network = v8::Object::New();
     global->Set(String("Network"), global_Network);

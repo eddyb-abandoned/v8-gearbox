@@ -1,7 +1,7 @@
 #ifndef GEARBOX_STRING_H
 #define GEARBOX_STRING_H
 
-#include <string.h>
+#include <cstring>
 #include <v8.h>
 
 namespace Gearbox {

@@ -1,9 +1,10 @@
 
 #include "../Gearbox.h"
 #include "MySQL.h"
+
 using namespace Gearbox;
 
-/** \file MySQL.cc */
+/** \file MySQL.cc converted from MySQL.gear */
 
 #line 1 "src/modules/MySQL.gear"
 #ifdef _WIN32
@@ -24,7 +25,7 @@ v8::Handle<v8::Value> __global_MySQL_Connection_Connection(const v8::Arguments& 
         This["pMYSQL"] = pMYSQL;
         return undefined;
     }
-    return Error("Invalid call to MySQL.Connection");
+    return Throw(Error("Invalid call to MySQL.Connection"));
 }
 
 v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args) {
@@ -36,7 +37,7 @@ v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args)
         MYSQL *pMYSQL = This["pMYSQL"];
         
         if(mysql_query(pMYSQL, query.to<String>()))
-            return Error(mysql_error(pMYSQL));
+            return Throw(Error(mysql_error(pMYSQL)));
         
         var resultArray = Array();
         MYSQL_RES *pResult = mysql_store_result(pMYSQL);
@@ -71,7 +72,7 @@ v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args)
         mysql_free_result(pResult);
         return resultArray;
     }
-    return Error("Invalid call to MySQL.Connection.prototype.query");
+    return Throw(Error("Invalid call to MySQL.Connection.prototype.query"));
 }
 
 v8::Handle<v8::Value> __global_MySQL_toString(const v8::Arguments& args) {
@@ -80,7 +81,7 @@ v8::Handle<v8::Value> __global_MySQL_toString(const v8::Arguments& args) {
 }
 
 
-#line 83 "src/modules/MySQL.cc"
+#line 84 "src/modules/MySQL.cc"
 void SetupMySQL(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_MySQL = v8::Object::New();
     global->Set(String("MySQL"), global_MySQL);

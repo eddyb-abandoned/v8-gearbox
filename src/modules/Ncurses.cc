@@ -1,9 +1,10 @@
 
 #include "../Gearbox.h"
 #include "Ncurses.h"
+
 using namespace Gearbox;
 
-/** \file Ncurses.cc */
+/** \file Ncurses.cc converted from Ncurses.gear */
 
 #line 1 "src/modules/Ncurses.gear"
 #include <curses.h>
@@ -19,7 +20,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_Window(const v8::Arguments& args) 
         wtimeout(This["win"], 0);
         return undefined;
     }
-    return Error("Invalid call to Ncurses.Window");
+    return Throw(Error("Invalid call to Ncurses.Window"));
 }
 
 v8::Handle<v8::Value> __global_Ncurses_Window_bold(const v8::Arguments& args) {
@@ -34,7 +35,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_bold(const v8::Arguments& args) {
             wattroff(This["win"], A_BOLD);
         return undefined;
     }
-    return Error("Invalid call to Ncurses.Window.prototype.bold");
+    return Throw(Error("Invalid call to Ncurses.Window.prototype.bold"));
 }
 
 v8::Handle<v8::Value> __global_Ncurses_Window_border(const v8::Arguments& args) {
@@ -67,7 +68,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_setBackground(const v8::Arguments&
             wrefresh(This["win"]);
         return undefined;
     }
-    return Error("Invalid call to Ncurses.Window.prototype.setBackground");
+    return Throw(Error("Invalid call to Ncurses.Window.prototype.setBackground"));
 }
 
 v8::Handle<v8::Value> __global_Ncurses_Window_print(const v8::Arguments& args) {
@@ -81,7 +82,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_print(const v8::Arguments& args) {
             wrefresh(This["win"]);
         return undefined;
     }
-    return Error("Invalid call to Ncurses.Window.prototype.print");
+    return Throw(Error("Invalid call to Ncurses.Window.prototype.print"));
 }
 
 v8::Handle<v8::Value> __global_Ncurses_Window_clear(const v8::Arguments& args) {
@@ -113,7 +114,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_move(const v8::Arguments& args) {
             wrefresh(This["win"]);
         return undefined;
     }
-    return Error("Invalid call to Ncurses.Window.prototype.move");
+    return Throw(Error("Invalid call to Ncurses.Window.prototype.move"));
 }
 
 v8::Handle<v8::Value> __global_Ncurses_Window_getChar(const v8::Arguments& args) {
@@ -157,7 +158,7 @@ v8::Handle<v8::Value> __global_Ncurses_toString(const v8::Arguments& args) {
 }
 
 
-#line 160 "src/modules/Ncurses.cc"
+#line 161 "src/modules/Ncurses.cc"
 void SetupNcurses(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_Ncurses = v8::Object::New();
     global->Set(String("Ncurses"), global_Ncurses);

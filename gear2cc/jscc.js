@@ -4631,7 +4631,7 @@ function _print( txt )
 
 function _quit( exitcode )
 {
-	quit( exitcode );
+	exit( exitcode );
 }
 
 function read_file( file )

@@ -1,15 +1,10 @@
 #ifndef GEARBOX_H
 #define GEARBOX_H
 
-#include <stdio.h>
-#include <string.h>
 #include <v8.h>
-#include <stdexcept>
 
 #include "shell.h"
 #include "String.h"
-
-#define INSIDE(x) printf("INSIDE " #x "\n");
 
 namespace Gearbox {
     /** Structure that wraps a type as a template parameter */
@@ -23,7 +18,6 @@ namespace Gearbox {
             enum Kind {
                 Undefined=0,
                 Null,
-                Fail,
                 False,
                 True,
                 Integer,
@@ -47,8 +41,6 @@ namespace Gearbox {
                     return v8::Undefined();
                 else if(m_Kind == Null)
                     return v8::Null();
-                else if(m_Kind == Fail)
-                    return v8::ThrowException(v8::Exception::Error(String("A Fail Primitive breached into JavaScript")));
                 else if(m_Kind == False)
                     return v8::False();
                 else if(m_Kind == True)
@@ -86,7 +78,7 @@ namespace Gearbox {
             }
             
             bool operator ==(Primitive that) {
-                if(m_Kind <= Fail)
+                if(m_Kind <= Null)
                     return m_Kind == that.m_Kind;
                 return false;
             }
@@ -106,7 +98,6 @@ namespace Gearbox {
     
     static Primitive undefined;
     static Primitive null(Primitive::Null);
-    static Primitive fail(Primitive::Fail);
     
     template <class Node, class Index>
     class Assignable : public Node {
@@ -170,7 +161,6 @@ namespace Gearbox {
             v8::Handle<v8::Value> *m_phValues;
             size_t m_nValues;
     };
-    void ReportException(v8::TryCatch* handler);
     
     /** A class for every kind of JavaScript value (Objects, Arrays, Functions, Numbers, Strings) */
     class Value {
@@ -236,7 +226,6 @@ namespace Gearbox {
             }
             void from(void *that) {
                 from(v8::External::New(that));
-                printf("wrapping an External (%p) now\n", that/*, to<intptr_t>()*/);
                 // Avoid exposing an External to JavaScript
                 m_Flags |= Internal;
             }
@@ -273,8 +262,7 @@ namespace Gearbox {
             template <class T>
             T *to(Type<T*>) {
                 if(m_hValue.IsEmpty() || !m_hValue->IsExternal() || !v8::External::Unwrap(m_hValue)) {
-                    printf("WARNING: empty/NULL External!\n");
-                    //throw std::logic_error("Gearbox::Value: attempting to use NULL External pointer");
+                    errprintf("WARNING: empty/NULL External!" _STR_NEWLINE);
                     return 0;
                 }
                 return reinterpret_cast<T*>(v8::External::Unwrap(m_hValue));
@@ -322,11 +310,7 @@ bool operator OP(T that) { \
             void set(uint32_t idx, Value val, uint8_t flags) {
                 if(m_hValue.IsEmpty() || !(m_hValue->IsObject()))
                     return;
-                if(flags & Internal)
-                    throw std::logic_error("Gearbox::Value: attempting to set an indexed element as Internal");
-                    //v8::Handle<v8::Object>::Cast(m_hValue)->Set(Value(idx).operator v8::Handle<v8::Value>(), val, v8PropertyInternal);
-                else
-                    v8::Handle<v8::Object>::Cast(m_hValue)->Set(idx, val);
+                v8::Handle<v8::Object>::Cast(m_hValue)->Set(idx, val);
             }
             void set(String idx, Value &val, uint8_t flags) {
                 if(m_hValue.IsEmpty() || !(m_hValue->IsObject()))
@@ -354,17 +338,10 @@ bool operator OP(T that) { \
                 if(m_hValue.IsEmpty() || !m_hValue->IsFunction())
                     return undefined;
                 
-                v8::TryCatch try_catch;
-                v8::HandleScope handle_scope;
                 ValueList args;
                 args.add(_args...);
                 
-                v8::Handle<v8::Value> result = v8::Handle<v8::Function>::Cast(m_hValue)->Call(v8::Object::New(), args.numValues(), args.values());
-                if(result.IsEmpty()) {
-                    ReportException(&try_catch);
-                    return null;
-                }
-                return result;
+                return v8::Handle<v8::Function>::Cast(m_hValue)->Call(v8::Object::New(), args.numValues(), args.values());
             }
             
         private:
@@ -410,7 +387,7 @@ bool operator OP(T that) { \
     }
     
     static Value Error(String message) {
-        return v8::ThrowException(v8::Exception::Error(message));
+        return v8::Exception::Error(message);
     }
     
     template <class T>
@@ -418,22 +395,12 @@ bool operator OP(T that) { \
         return Value(that, Value::Internal);
     }
     
-    Value ExecuteString(String source, String name);
     String ReadFile(String name);
-    
-    /*static Value String(const char *val) {
-        return Value(val);
-    }
-    
-    static Value String(char *val) {
-        return Value(val);
-    }
-    
-    static Value String(char *val, int len) {
-        return Value(v8::String::New(val, len));
-    }*/
+    Value ExecuteString(String source, String name);
     
     typedef Value var;
 }
+
+#include "TryCatch.h"
 
 #endif

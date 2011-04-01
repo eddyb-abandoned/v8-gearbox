@@ -21,7 +21,7 @@ namespace MySQL {
             MYSQL *pMYSQL = this["pMYSQL"];
             
             if(mysql_query(pMYSQL, query.to<String>()))
-                return Error(mysql_error(pMYSQL));
+                return Throw(Error(mysql_error(pMYSQL)));
             
             var resultArray = Array();
             MYSQL_RES *pResult = mysql_store_result(pMYSQL);
