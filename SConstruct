@@ -24,6 +24,7 @@ if sys.platform == 'win32' or using_crossmingw:
         sys.exit(1)
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include'), strings=True))
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*'), strings=True))
+    env.Append(CPPPATH = 'src')
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'bin'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'lib'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*'), strings=True))
@@ -32,6 +33,7 @@ if sys.platform == 'win32' or using_crossmingw:
     env.Append(LIBS = ['v8', 'readline', 'opengl32', 'glu32', 'freeglut', 'curses', 'pthread', 'mysql', 'ws2_32' , 'winmm', 'SDL', 'SDLmain'])
 else:
     env.ParseConfig('mysql_config --cflags --libs')
+    env.Append(CPPPATH = 'src')
     env.Append(LINKFLAGS = '-Wl,--no-warn-search-mismatch')
     env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments')
     env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut', 'SDL'])
@@ -65,11 +67,11 @@ else:
 # Gearbox target
 gearboxPath = os.path.join('build', 'gearbox')
 gearboxSources = [
+    'build/global.cc',
     'build/shell.cc',
-    'build/Gearbox.cc',
     'build/String.cc',
     'build/TryCatch.cc',
-    'build/global.cc',
+    'build/Value.cc',
     'build/modules/GL.cc',
     'build/modules/Io.cc',
     'build/modules/MySQL.cc',

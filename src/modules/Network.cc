@@ -1,5 +1,5 @@
 
-#include "../Gearbox.h"
+#include <v8-gearbox.h>
 #include "Network.h"
 
 using namespace Gearbox;

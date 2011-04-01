@@ -1,5 +1,5 @@
 
-#include "../Gearbox.h"
+#include <v8-gearbox.h>
 #include "SDL.h"
 
 using namespace Gearbox;
@@ -79,7 +79,7 @@ v8::Handle<v8::Value> __global_SDL_Window_Window(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 3)
     {
-        #line 76 "src/modules/SDL.gear"
+        #line 75 "src/modules/SDL.gear"
         Value name(args[0]), w(args[1]), h(args[2]);
         if(bSDLIsUsed)
             return Throw(Error("SDL is already being used"));
@@ -96,14 +96,14 @@ v8::Handle<v8::Value> __global_SDL_Window_color(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 3)
     {
-        #line 106 "src/modules/SDL.gear"
+        #line 105 "src/modules/SDL.gear"
         Value r(args[0]), g(args[1]), b(args[2]);
         return Integer(SDL_MapRGB(This["surface"].to<SDL_Surface*>()->format, CLIP(r.to<int>(), 0, 255), CLIP(g.to<int>(), 0, 255), CLIP(b.to<int>(), 0, 255)));
     }
 
     if(args.Length() >= 1)
     {
-        #line 85 "src/modules/SDL.gear"
+        #line 84 "src/modules/SDL.gear"
         Value htmlColor(args[0]);
         Uint8 r = 0, g = 0, b = 0;
         
@@ -131,7 +131,7 @@ v8::Handle<v8::Value> __global_SDL_Window_pixel(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 3)
     {
-        #line 110 "src/modules/SDL.gear"
+        #line 109 "src/modules/SDL.gear"
         Value x(args[0]), y(args[1]), color(args[2]);
         setPixel(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1), color.to<int>());
         return This;
@@ -139,7 +139,7 @@ v8::Handle<v8::Value> __global_SDL_Window_pixel(const v8::Arguments& args) {
 
     if(args.Length() >= 2)
     {
-        #line 115 "src/modules/SDL.gear"
+        #line 114 "src/modules/SDL.gear"
         Value x(args[0]), y(args[1]);
         return Integer(getPixel(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1)));
     }
@@ -150,14 +150,14 @@ v8::Handle<v8::Value> __global_SDL_Window_update(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 4)
     {
-        #line 119 "src/modules/SDL.gear"
+        #line 118 "src/modules/SDL.gear"
         Value x(args[0]), y(args[1]), width(args[2]), height(args[3]);
         SDL_UpdateRect(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1),
                     CLIP(x.to<int>() + width.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1) - x.to<int>(), CLIP(y.to<int>() + height.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1) - y.to<int>());
         return This;
     }
 
-    #line 126 "src/modules/SDL.gear"
+    #line 125 "src/modules/SDL.gear"
     SDL_UpdateRect(This["surface"], 0, 0, 0, 0);
     return This;
 }
@@ -166,7 +166,7 @@ v8::Handle<v8::Value> __global_SDL_Window_checkEvent(const v8::Arguments& args) 
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 130 "src/modules/SDL.gear"
+        #line 129 "src/modules/SDL.gear"
         Value handlers(args[0]);
         SDL_Event event;
         if(!SDL_PollEvent(&event))
@@ -185,7 +185,7 @@ v8::Handle<v8::Value> __global_SDL_Window_awaitEvent(const v8::Arguments& args) 
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 141 "src/modules/SDL.gear"
+        #line 140 "src/modules/SDL.gear"
         Value handlers(args[0]);
         SDL_Event event;
         if(SDL_WaitEvent(&event) < 0)
@@ -204,7 +204,7 @@ v8::Handle<v8::Value> __global_SDL_Image_Image(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 156 "src/modules/SDL.gear"
+        #line 155 "src/modules/SDL.gear"
         Value path(args[0]);
         This["surface"] = SDL_LoadBMP(path.to<String>());
         return undefined;
@@ -213,12 +213,12 @@ v8::Handle<v8::Value> __global_SDL_Image_Image(const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> __global_SDL_toString(const v8::Arguments& args) {
-    #line 73 "src/modules/SDL.gear"
+    #line 72 "src/modules/SDL.gear"
     return String("[object SDL]");
 }
 
 
-#line 222 "src/modules/SDL.cc"
+#line 221 "src/modules/SDL.cc"
 void SetupSDL(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_SDL = v8::Object::New();
     global->Set(String("SDL"), global_SDL);

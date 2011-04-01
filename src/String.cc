@@ -1,5 +1,5 @@
-#include "Gearbox.h"
-#include "String.h"
+
+#include <v8-gearbox.h>
 
 namespace Gearbox {
     

@@ -1,15 +1,9 @@
-#ifndef GEARBOX_H
-#define GEARBOX_H
+#ifndef V8_GEARBOX_VALUE_H
+#define V8_GEARBOX_VALUE_H
 
-#include <v8.h>
-
-#include "shell.h"
-#include "String.h"
+#include <v8-gearbox.h>
 
 namespace Gearbox {
-    /** Structure that wraps a type as a template parameter */
-    template <class T>
-    class Type {};
     
     class Value;
     
@@ -380,56 +374,6 @@ bool operator OP(Primitive that) { \
             friend class Assignable<Value, uint32_t>;
             friend class Assignable<Value, String>;
     };
-    
-    static void PrintTrace() { 
-        v8::Message::PrintCurrentStackTrace(stdout);
-    }
-
-    static Primitive Integer(int64_t val) {
-        return Primitive(Primitive::Integer, val);
-    }
-    
-    static Primitive Number(double val) {
-        return Primitive(Primitive::Number, val);
-    }
-    
-    class Object : public Value {
-        public:
-            Object() : Value(v8::Object::New()) {}
-            static bool is(Value &that) {
-                return that.to<v8::Handle<v8::Value>>()->IsObject();
-            }
-    };
-    
-    class Array : public Value {
-        public:
-            Array(int length=0) : Value(v8::Array::New(length)) {}
-            static bool is(Value &that) {
-                return that.to<v8::Handle<v8::Value>>()->IsArray();
-            }
-    };
-    
-    static Value Function(v8::InvocationCallback __function, String name) {
-        v8::Handle<v8::Function> function = v8::FunctionTemplate::New(__function)->GetFunction();
-        function->SetName(name);
-        return function;
-    }
-    
-    static Value Error(String message) {
-        return v8::Exception::Error(message);
-    }
-    
-    template <class T>
-    static Value Internal(T that) {
-        return Value(that, Value::Internal);
-    }
-    
-    String ReadFile(String name);
-    Value ExecuteString(String source, String name);
-    
-    typedef Value var;
 }
-
-#include "TryCatch.h"
 
 #endif

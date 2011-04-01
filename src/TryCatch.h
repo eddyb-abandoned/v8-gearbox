@@ -1,7 +1,7 @@
-#ifndef GEARBOX_SCOPE_H
-#define GEARBOX_SCOPE_H
+#ifndef V8_GEARBOX_TRYCATCH_H
+#define V8_GEARBOX_TRYCATCH_H
 
-#include "Gearbox.h"
+#include <v8-gearbox.h>
 
 #define GEARBOX_TRY_CATCH_REPORT_STACKTRACE 0
 

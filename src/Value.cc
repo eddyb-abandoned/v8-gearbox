@@ -1,4 +1,5 @@
-#include "Gearbox.h"
+
+#include <v8-gearbox.h>
 
 namespace Gearbox {
     
@@ -19,7 +20,6 @@ namespace Gearbox {
     }
     
     void Value::from(v8::Handle<v8::Value> that) {
-        //INSIDE(Value::from(v8::Handle<v8::Value>));
         if(that.IsEmpty())
             from(undefined);
         else if(that->IsNumber() || that->IsUint32() || that->IsInt32() ||  that->IsUndefined() || that->IsNull() || that->IsBoolean()) {

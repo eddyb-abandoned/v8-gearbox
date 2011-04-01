@@ -1,7 +1,7 @@
-#ifndef GLOBAL_H
-#define GLOBAL_H
+#ifndef V8_GEARBOX_GLOBAL_H
+#define V8_GEARBOX_GLOBAL_H
 
-#include <v8.h>
+#include <v8-gearbox.h>
 
 void SetupGlobal(v8::Handle<v8::Object> global);
 

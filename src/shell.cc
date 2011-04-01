@@ -25,11 +25,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <fstream>
-#include <cstdlib>
-
-#include "Gearbox.h"
+#include <v8-gearbox.h>
 #include "global.h"
+#include <fstream>
 
 using namespace Gearbox;
 
@@ -59,7 +57,9 @@ void RunShell(v8::Handle<v8::Context> context) {
                 append_history(1, history_file);
             }
             
+            // Execute the expression
             var result = ExecuteString(str, "(shell)");
+            // Check for exceptions
             if(tryCatch.hasCaught())
                 tryCatch.reportException();
             else

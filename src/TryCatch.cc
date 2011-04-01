@@ -1,4 +1,5 @@
-#include "Gearbox.h"
+
+#include <v8-gearbox.h>
 
 namespace Gearbox {
     bool TryCatch::m_bCanThrow = false;

@@ -1,5 +1,5 @@
 
-#include "../Gearbox.h"
+#include <v8-gearbox.h>
 #include "Ncurses.h"
 
 using namespace Gearbox;

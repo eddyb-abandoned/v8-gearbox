@@ -1,5 +1,5 @@
 
-#include "../Gearbox.h"
+#include <v8-gearbox.h>
 #include "MySQL.h"
 
 using namespace Gearbox;

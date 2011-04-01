@@ -1,12 +1,12 @@
 
+#include <v8-gearbox.h>
 #include "global.h"
-#include "Gearbox.h"
 
 using namespace Gearbox;
 
 /** \file global.cc */
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "modules/Io.h"
 #include "modules/MySQL.h"
@@ -38,7 +38,7 @@ v8::Handle<v8::Value> __global_load(const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> __global_exit(const v8::Arguments& args) {
-    exit(Value(args[0]));
+    std::_Exit(Value(args[0]));
     return undefined;
 }
 

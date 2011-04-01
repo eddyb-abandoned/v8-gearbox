@@ -1,5 +1,5 @@
-#ifndef SHELL_H
-#define SHELL_H
+#ifndef V8_GEARBOX_SHELL_H
+#define V8_GEARBOX_SHELL_H
 
 #ifndef GEARBOX_APACHE_MOD
     #include <cstdio>

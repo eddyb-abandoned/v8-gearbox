@@ -217,7 +217,7 @@ function generateCode(global) {
         
         var ccCode = 
 '\n\
-#include "../Gearbox.h"\n\
+#include <v8-gearbox.h>\n\
 #include "'+baseName+'.h"\n\
 \n\
 using namespace Gearbox;\n\

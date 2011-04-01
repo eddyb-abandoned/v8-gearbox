@@ -1,8 +1,9 @@
-#ifndef GEARBOX_STRING_H
-#define GEARBOX_STRING_H
+#ifndef V8_GEARBOX_STRING_H
+#define V8_GEARBOX_STRING_H
+
+#include <v8-gearbox.h>
 
 #include <cstring>
-#include <v8.h>
 
 namespace Gearbox {
     class String {
