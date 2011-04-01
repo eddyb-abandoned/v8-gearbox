@@ -23,7 +23,6 @@ if sys.platform == 'win32' or using_crossmingw:
         print ""
         sys.exit(1)
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include'), strings=True))
-    env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include', 'SDL'), strings=True))
     env.Append(CPPPATH = Glob(os.path.join('contrib', '*'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'bin'), strings=True))
     env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'lib'), strings=True))
@@ -33,11 +32,9 @@ if sys.platform == 'win32' or using_crossmingw:
     env.Append(LIBS = ['v8', 'readline', 'opengl32', 'glu32', 'freeglut', 'curses', 'pthread', 'mysql', 'ws2_32' , 'winmm', 'SDL', 'SDLmain'])
 else:
     env.ParseConfig('mysql_config --cflags --libs')
-    env.ParseConfig('sdl-config --cflags --libs')
-    env.ParseConfig('ncurses5-config --cflags --libs')
     env.Append(LINKFLAGS = '-Wl,--no-warn-search-mismatch')
     env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments')
-    env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut'])
+    env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut', 'SDL'])
 
 # Pretty output
 if sys.platform == 'win32' or os.environ['TERM'] == 'dumb':

@@ -1,6 +1,5 @@
 header {
-    #include <stdlib.h>
-    #include <SDL.h>
+    #include <SDL/SDL.h>
     
     static bool bSDLIsUsed = false;
     

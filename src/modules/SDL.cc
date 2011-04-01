@@ -7,8 +7,7 @@ using namespace Gearbox;
 /** \file SDL.cc converted from SDL.gear */
 
 #line 1 "src/modules/SDL.gear"
-#include <stdlib.h>
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 static bool bSDLIsUsed = false;
 
