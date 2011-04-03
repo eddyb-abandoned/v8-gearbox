@@ -1,3 +1,4 @@
+
 #ifndef MODULE_NCURSES_H
 #define MODULE_NCURSES_H
 

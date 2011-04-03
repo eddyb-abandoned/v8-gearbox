@@ -3,15 +3,15 @@ import re
 import sys
 
 env = Environment()
+
 crossmingw = ARGUMENTS.get('crossmingw', 0)
-using_crossmingw = False
+env['USING_CROSSMINGW'] = False
 if int(crossmingw):
     env.Tool('crossmingw', toolpath = ['#tools'])
-    using_crossmingw = True
-env.VariantDir('build', 'src', duplicate=0)
+    env['USING_CROSSMINGW'] = True
 
 # Windows gets special treatement
-if sys.platform == 'win32' or using_crossmingw:
+if sys.platform == 'win32' or env['USING_CROSSMINGW']:
     if not os.path.exists('contrib'):
         print ""
         print "============================================================================="
@@ -33,13 +33,13 @@ if sys.platform == 'win32' or using_crossmingw:
     env.Append(LIBS = ['v8', 'readline', 'opengl32', 'glu32', 'freeglut', 'curses', 'pthread', 'mysql', 'ws2_32' , 'winmm', 'SDL', 'SDLmain'])
 else:
     env.ParseConfig('mysql_config --cflags --libs')
-    env.Append(CPPPATH = 'src')
+    env.Append(CPPPATH = '#src')
     env.Append(LINKFLAGS = '-Wl,--no-warn-search-mismatch')
     env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments')
     env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut', 'SDL'])
 
 # Pretty output
-if sys.platform == 'win32' or os.environ['TERM'] == 'dumb':
+if sys.platform == 'win32' or not hasattr(os.environ, 'TERM') or os.environ['TERM'] == 'dumb':
     env['CCCOMSTR']   =    '     Compiling $SOURCES -> $TARGET'
     env['CXXCOMSTR']  =    '     Compiling $SOURCES -> $TARGET'
     env['ASCOMSTR']   =    '    Assembling $SOURCES -> $TARGET'
@@ -50,7 +50,7 @@ if sys.platform == 'win32' or os.environ['TERM'] == 'dumb':
     env['DOCCOMSTR']  =    '   Documenting $SOURCES -> $TARGET'
     env['TARCOMSTR']  =    '      Creating $SOURCES -> $TARGET'
     env['JSCCCOMSTR']  =   '     Compiling $SOURCES -> $TARGET'
-    env['GEAR2CCCOMSTR']  ='    Converting $SOURCES -> $TARGET'
+    env['GEAR2CCCOMSTR']  ='    Converting $SOURCES -> $TARGETS'
 else:
     env['CCCOMSTR']   =    '     Compiling \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
     env['CXXCOMSTR']  =    '     Compiling \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
@@ -62,52 +62,12 @@ else:
     env['DOCCOMSTR']  =    '   Documenting \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
     env['TARCOMSTR']  =    '      Creating \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
     env['JSCCCOMSTR']   =  '     Compiling \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
-    env['GEAR2CCCOMSTR']  ='    Converting \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
-
-# Gearbox target
-gearboxPath = os.path.join('build', 'gearbox')
-gearboxSources = [
-    'build/global.cc',
-    'build/shell.cc',
-    'build/String.cc',
-    'build/TryCatch.cc',
-    'build/Value.cc',
-    'build/modules/GL.cc',
-    'build/modules/Io.cc',
-    'build/modules/MySQL.cc',
-    'build/modules/Ncurses.cc',
-    'build/modules/Network.cc',
-    'build/modules/SDL.cc',
-]
-gearbox = env.Program(gearboxPath, gearboxSources)
-env.Default(gearbox)
-env.Precious(gearbox)
-
-# Install target (not on windows)
-if sys.platform != 'win32' and not using_crossmingw:
-    install = env.Install('/usr/bin', gearbox)
-    env.Alias('install', install)
-
-# Invocation of gear2cc in case gearbox exists
-gearboxPath += env['PROGSUFFIX']
-gears = []
-if os.path.exists(gearboxPath) and not using_crossmingw:
-    gear2ccPath = 'gear2cc' + os.sep
-    modulePath = os.path.join('src','modules') + os.sep
+    env['GEAR2CCCOMSTR']  ='    Converting \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGETS\033[0m'
     
-    # JsCC builder
-    env['BUILDERS']['JsCC'] = Builder(action=Action(gearboxPath+' '+gear2ccPath+'jscc.js -o $TARGET -p v8 -t '+gear2ccPath+'driver_v8.js_ $SOURCE', cmdstr=env['JSCCCOMSTR']))
-    gear2cc = env.JsCC(gear2ccPath+'gear2cc.js', gear2ccPath+'gear2cc.par')
-    
-    # Gear2CC builder
-    def gear2cc_action(target, source, env):
-        Execute(gearboxPath+' '+gear2ccPath+'gear2cc.js '+modulePath+' '+re.sub('\.gear$','',os.path.basename(source[0].rstr())), cmdstr=None)
-    env['BUILDERS']['Gear2CC'] = Builder(action=Action(gear2cc_action, cmdstr=env['GEAR2CCCOMSTR']))
+env['BUILD_DIR'] = 'build'
+env['GEARBOX'] = env['BUILD_DIR'] + os.sep + 'gearbox' + env['PROGSUFFIX']
+env['GEARBOX_EXISTS'] = os.path.exists(env['GEARBOX'])
+env['BUILDERS']['JsCC'] = Builder(action=Action(env['GEARBOX']+' gear2cc'+os.sep+'jscc.js -o $TARGET -p v8 -t gear2cc'+os.sep+'driver_v8.js_ $SOURCE', cmdstr=env['JSCCCOMSTR']))
+env['BUILDERS']['Gear2CC'] = Builder(action=Action(env['GEARBOX']+' gear2cc'+os.sep+'gear2cc.js $SOURCE', cmdstr=env['GEAR2CCCOMSTR']))
 
-    # Build all gear files
-    for gearFile in Glob(os.path.join('src', 'modules', '*.gear'), strings=True):
-        gearBase = re.sub('\.gear$', '', gearFile)
-        gear = env.Gear2CC([gearBase+'.cc', gearBase+'.h'], gearFile)
-        env.Depends(gear, gear2cc)
-        env.Depends(gearbox, gear)
-
+SConscript('src/SConscript', variant_dir = env['BUILD_DIR'], exports = ['env'], duplicate = 0)

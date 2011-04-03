@@ -1,0 +1,35 @@
+import os
+import re
+import sys
+
+Import(['env'])
+
+# Gearbox sources
+gearboxSources = [
+    Glob('*.cc')
+]
+
+# Invocation of gear2cc in case gearbox exists
+if env['GEARBOX_EXISTS'] and not env['USING_CROSSMINGW']:
+    # Make sure we have gear2cc built
+    gear2cc = env.JsCC('#gear2cc/gear2cc.js', '#gear2cc/gear2cc.par')
+    
+    # Build all gear files
+    for gearFile in Glob('modules/*.gear', strings=True):
+        gearBase = re.sub('\.gear$', '', gearFile)
+        gear = env.Gear2CC(['#src/'+gearBase+'.cc', '#src/'+gearBase+'.h'], gearFile)
+        env.Depends(gear, gear2cc)
+        env.Precious(gear)
+        gearboxSources += Glob(gearBase+'.cc')
+else:
+    gearboxSources += Glob('modules/*.cc')
+
+# Gearbox target
+gearbox = env.Program('gearbox', gearboxSources)
+env.Precious(gearbox)
+env.Default(gearbox)
+
+# Install target (not on windows or cross mingw)
+if sys.platform != 'win32' and not env['USING_CROSSMINGW']:
+    install = env.Install('/usr/bin', gearbox)
+    env.Alias('install', install)

@@ -4642,7 +4642,7 @@ function read_file( file )
 	if(!src)
 	{
 		_error( "unable to open file '" + file + "'" );
-		quit();
+		_quit();
 	}
 	
 	return src;

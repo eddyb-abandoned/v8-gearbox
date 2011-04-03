@@ -63,7 +63,7 @@ v8::Handle<v8::Value> __global_Network_Socket_connect(const v8::Arguments& args)
 v8::Handle<v8::Value> __global_Network_Socket_receive(const v8::Arguments& args) {
     Value This(args.This());
     #line 48 "src/modules/Network.gear"
-    int maxLen = 1024;//undefined == args[0] ? 1024 : Value(args[0]);
+    int maxLen = Value(args[0]) == undefined ? 1024 : Value(args[0]).to<int>();
     char *buffer = new char [maxLen];
     int len = recv(This["socket"], buffer, maxLen, 0);
     if(len > 0) {

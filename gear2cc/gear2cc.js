@@ -231,11 +231,12 @@ using namespace Gearbox;\n\
         Io.write(gear.cc, ccCode);
         
         var hCode =
-        "#ifndef MODULE_"+baseName.toUpperCase()+"_H\n"+
-        "#define MODULE_"+baseName.toUpperCase()+"_H\n\n"+
-        "#include <v8.h>\n\n"+
-        "void Setup"+baseName+"(v8::Handle<v8::Object> global);\n\n"+
-        "#endif\n";
+'\n\
+#ifndef MODULE_'+baseName.toUpperCase()+'_H\n\
+#define MODULE_'+baseName.toUpperCase()+'_H\n\n\
+#include <v8.h>\n\n\
+void Setup'+baseName+'(v8::Handle<v8::Object> global);\n\n\
+#endif\n';
         Io.write(gear.h, hCode);
     }
     
@@ -1604,22 +1605,22 @@ function __v8dbg_parsetree( indent, nodes, tree )
 //v8_dbg_withtrace = true;
 //v8_dbg_withparsetree = true;
 //v8_dbg_withstepbystep = true;
-var baseDir = arguments[1], baseName = arguments[2];
+var lastSlash = arguments[1].lastIndexOf('/')+1;
+var baseDir = arguments[1].substr(0, lastSlash), baseName = arguments[1].substr(lastSlash).replace(/\.gear$/, '');
 var gear = {gear:baseDir+baseName+".gear", cc:baseDir+baseName+".cc", h:baseDir+baseName+".h"};
-if( arguments.length == 3 )
-{
+if(arguments.length == 2) {
     var str         = Io.read(gear.gear);
     var error_cnt   = 0;
     var error_off   = [];
     var error_la    = [];
     
-    if( ( error_cnt = __v8parse( str, error_off, error_la ) ) > 0 )
+    if((error_cnt = __v8parse(str, error_off, error_la)) > 0)
         for(var i = 0; i < error_cnt; i++) {
             var bf = str.substr(0, error_off[i]);
             print(gear.gear+":"+(nLines(bf)+1)+":"+(nCols(bf)+1)+": Error near >" + str.substr(error_off[i], 30) + "<, expecting \"" + error_la[i].join() + "\"" );
         }
 }
 else
-    print("usage: " + arguments[0] + " <directory> <baseName>");
+    print("usage: " + arguments[0] + " <file>");
 exit(); // Just in case v8-gearbox is a (bit) broken
 

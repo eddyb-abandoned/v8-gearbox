@@ -45,7 +45,7 @@ namespace Network {
         }
         
         function receive() {
-            int maxLen = 1024;//undefined == args[0] ? 1024 : Value(args[0]);
+            int maxLen = Value(args[0]) == undefined ? 1024 : Value(args[0]).to<int>();
             char *buffer = new char [maxLen];
             int len = recv(this["socket"], buffer, maxLen, 0);
             if(len > 0) {
