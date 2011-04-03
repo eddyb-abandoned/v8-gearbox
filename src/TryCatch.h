@@ -8,29 +8,29 @@
 namespace Gearbox {
     class TryCatch {
         public:
-            TryCatch() : m_PreviousTryCatch(m_ActualTryCatch), m_bHasLocalException(false) {
-                m_ActualTryCatch = this;
+            TryCatch() : m_pPreviousTryCatch(m_pCurrentTryCatch), m_bHasLocalException(false) {
+                m_pCurrentTryCatch = this;
             }
             
             virtual ~TryCatch() {
                 if(hasCaught()) {
-                    if(m_PreviousTryCatch) {
+                    if(m_pPreviousTryCatch) {
                         if(!m_TryCatch.HasCaught()) {
-                            m_PreviousTryCatch->m_bHasLocalException = true;
+                            m_pPreviousTryCatch->m_bHasLocalException = true;
                             #if GEARBOX_TRY_CATCH_REPORT_STACKTRACE
-                                m_PreviousTryCatch->m_LocalStackTrace = m_LocalStackTrace;
+                                m_pPreviousTryCatch->m_LocalStackTrace = m_LocalStackTrace;
                             #else
-                                m_PreviousTryCatch->m_LocalException = m_LocalException;
-                                m_PreviousTryCatch->m_LocalMessage = m_LocalMessage;
+                                m_pPreviousTryCatch->m_LocalException = m_LocalException;
+                                m_pPreviousTryCatch->m_LocalMessage = m_LocalMessage;
                             #endif
                         }
                         else {
-                            m_PreviousTryCatch->m_bHasLocalException = true;
+                            m_pPreviousTryCatch->m_bHasLocalException = true;
                             #if GEARBOX_TRY_CATCH_REPORT_STACKTRACE
-                                m_PreviousTryCatch->m_LocalStackTrace = m_TryCatch.StackTrace();
+                                m_pPreviousTryCatch->m_LocalStackTrace = m_TryCatch.StackTrace();
                             #else
-                                m_PreviousTryCatch->m_LocalException = m_TryCatch.Exception();
-                                m_PreviousTryCatch->m_LocalMessage = v8::Persistent<v8::Message>::New(m_TryCatch.Message());
+                                m_pPreviousTryCatch->m_LocalException = m_TryCatch.Exception();
+                                m_pPreviousTryCatch->m_LocalMessage = v8::Persistent<v8::Message>::New(m_TryCatch.Message());
                             #endif
                             if(canThrow())
                                 m_TryCatch.ReThrow();
@@ -39,7 +39,7 @@ namespace Gearbox {
                     else
                         reportException();
                 }
-                m_ActualTryCatch = m_PreviousTryCatch;
+                m_pCurrentTryCatch = m_pPreviousTryCatch;
             }
             
             bool hasCaught() {
@@ -59,13 +59,13 @@ namespace Gearbox {
             }
             
             static Value _throw(Value exception) {
-                if(m_ActualTryCatch) {
-                    m_ActualTryCatch->m_TryCatch.Reset();
-                    m_ActualTryCatch->m_bHasLocalException = true;
+                if(m_pCurrentTryCatch) {
+                    m_pCurrentTryCatch->m_TryCatch.Reset();
+                    m_pCurrentTryCatch->m_bHasLocalException = true;
                     #if GEARBOX_TRY_CATCH_REPORT_STACKTRACE
-                        m_ActualTryCatch->m_LocalStackTrace = exception;
+                        m_pCurrentTryCatch->m_LocalStackTrace = exception;
                     #else
-                        m_ActualTryCatch->m_LocalException = exception;
+                        m_pCurrentTryCatch->m_LocalException = exception;
                     #endif
                 }
                 if(canThrow())
@@ -83,10 +83,10 @@ namespace Gearbox {
                 v8::Persistent<v8::Message> m_LocalMessage;
             #endif
             
-            TryCatch *m_PreviousTryCatch;
+            TryCatch *m_pPreviousTryCatch;
             
             static bool m_bCanThrow;
-            static TryCatch *m_ActualTryCatch;
+            static TryCatch *m_pCurrentTryCatch;
     };
     
     static Value Throw(Value exception) {

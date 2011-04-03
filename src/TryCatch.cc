@@ -3,7 +3,7 @@
 
 namespace Gearbox {
     bool TryCatch::m_bCanThrow = false;
-    TryCatch *TryCatch::m_ActualTryCatch = 0;
+    TryCatch *TryCatch::m_pCurrentTryCatch = 0;
     
     void TryCatch::reportException() {
         #if GEARBOX_TRY_CATCH_REPORT_STACKTRACE
