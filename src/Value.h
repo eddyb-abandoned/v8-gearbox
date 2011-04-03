@@ -5,8 +5,6 @@
 
 namespace Gearbox {
     
-    class Value;
-    
     class Primitive {
         public:
             enum Kind {
