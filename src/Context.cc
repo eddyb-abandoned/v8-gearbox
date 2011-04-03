@@ -17,7 +17,7 @@ namespace Gearbox {
         if(args.Length()) {
             for(int i = 0; i < args.Length(); i++)
                 printf(i ? " %s" : "%s", *Value(args[i]).to<String>());
-            printf("\n");
+            printf(_STR_NEWLINE);
             return undefined;
         }
         return Throw(Error("Invalid call to print"));
@@ -102,11 +102,9 @@ namespace Gearbox {
         // Get the global object
         var _global = global();
         
-        #define GEARBOX_SET_FUNCTION(base, func) base[#func] = Function(_##func, #func)
-        GEARBOX_SET_FUNCTION(_global, print);
-        GEARBOX_SET_FUNCTION(_global, load);
-        GEARBOX_SET_FUNCTION(_global, exit);
-        #undef GEARBOX_SET_FUNCTION
+        _global["print"] = Function(_print, "print");
+        _global["load"] = Function(_load, "load");
+        _global["exit"] = Function(_exit, "exit");
         
         _global["global"] = _global;
         

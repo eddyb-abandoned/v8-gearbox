@@ -1,29 +1,3 @@
-// Copyright 2009 the V8 project authors. All rights reserved.
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of Google Inc. nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <v8-gearbox.h>
 #include <fstream>
@@ -38,43 +12,47 @@ using namespace Gearbox;
 
 #define GEARBOX_HISTORY_FILE "/.gearbox_history"
 
-void RunShell(Context &context) {
+void shellLoop(Context &context) {
     TryCatch tryCatch;
     
-    String history_file = String::concat(std::getenv("HOME"), GEARBOX_HISTORY_FILE);
-    read_history(history_file);
+    // Read the history records prior to starting this shell
+    String historyFile = String::concat(std::getenv("HOME"), GEARBOX_HISTORY_FILE);
+    read_history(historyFile);
     
     printf("v8-gearbox [v8 version %s]" _STR_NEWLINE, v8::V8::GetVersion());
     
     while(true) {
-        char* str = readline("gearbox> ");
-        if(!str)
+        // Read a line from the user
+        String line = readline("gearbox> ");
+        
+        // Ignore empty lines
+        if(line.empty() || !line.length())
             continue;
-        if(*str) {
-            HIST_ENTRY *lastEntry = history_get(history_length);
-            if(!lastEntry || strcmp(str, lastEntry->line)) {
-                add_history(str);
-                append_history(1, history_file);
-            }
-            
-            // Execute the expression
-            var result = context.runScript(str, "(shell)");
-            
-            // Check for exceptions
-            if(tryCatch.hasCaught())
-                tryCatch.reportException();
-            else
-                printf("%s" _STR_NEWLINE, *result.to<String>());
+        
+        // Add the line to the history only if it's different to the line before it
+        HIST_ENTRY *lastEntry = history_get(history_length);
+        if(!lastEntry || strcmp(line, lastEntry->line)) {
+            add_history(line);
+            append_history(1, historyFile);
         }
-        delete str;
+        
+        // Execute the expression
+        var result = context.runScript(line, "(shell)");
+        
+        // Check for exceptions
+        if(tryCatch.hasCaught())
+            tryCatch.reportException();
+        else
+            printf("%s" _STR_NEWLINE, *result.to<String>());
     }
-    printf(_STR_NEWLINE);
 }
 
 
 int main(int argc, char* argv[]) {
     v8::HandleScope handleScope;
     
+    // Pass the flags first to v8
+    // TODO Pass to v8 only the flags that we do not recognize
     v8::V8::SetFlagsFromCommandLine(&argc, argv, true);
     
     // Create a new context
@@ -89,37 +67,54 @@ int main(int argc, char* argv[]) {
     bool runShell = (argc == 1);
     for(int i = 1; i < argc; i++) {
         String arg = argv[i];
+        
+        // -s --shell: force running the shell
         if(arg == "-s" || arg == "--shell")
             runShell = true;
+        // -e --eval <code>: evaluate the code
         else if((arg == "-e" || arg ==  "--eval") && i <= argc) {
+            // Run the code
             context.runScript(argv[++i], "unnamed");
+            
+            // Stop if there are exceptions
             if(tryCatch.hasCaught())
                 return 1;
-        } 
+        }
+        // Warn about unknown flags
         else if(arg.compare("--", 2))
             printf("Warning: unknown flag %s." _STR_NEWLINE "Try --help for options" _STR_NEWLINE, *arg);
+        // Treat the first argument that is not an option as a file to execute
         else {
+            // Read the file
             String source = ReadFile(*arg);
             if(source.empty()) {
                 printf("Error reading '%s'" _STR_NEWLINE , *arg);
                 return 1;
             }
             
-            // Set the rest of the arguments into the array
+            // Set the rest of the arguments into the arguments array
             for(int j = i; j < argc; j++)
                 arguments[j - i] = argv[j];
             
+            // Run the script
             context.runScript(source, arg);
-            return tryCatch.hasCaught() ? 1 : 0;
+            
+            // Stop if there are exceptions
+            if(tryCatch.hasCaught())
+                return 1;
+            else
+                break;
         }
     }
+    
+    // Run the shell (if no arguments or -s/--shell was given)
     if(runShell)
-        RunShell(context);
+        shellLoop(context);
     return 0;
 }
 
 #else
-
+/*
 const char *sFixHttpVar = "function(d){var e={};d.split('&').forEach(function(a){if((a=a.split('='))[0]){var b=decodeURIComponent(a.shift().replace(/\\+/g, '%20')).replace(/\\[\\]$/,'');var c=a.join('=');if(c!=undefined)c=decodeURIComponent(c.replace(/\\+/g, '%20'));if(b in e){if(!Array.isArray(e[b]))e[b]=[e[b]];e[b].push(c)}else e[b]=c}});return e}";
 
 bool RunScript(const char *sScript) {
@@ -166,10 +161,11 @@ bool RunScript(const char *sScript) {
     v8::V8::Dispose();
     return true;
 }
-
+*/
 #endif
 
 // Reads a file into a String.
+// TODO Move this in the Io module
 String Gearbox::ReadFile(String path) {
     std::ifstream file(path, std::ifstream::in | std::ifstream::binary);
     if(!file.good())
