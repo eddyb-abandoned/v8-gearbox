@@ -31,7 +31,7 @@ function createClass(name, childs) {
 }
 
 function createNamespace(name, childs, line) {
-    var out = {type:'namespace', name:name, namespaces:{}, classes:{}, vars:{}, functions:{}, header:""};
+    var out = {type:'namespace', name:name, namespaces:{}, classes:{}, vars:{}, functions:{}, header:"", license:""};
     for(c in childs) {
         var node = childs[c];
         switch(node.type) {
@@ -53,6 +53,8 @@ function createNamespace(name, childs, line) {
             case 'native-block':
                 if(node.which == 'header')
                     out.header += node.code + "\n";
+                else if(node.which == 'license')
+                    out.license += node.code + "\n";
                 else
                     throw Error("TODO: Native block `" + node.which + "`");
         }
@@ -200,8 +202,8 @@ function generateCode(global) {
     else {
         generateNamespaceCode(global.namespaces[namespaces[0]], namespaces[0], "global", code);
         
-        var ccCode = 
-'\n\
+        var license = global.license.trim().replace(/\n    /g, "\n") + (global.license.trim()?"\n\n":"\n");
+        var ccCode = license+'\
 #include <v8-gearbox.h>\n\
 #include "'+baseName+'.h"\n\
 \n\
@@ -211,12 +213,12 @@ using namespace Gearbox;\n\
         makeLine("",1) + "\n" +
         global.header.trim().replace(/\n    /g, "\n") +
         (global.header.trim()?"\n\n":"") + code.func;
+        
         ccCode += makeLine("",nLines(ccCode)+2).replace(".gear",".cc") + "\nvoid Setup" + baseName + "(v8::Handle<v8::Object> global) {\n" + code.init + "}";
         ccCode = ccCode.replace(/\t/g, "    ");
         Io.write(gear.cc, ccCode);
         
-        var hCode =
-'\n\
+        var hCode = license+'\
 #ifndef MODULE_'+baseName.toUpperCase()+'_H\n\
 #define MODULE_'+baseName.toUpperCase()+'_H\n\n\
 #include <v8.h>\n\n\

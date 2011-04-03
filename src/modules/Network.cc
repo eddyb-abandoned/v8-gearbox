@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2011 Eduard Burtescu
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITRTLSS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, RTLGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 
 #include <v8-gearbox.h>
 #include "Network.h"
@@ -21,7 +36,7 @@ v8::Handle<v8::Value> __global_Network_Socket_Socket(const v8::Arguments& args) 
     Value This(args.This());
     if(args.Length() >= 2)
     {
-        #line 20 "src/modules/Network.gear"
+        #line 38 "src/modules/Network.gear"
         Value family(args[0]), type(args[1]);
         int sock = socket(family, type, 0);
         if(sock == -1)
@@ -39,7 +54,7 @@ v8::Handle<v8::Value> __global_Network_Socket_connect(const v8::Arguments& args)
     Value This(args.This());
     if(args.Length() >= 2)
     {
-        #line 30 "src/modules/Network.gear"
+        #line 48 "src/modules/Network.gear"
         Value host(args[0]), port(args[1]);
         struct hostent *host_s = gethostbyname(host.to<String>());
         if(!host_s)
@@ -62,7 +77,7 @@ v8::Handle<v8::Value> __global_Network_Socket_connect(const v8::Arguments& args)
 
 v8::Handle<v8::Value> __global_Network_Socket_receive(const v8::Arguments& args) {
     Value This(args.This());
-    #line 48 "src/modules/Network.gear"
+    #line 66 "src/modules/Network.gear"
     int maxLen = Value(args[0]) == undefined ? 1024 : Value(args[0]).to<int>();
     char *buffer = new char [maxLen];
     int len = recv(This["socket"], buffer, maxLen, 0);
@@ -79,7 +94,7 @@ v8::Handle<v8::Value> __global_Network_Socket_send(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 59 "src/modules/Network.gear"
+        #line 77 "src/modules/Network.gear"
         Value data(args[0]);
         send(This["socket"], data.to<String>(), data.length(), 0);
         return undefined;
@@ -89,7 +104,7 @@ v8::Handle<v8::Value> __global_Network_Socket_send(const v8::Arguments& args) {
 
 v8::Handle<v8::Value> __global_Network_Socket_close(const v8::Arguments& args) {
     Value This(args.This());
-    #line 64 "src/modules/Network.gear"
+    #line 82 "src/modules/Network.gear"
     #ifdef _WIN32
     closesocket(This["socket"]);
 #else
@@ -102,7 +117,7 @@ v8::Handle<v8::Value> __global_Network_Socket_block(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 71 "src/modules/Network.gear"
+        #line 89 "src/modules/Network.gear"
         Value blocking(args[0]);
         #ifdef _WIN32
         u_long mode = blocking ? 1 : 0;
@@ -121,12 +136,12 @@ v8::Handle<v8::Value> __global_Network_Socket_block(const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> __global_Network_toString(const v8::Arguments& args) {
-    #line 14 "src/modules/Network.gear"
+    #line 32 "src/modules/Network.gear"
     return String("[object Network]");
 }
 
 
-#line 129 "src/modules/Network.cc"
+#line 144 "src/modules/Network.cc"
 void SetupNetwork(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_Network = v8::Object::New();
     global->Set(String("Network"), global_Network);

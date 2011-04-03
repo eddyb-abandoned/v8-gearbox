@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2011 Eduard Burtescu
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITRTLSS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, RTLGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 
 #include <v8-gearbox.h>
 #include "MySQL.h"
@@ -18,7 +33,7 @@ v8::Handle<v8::Value> __global_MySQL_Connection_Connection(const v8::Arguments& 
     Value This(args.This());
     if(args.Length() >= 4)
     {
-        #line 14 "src/modules/MySQL.gear"
+        #line 32 "src/modules/MySQL.gear"
         Value host(args[0]), user(args[1]), password(args[2]), db(args[3]);
         MYSQL *pMYSQL = mysql_init(NULL);
         mysql_real_connect(pMYSQL, host.to<String>(), user.to<String>(), password.to<String>(), db.to<String>(), 0, NULL, 0);
@@ -32,7 +47,7 @@ v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args)
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 20 "src/modules/MySQL.gear"
+        #line 38 "src/modules/MySQL.gear"
         Value query(args[0]);
         MYSQL *pMYSQL = This["pMYSQL"];
         
@@ -76,12 +91,12 @@ v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args)
 }
 
 v8::Handle<v8::Value> __global_MySQL_toString(const v8::Arguments& args) {
-    #line 11 "src/modules/MySQL.gear"
+    #line 29 "src/modules/MySQL.gear"
     return String("[object MySQL]");
 }
 
 
-#line 84 "src/modules/MySQL.cc"
+#line 99 "src/modules/MySQL.cc"
 void SetupMySQL(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_MySQL = v8::Object::New();
     global->Set(String("MySQL"), global_MySQL);

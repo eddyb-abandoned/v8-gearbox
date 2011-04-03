@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2011 Eduard Burtescu
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITRTLSS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, RTLGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 
 #include <v8-gearbox.h>
 #include "SDL.h"
@@ -79,7 +94,7 @@ v8::Handle<v8::Value> __global_SDL_Window_Window(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 3)
     {
-        #line 75 "src/modules/SDL.gear"
+        #line 93 "src/modules/SDL.gear"
         Value name(args[0]), w(args[1]), h(args[2]);
         if(bSDLIsUsed)
             return Throw(Error("SDL is already being used"));
@@ -96,14 +111,14 @@ v8::Handle<v8::Value> __global_SDL_Window_color(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 3)
     {
-        #line 105 "src/modules/SDL.gear"
+        #line 123 "src/modules/SDL.gear"
         Value r(args[0]), g(args[1]), b(args[2]);
         return Integer(SDL_MapRGB(This["surface"].to<SDL_Surface*>()->format, CLIP(r.to<int>(), 0, 255), CLIP(g.to<int>(), 0, 255), CLIP(b.to<int>(), 0, 255)));
     }
 
     if(args.Length() >= 1)
     {
-        #line 84 "src/modules/SDL.gear"
+        #line 102 "src/modules/SDL.gear"
         Value htmlColor(args[0]);
         Uint8 r = 0, g = 0, b = 0;
         
@@ -131,7 +146,7 @@ v8::Handle<v8::Value> __global_SDL_Window_pixel(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 3)
     {
-        #line 109 "src/modules/SDL.gear"
+        #line 127 "src/modules/SDL.gear"
         Value x(args[0]), y(args[1]), color(args[2]);
         setPixel(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1), color.to<int>());
         return This;
@@ -139,7 +154,7 @@ v8::Handle<v8::Value> __global_SDL_Window_pixel(const v8::Arguments& args) {
 
     if(args.Length() >= 2)
     {
-        #line 114 "src/modules/SDL.gear"
+        #line 132 "src/modules/SDL.gear"
         Value x(args[0]), y(args[1]);
         return Integer(getPixel(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1)));
     }
@@ -150,14 +165,14 @@ v8::Handle<v8::Value> __global_SDL_Window_update(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 4)
     {
-        #line 118 "src/modules/SDL.gear"
+        #line 136 "src/modules/SDL.gear"
         Value x(args[0]), y(args[1]), width(args[2]), height(args[3]);
         SDL_UpdateRect(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1),
                     CLIP(x.to<int>() + width.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1) - x.to<int>(), CLIP(y.to<int>() + height.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1) - y.to<int>());
         return This;
     }
 
-    #line 125 "src/modules/SDL.gear"
+    #line 143 "src/modules/SDL.gear"
     SDL_UpdateRect(This["surface"], 0, 0, 0, 0);
     return This;
 }
@@ -166,7 +181,7 @@ v8::Handle<v8::Value> __global_SDL_Window_checkEvent(const v8::Arguments& args) 
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 129 "src/modules/SDL.gear"
+        #line 147 "src/modules/SDL.gear"
         Value handlers(args[0]);
         SDL_Event event;
         if(!SDL_PollEvent(&event))
@@ -185,7 +200,7 @@ v8::Handle<v8::Value> __global_SDL_Window_awaitEvent(const v8::Arguments& args) 
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 140 "src/modules/SDL.gear"
+        #line 158 "src/modules/SDL.gear"
         Value handlers(args[0]);
         SDL_Event event;
         if(SDL_WaitEvent(&event) < 0)
@@ -204,7 +219,7 @@ v8::Handle<v8::Value> __global_SDL_Image_Image(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 155 "src/modules/SDL.gear"
+        #line 173 "src/modules/SDL.gear"
         Value path(args[0]);
         This["surface"] = SDL_LoadBMP(path.to<String>());
         return undefined;
@@ -213,12 +228,12 @@ v8::Handle<v8::Value> __global_SDL_Image_Image(const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> __global_SDL_toString(const v8::Arguments& args) {
-    #line 72 "src/modules/SDL.gear"
+    #line 90 "src/modules/SDL.gear"
     return String("[object SDL]");
 }
 
 
-#line 221 "src/modules/SDL.cc"
+#line 236 "src/modules/SDL.cc"
 void SetupSDL(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_SDL = v8::Object::New();
     global->Set(String("SDL"), global_SDL);

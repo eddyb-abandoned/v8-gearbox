@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2011 Eduard Burtescu
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITRTLSS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, RTLGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 
 #include <v8-gearbox.h>
 #include "Io.h"
@@ -18,7 +33,7 @@ v8::Handle<v8::Value> __global_Io_Stream_Stream(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 2)
     {
-        #line 18 "src/modules/Io.gear"
+        #line 36 "src/modules/Io.gear"
         Value path(args[0]), mode(args[1]);
         std::ios_base::openmode openMode = static_cast<std::ios_base::openmode>(0);
         if(mode.is<Object>()) {
@@ -52,7 +67,7 @@ v8::Handle<v8::Value> __global_Io_Stream_Stream(const v8::Arguments& args) {
 
     if(args.Length() >= 1)
     {
-        #line 14 "src/modules/Io.gear"
+        #line 32 "src/modules/Io.gear"
         Value path(args[0]);
         This["fstream"] = new std::fstream(path.to<String>());
         return undefined;
@@ -62,7 +77,7 @@ v8::Handle<v8::Value> __global_Io_Stream_Stream(const v8::Arguments& args) {
 
 v8::Handle<v8::Value> __global_Io_Stream_tellg(const v8::Arguments& args) {
     Value This(args.This());
-    #line 49 "src/modules/Io.gear"
+    #line 67 "src/modules/Io.gear"
     return Integer(_THIS_FSTREAM->tellg());
 }
 
@@ -70,7 +85,7 @@ v8::Handle<v8::Value> __global_Io_Stream_seekg(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 2)
     {
-        #line 57 "src/modules/Io.gear"
+        #line 75 "src/modules/Io.gear"
         Value off(args[0]), dir(args[1]);
         _THIS_FSTREAM->seekg(off, static_cast<std::ios_base::seekdir>(dir.to<int>()));
         return undefined;
@@ -78,7 +93,7 @@ v8::Handle<v8::Value> __global_Io_Stream_seekg(const v8::Arguments& args) {
 
     if(args.Length() >= 1)
     {
-        #line 52 "src/modules/Io.gear"
+        #line 70 "src/modules/Io.gear"
         Value pos(args[0]);
         _THIS_FSTREAM->seekg(pos.to<int>());
         //printf("Error while seeking to %i: %s\n", pos.to<int>(), strerror(errno));
@@ -91,7 +106,7 @@ v8::Handle<v8::Value> __global_Io_Stream_readInt(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 61 "src/modules/Io.gear"
+        #line 79 "src/modules/Io.gear"
         Value len(args[0]);
         if(len == 1)
             _FSTREAM_READ(uint8_t, i, return Integer(i));
@@ -110,7 +125,7 @@ v8::Handle<v8::Value> __global_Io_Stream_readFloat(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 76 "src/modules/Io.gear"
+        #line 94 "src/modules/Io.gear"
         Value prec(args[0]);
         if(prec == 1)
             _FSTREAM_READ(float, f, return Number(f));
@@ -121,14 +136,14 @@ v8::Handle<v8::Value> __global_Io_Stream_readFloat(const v8::Arguments& args) {
         return undefined;
     }
 
-    #line 73 "src/modules/Io.gear"
+    #line 91 "src/modules/Io.gear"
     _FSTREAM_READ(float, f, return Number(f));
     return undefined;
 }
 
 v8::Handle<v8::Value> __global_Io_Stream_tellp(const v8::Arguments& args) {
     Value This(args.This());
-    #line 86 "src/modules/Io.gear"
+    #line 104 "src/modules/Io.gear"
     return Integer(_THIS_FSTREAM->tellp());
 }
 
@@ -136,7 +151,7 @@ v8::Handle<v8::Value> __global_Io_Stream_seekp(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 2)
     {
-        #line 93 "src/modules/Io.gear"
+        #line 111 "src/modules/Io.gear"
         Value off(args[0]), dir(args[1]);
         _THIS_FSTREAM->seekp(off, static_cast<std::ios_base::seekdir>(dir.to<int>()));
         return undefined;
@@ -144,7 +159,7 @@ v8::Handle<v8::Value> __global_Io_Stream_seekp(const v8::Arguments& args) {
 
     if(args.Length() >= 1)
     {
-        #line 89 "src/modules/Io.gear"
+        #line 107 "src/modules/Io.gear"
         Value pos(args[0]);
         _THIS_FSTREAM->seekp(pos.to<int>());
         return undefined;
@@ -154,7 +169,7 @@ v8::Handle<v8::Value> __global_Io_Stream_seekp(const v8::Arguments& args) {
 
 v8::Handle<v8::Value> __global_Io_Stream_close(const v8::Arguments& args) {
     Value This(args.This());
-    #line 98 "src/modules/Io.gear"
+    #line 116 "src/modules/Io.gear"
     _THIS_FSTREAM->close();
     return undefined;
 }
@@ -162,7 +177,7 @@ v8::Handle<v8::Value> __global_Io_Stream_close(const v8::Arguments& args) {
 v8::Handle<v8::Value> __global_Io_read(const v8::Arguments& args) {
     if(args.Length() >= 1)
     {
-        #line 106 "src/modules/Io.gear"
+        #line 124 "src/modules/Io.gear"
         Value path(args[0]);
         std::ifstream file(path.to<String>(), std::ifstream::in | std::ifstream::binary);
         if(!file.good())
@@ -186,7 +201,7 @@ v8::Handle<v8::Value> __global_Io_read(const v8::Arguments& args) {
 v8::Handle<v8::Value> __global_Io_write(const v8::Arguments& args) {
     if(args.Length() >= 2)
     {
-        #line 124 "src/modules/Io.gear"
+        #line 142 "src/modules/Io.gear"
         Value path(args[0]), contents(args[1]);
         std::ofstream file(path.to<String>());
         file.write(contents.to<String>(), contents.length());
@@ -196,12 +211,12 @@ v8::Handle<v8::Value> __global_Io_write(const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> __global_Io_toString(const v8::Arguments& args) {
-    #line 11 "src/modules/Io.gear"
+    #line 29 "src/modules/Io.gear"
     return String("[object Io]");
 }
 
 
-#line 204 "src/modules/Io.cc"
+#line 219 "src/modules/Io.cc"
 void SetupIo(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_Io = v8::Object::New();
     global->Set(String("Io"), global_Io);

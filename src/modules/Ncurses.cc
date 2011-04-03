@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2011 Eduard Burtescu
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITRTLSS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, RTLGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 
 #include <v8-gearbox.h>
 #include "Ncurses.h"
@@ -13,7 +28,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_Window(const v8::Arguments& args) 
     Value This(args.This());
     if(args.Length() >= 4)
     {
-        #line 10 "src/modules/Ncurses.gear"
+        #line 28 "src/modules/Ncurses.gear"
         Value x(args[0]), y(args[1]), cols(args[2]), rows(args[3]);
         This["win"] = newwin(rows.to<int>(), cols.to<int>(), y.to<int>(), x.to<int>());
         scrollok(This["win"].to<WINDOW*>(), true);
@@ -27,7 +42,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_bold(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 16 "src/modules/Ncurses.gear"
+        #line 34 "src/modules/Ncurses.gear"
         Value on(args[0]);
         if(on.to<bool>())
             wattron(This["win"], A_BOLD);
@@ -42,7 +57,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_border(const v8::Arguments& args) 
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 29 "src/modules/Ncurses.gear"
+        #line 47 "src/modules/Ncurses.gear"
         Value obj(args[0]);
         wborder(This["win"], obj["Ls"].to<int>(), obj["Rs"].to<int>(), obj["Ts"].to<int>(), obj["Bs"].to<int>(), obj["TLc"].to<int>(), obj["TRc"].to<int>(), obj["BLc"].to<int>(), obj["BRc"].to<int>());
         if(This["autoRefresh"])
@@ -50,7 +65,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_border(const v8::Arguments& args) 
         return undefined;
     }
 
-    #line 24 "src/modules/Ncurses.gear"
+    #line 42 "src/modules/Ncurses.gear"
     wborder(This["win"], 0, 0, 0, 0, 0, 0, 0, 0);
     if(This["autoRefresh"])
         wrefresh(This["win"]);
@@ -61,7 +76,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_setBackground(const v8::Arguments&
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 35 "src/modules/Ncurses.gear"
+        #line 53 "src/modules/Ncurses.gear"
         Value _char(args[0]);
         wbkgd(This["win"], _char.to<String>()[0]);
         if(This["autoRefresh"])
@@ -75,7 +90,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_print(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 1)
     {
-        #line 41 "src/modules/Ncurses.gear"
+        #line 59 "src/modules/Ncurses.gear"
         Value text(args[0]);
         waddstr(This["win"], text.to<String>());
         if(This["autoRefresh"])
@@ -87,7 +102,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_print(const v8::Arguments& args) {
 
 v8::Handle<v8::Value> __global_Ncurses_Window_clear(const v8::Arguments& args) {
     Value This(args.This());
-    #line 48 "src/modules/Ncurses.gear"
+    #line 66 "src/modules/Ncurses.gear"
     werase(This["win"]);
     if(This["autoRefresh"])
         wrefresh(This["win"]);
@@ -96,7 +111,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_clear(const v8::Arguments& args) {
 
 v8::Handle<v8::Value> __global_Ncurses_Window_touch(const v8::Arguments& args) {
     Value This(args.This());
-    #line 54 "src/modules/Ncurses.gear"
+    #line 72 "src/modules/Ncurses.gear"
     touchwin(This["win"].to<WINDOW*>());
     if(This["autoRefresh"])
         wrefresh(This["win"]);
@@ -107,7 +122,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_move(const v8::Arguments& args) {
     Value This(args.This());
     if(args.Length() >= 2)
     {
-        #line 59 "src/modules/Ncurses.gear"
+        #line 77 "src/modules/Ncurses.gear"
         Value x(args[0]), y(args[1]);
         wmove(This["win"], y.to<int>(), x.to<int>());
         if(This["autoRefresh"])
@@ -119,7 +134,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_move(const v8::Arguments& args) {
 
 v8::Handle<v8::Value> __global_Ncurses_Window_getChar(const v8::Arguments& args) {
     Value This(args.This());
-    #line 66 "src/modules/Ncurses.gear"
+    #line 84 "src/modules/Ncurses.gear"
     int c = wgetch(This["win"]);
     if(c > 0)
         return Integer(c);
@@ -127,7 +142,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_getChar(const v8::Arguments& args)
 }
 
 v8::Handle<v8::Value> __global_Ncurses_enter(const v8::Arguments& args) {
-    #line 73 "src/modules/Ncurses.gear"
+    #line 91 "src/modules/Ncurses.gear"
     initscr();
     scrollok(stdscr, true);
     timeout(0);
@@ -137,28 +152,28 @@ v8::Handle<v8::Value> __global_Ncurses_enter(const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> __global_Ncurses_exit(const v8::Arguments& args) {
-    #line 81 "src/modules/Ncurses.gear"
+    #line 99 "src/modules/Ncurses.gear"
     endwin();
     return undefined;
 }
 
 v8::Handle<v8::Value> __global_Ncurses_cols(const v8::Arguments& args) {
-    #line 85 "src/modules/Ncurses.gear"
+    #line 103 "src/modules/Ncurses.gear"
     return Integer(getmaxx(stdscr));
 }
 
 v8::Handle<v8::Value> __global_Ncurses_rows(const v8::Arguments& args) {
-    #line 89 "src/modules/Ncurses.gear"
+    #line 107 "src/modules/Ncurses.gear"
     return Integer(getmaxy(stdscr));
 }
 
 v8::Handle<v8::Value> __global_Ncurses_toString(const v8::Arguments& args) {
-    #line 6 "src/modules/Ncurses.gear"
+    #line 24 "src/modules/Ncurses.gear"
     return String("[object Ncurses]");
 }
 
 
-#line 161 "src/modules/Ncurses.cc"
+#line 176 "src/modules/Ncurses.cc"
 void SetupNcurses(v8::Handle<v8::Object> global) {
     v8::Handle<v8::Object> global_Ncurses = v8::Object::New();
     global->Set(String("Ncurses"), global_Ncurses);
