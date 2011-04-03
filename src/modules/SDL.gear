@@ -16,7 +16,7 @@ license {
      */
 }
 
-header {
+top {
     #include <SDL/SDL.h>
     
     static bool bSDLIsUsed = false;

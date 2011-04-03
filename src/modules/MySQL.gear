@@ -16,7 +16,7 @@ license {
      */
 }
 
-header {
+top {
     #ifdef _WIN32
         #define HAVE_RINT
         #define __CYGWIN__

@@ -46,7 +46,7 @@ function createClass(name, childs) {
 }
 
 function createNamespace(name, childs, line) {
-    var out = {type:'namespace', name:name, namespaces:{}, classes:{}, vars:{}, functions:{}, header:"", license:""};
+    var out = {type:'namespace', name:name, namespaces:{}, classes:{}, vars:{}, functions:{}, header:"", top:"", license:""};
     for(c in childs) {
         var node = childs[c];
         switch(node.type) {
@@ -68,6 +68,8 @@ function createNamespace(name, childs, line) {
             case 'native-block':
                 if(node.which == 'header')
                     out.header += node.code + "\n";
+                else if(node.which == 'top')
+                    out.top += node.code + "\n";
                 else if(node.which == 'license')
                     out.license += node.code + "\n";
                 else
@@ -217,7 +219,8 @@ function generateCode(global) {
     else {
         generateNamespaceCode(global.namespaces[namespaces[0]], namespaces[0], "global", code);
         
-        var license = global.license.trim().replace(/\n    /g, "\n") + (global.license.trim()?"\n\n":"\n");
+        var license = global.license.trim().replace(/\n    /g, "\n") + (global.license.trim()?"\n\n":"\n"),
+            top = global.top.trim().replace(/\n    /g, "\n") + (global.top.trim()?"\n\n":"\n");
         var ccCode = license+'\
 #include <v8-gearbox.h>\n\
 #include "'+baseName+'.h"\n\
@@ -225,9 +228,7 @@ function generateCode(global) {
 using namespace Gearbox;\n\
 \n\
 /** \\file '+baseName+'.cc converted from '+baseName+'.gear */\n'+
-        makeLine("",1) + "\n" +
-        global.header.trim().replace(/\n    /g, "\n") +
-        (global.header.trim()?"\n\n":"") + code.func;
+        makeLine("",1) + "\n" + top + code.func;
         
         ccCode += makeLine("",nLines(ccCode)+2).replace(".gear",".cc") + "\nvoid Setup" + baseName + "(v8::Handle<v8::Object> global) {\n" + code.init + "}";
         ccCode = ccCode.replace(/\t/g, "    ");

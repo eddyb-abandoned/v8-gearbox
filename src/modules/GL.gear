@@ -16,7 +16,7 @@ license {
      */
 }
 
-header {
+top {
     #include <GL/freeglut.h>
     #include <GL/gl.h>
     #include <stdio.h>
@@ -126,6 +126,17 @@ header {
             return Throw(Error(String::concat("GL_ERROR: ", errorString)));
         else
             return undefined;
+    }
+    
+    template <class T>
+    T *ArrayToVector(Value array) {
+        if(!array.is<Array>())
+            return 0;
+        int length = array.length();
+        T *vector = new T [length];
+        for(int i = 0; i < length; i++)
+            vector[i] = array[i];
+        return vector;
     }
 }
 
@@ -255,6 +266,64 @@ namespace GL {
     }
     
     /** GL functions */
+    function makeFloatArray(size) {
+        float *array = new float [size.to<size_t>()];
+        var obj = Object();
+        obj.to<v8::Handle<v8::Object>>()->SetIndexedPropertiesToExternalArrayData(array, v8::kExternalFloatArray, size);
+        return obj;
+    }
+    function makeUInt32Array(size) {
+        uint32_t *array = new uint32_t [size.to<size_t>()];
+        var obj = Object();
+        obj.to<v8::Handle<v8::Object>>()->SetIndexedPropertiesToExternalArrayData(array, v8::kExternalUnsignedIntArray, size);
+        return obj;
+    }
+    function drawElements(mode, count, indices) {
+        
+        /*uint32_t *_indices = ArrayToVector<uint32_t>(indices);
+        double *_vertices = ArrayToVector<double>(vertices);
+        double *_normals = ArrayToVector<double>(normals);
+        
+        if(texCoords) {
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            float *_texCoords = reinterpret_cast<float*>(texCoords.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData());
+            glTexCoordPointer(2, GL_FLOAT, 0, _texCoords);
+        }
+        if(normals) {
+            glEnableClientState(GL_NORMAL_ARRAY);
+            float *_normals = reinterpret_cast<float*>(normals.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData());
+            glNormalPointer(GL_FLOAT, 0, _normals);
+        }
+        glEnableClientState(GL_VERTEX_ARRAY);
+        float *_vertices = reinterpret_cast<float*>(vertices.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData());
+        glVertexPointer(3, GL_FLOAT, 0, _vertices);*/
+        
+        glDrawElements(mode, count, GL_UNSIGNED_INT, reinterpret_cast<uint32_t*>(indices.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
+        /*delete [] _indices;
+        delete [] _vertices;
+        delete [] _normals;*/
+        return GLError();
+    }
+    
+    function vertexPointer(size, vertices) {
+        glVertexPointer(size, GL_FLOAT, 0, reinterpret_cast<float*>(vertices.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
+        return GLError();
+    }
+    
+    function normalPointer(normals) {
+        glNormalPointer(GL_FLOAT, 0, reinterpret_cast<float*>(normals.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
+        return GLError();
+    }
+    
+    function texCoordPointer(size, texCoords) {
+        glTexCoordPointer(size, GL_FLOAT, 0, reinterpret_cast<float*>(texCoords.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
+        return GLError();
+    }
+    
+    function enableClientState(that) {
+        glEnableClientState(that);
+        return GLError();
+    }
     
     function enable(that) {
         glEnable(that);
@@ -263,6 +332,16 @@ namespace GL {
     
     function disable(that) {
         glDisable(that);
+        return GLError();
+    }
+    
+    function hint(target, mode) {
+        glHint(target, mode);
+        return GLError();
+    }
+    
+    function shadeModel(mode) {
+        glShadeModel(mode);
         return GLError();
     }
     
@@ -328,6 +407,24 @@ namespace GL {
     
     function color(r, g, b, a) {
         glColor4d(r, g, b, a);
+        //return GLError();
+    }
+    
+    function fog(what, val) {
+        if(what == GL_FOG_COLOR && val.is<Object>()) {
+            float fog[] = {val["r"], val["g"], val["b"], val["a"]};
+            glFogfv(what, fog);
+            return GLError();
+        }
+        if(what == GL_FOG_COLOR && val.is<Array>()) {
+            float fog[] = {val[0], val[1], val[2], val[3]};
+            glFogfv(what, fog);
+            return GLError();
+        }
+        if(what == GL_FOG_MODE)
+            glFogi(what, val);
+        else
+            glFogf(what, val);
         return GLError();
     }
     

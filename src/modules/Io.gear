@@ -16,7 +16,7 @@ license {
      */
 }
 
-header {
+top {
     #include <fstream>
     
     #define _THIS_FSTREAM (This["fstream"].to<std::fstream*>())

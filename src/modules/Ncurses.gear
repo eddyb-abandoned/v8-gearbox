@@ -16,7 +16,7 @@ license {
      */
 }
 
-header {
+top {
     #include <curses.h>
 }
 
