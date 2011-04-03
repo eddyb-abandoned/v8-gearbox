@@ -38,7 +38,7 @@ using namespace Gearbox;
 
 #define GEARBOX_HISTORY_FILE "/.gearbox_history"
 
-void RunShell(v8::Handle<v8::Context> context) {
+void RunShell(Context &context) {
     TryCatch tryCatch;
     
     String history_file = String::concat(std::getenv("HOME"), GEARBOX_HISTORY_FILE);
@@ -58,7 +58,8 @@ void RunShell(v8::Handle<v8::Context> context) {
             }
             
             // Execute the expression
-            var result = ExecuteString(str, "(shell)");
+            var result = context.runScript(str, "(shell)");
+            
             // Check for exceptions
             if(tryCatch.hasCaught())
                 tryCatch.reportException();
@@ -76,17 +77,12 @@ int main(int argc, char* argv[]) {
     
     v8::V8::SetFlagsFromCommandLine(&argc, argv, true);
     
-    // Create and enter the context
-    v8::Handle<v8::Context> context = v8::Context::New();
-    v8::Context::Scope contextScope(context);
-    var global = context->Global();
-    
-    // Setup global context
-    SetupGlobal(global.to<v8::Handle<v8::Object>>());
+    // Create a new context
+    Context context;
     
     // Set the arguments array
     var arguments = Array();
-    global["arguments"] = arguments;
+    context.global()["arguments"] = arguments;
     
     TryCatch tryCatch;
     
@@ -96,7 +92,7 @@ int main(int argc, char* argv[]) {
         if(arg == "-s" || arg == "--shell")
             runShell = true;
         else if((arg == "-e" || arg ==  "--eval") && i <= argc) {
-            ExecuteString(argv[++i], "unnamed");
+            context.runScript(argv[++i], "unnamed");
             if(tryCatch.hasCaught())
                 return 1;
         } 
@@ -113,7 +109,7 @@ int main(int argc, char* argv[]) {
             for(int j = i; j < argc; j++)
                 arguments[j - i] = argv[j];
             
-            ExecuteString(source, arg);
+            context.runScript(source, arg);
             return tryCatch.hasCaught() ? 1 : 0;
         }
     }
@@ -190,25 +186,4 @@ String Gearbox::ReadFile(String path) {
     
     delete [] pBuffer;
     return contents;
-}
-
-// Executes a string within the current v8 context.
-Value Gearbox::ExecuteString(String source, String name) {
-    TryCatch tryCatch;
-    
-    // Compile the script source
-    v8::Handle<v8::Script> script = v8::Script::Compile(source, name);
-    
-    // Check for any errors that could have happened at compile time
-    if(script.IsEmpty() || tryCatch.hasCaught())
-        return undefined;
-    
-    // Exceptions can be thrown, we are inside JavaScript
-    bool bCanThrowBefore = TryCatch::canThrow(true);
-    // Run the script and get the result
-    var result = script->Run();
-    // We are back from JavaScript
-    TryCatch::canThrow(bCanThrowBefore);
-    // Return the result
-    return result;
 }

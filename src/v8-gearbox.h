@@ -15,6 +15,7 @@ namespace Gearbox {
 #include "String.h"
 #include "Value.h"
 #include "TryCatch.h"
+#include "Context.h"
 
 namespace Gearbox {
     
@@ -46,8 +47,8 @@ namespace Gearbox {
             }
     };
     
-    static Value Function(v8::InvocationCallback __function, String name) {
-        v8::Handle<v8::Function> function = v8::FunctionTemplate::New(__function)->GetFunction();
+    static Value Function(v8::InvocationCallback _function, String name) {
+        v8::Handle<v8::Function> function = v8::FunctionTemplate::New(_function)->GetFunction();
         function->SetName(name);
         return function;
     }
@@ -62,7 +63,6 @@ namespace Gearbox {
     }
     
     String ReadFile(String name);
-    Value ExecuteString(String source, String name);
     
     typedef Value var;
     
