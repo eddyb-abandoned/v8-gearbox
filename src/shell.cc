@@ -26,8 +26,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <v8-gearbox.h>
-#include "global.h"
 #include <fstream>
+#include <cstdlib>
 
 using namespace Gearbox;
 

@@ -22,12 +22,12 @@ if sys.platform == 'win32' or env['USING_CROSSMINGW']:
         print "============================================================================="
         print ""
         sys.exit(1)
-    env.Append(CPPPATH = Glob(os.path.join('contrib', '*', 'include'), strings=True))
-    env.Append(CPPPATH = Glob(os.path.join('contrib', '*'), strings=True))
-    env.Append(CPPPATH = 'src')
-    env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'bin'), strings=True))
-    env.Append(LIBPATH = Glob(os.path.join('contrib', '*', 'lib'), strings=True))
-    env.Append(LIBPATH = Glob(os.path.join('contrib', '*'), strings=True))
+    env.Append(CPPPATH = Glob(os.path.join('#contrib', '*', 'include')))
+    env.Append(CPPPATH = Glob(os.path.join('#contrib', '*')))
+    env.Append(CPPPATH = '#src')
+    env.Append(LIBPATH = Glob(os.path.join('#contrib', '*', 'bin')))
+    env.Append(LIBPATH = Glob(os.path.join('#contrib', '*', 'lib')))
+    env.Append(LIBPATH = Glob(os.path.join('#contrib', '*')))
     env.Append(LINKFLAGS = '-static-libgcc -static-libstdc++')
     env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments')
     env.Append(LIBS = ['v8', 'readline', 'opengl32', 'glu32', 'freeglut', 'curses', 'pthread', 'mysql', 'ws2_32' , 'winmm', 'SDL', 'SDLmain'])
