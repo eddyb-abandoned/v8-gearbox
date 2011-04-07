@@ -25,7 +25,7 @@ top {
     #include <mysql.h>
 }
 /** MySQL - WIP. Use at your own risk */
-namespace MySQL {
+module MySQL {
     class Connection {
         var pMYSQL = 0;
         

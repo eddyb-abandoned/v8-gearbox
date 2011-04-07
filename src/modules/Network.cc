@@ -32,10 +32,9 @@ using namespace Gearbox;
 #include <sys/socket.h>
 #endif
 
-v8::Handle<v8::Value> __global_Network_Socket_Socket(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Network_Socket_Socket(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 2)
-    {
+    if(args.Length() >= 2) {
         #line 38 "src/modules/Network.gear"
         Value family(args[0]), type(args[1]);
         int sock = socket(family, type, 0);
@@ -50,10 +49,9 @@ v8::Handle<v8::Value> __global_Network_Socket_Socket(const v8::Arguments& args) 
     return Throw(Error("Invalid call to Network.Socket"));
 }
 
-v8::Handle<v8::Value> __global_Network_Socket_connect(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Network_Socket_connect(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 2)
-    {
+    if(args.Length() >= 2) {
         #line 48 "src/modules/Network.gear"
         Value host(args[0]), port(args[1]);
         struct hostent *host_s = gethostbyname(host.to<String>());
@@ -75,7 +73,7 @@ v8::Handle<v8::Value> __global_Network_Socket_connect(const v8::Arguments& args)
     return Throw(Error("Invalid call to Network.Socket.prototype.connect"));
 }
 
-v8::Handle<v8::Value> __global_Network_Socket_receive(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Network_Socket_receive(const v8::Arguments& args) {
     Value This(args.This());
     #line 66 "src/modules/Network.gear"
     int maxLen = Value(args[0]) == undefined ? 1024 : Value(args[0]).to<int>();
@@ -90,10 +88,9 @@ v8::Handle<v8::Value> __global_Network_Socket_receive(const v8::Arguments& args)
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Network_Socket_send(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Network_Socket_send(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 77 "src/modules/Network.gear"
         Value data(args[0]);
         send(This["socket"], data.to<String>(), data.length(), 0);
@@ -102,7 +99,7 @@ v8::Handle<v8::Value> __global_Network_Socket_send(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Network.Socket.prototype.send"));
 }
 
-v8::Handle<v8::Value> __global_Network_Socket_close(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Network_Socket_close(const v8::Arguments& args) {
     Value This(args.This());
     #line 82 "src/modules/Network.gear"
     #ifdef _WIN32
@@ -113,10 +110,9 @@ v8::Handle<v8::Value> __global_Network_Socket_close(const v8::Arguments& args) {
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Network_Socket_block(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Network_Socket_block(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 89 "src/modules/Network.gear"
         Value blocking(args[0]);
         #ifdef _WIN32
@@ -135,31 +131,30 @@ v8::Handle<v8::Value> __global_Network_Socket_block(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Network.Socket.prototype.block"));
 }
 
-v8::Handle<v8::Value> __global_Network_toString(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Network_toString(const v8::Arguments& args) {
     #line 32 "src/modules/Network.gear"
-    return String("[object Network]");
+    return String("[module Network]");
 }
 
 
-#line 144 "src/modules/Network.cc"
-void SetupNetwork(v8::Handle<v8::Object> global) {
-    v8::Handle<v8::Object> global_Network = v8::Object::New();
-    global->Set(String("Network"), global_Network);
-    v8::Handle<v8::FunctionTemplate> global_Network_Socket = v8::FunctionTemplate::New(__global_Network_Socket_Socket);
-    global_Network_Socket->SetClassName(String("Socket"));
-    global_Network_Socket->PrototypeTemplate()->Set("connect", Function(__global_Network_Socket_connect, "connect"));
-    global_Network_Socket->PrototypeTemplate()->Set("receive", Function(__global_Network_Socket_receive, "receive"));
-    global_Network_Socket->PrototypeTemplate()->Set("send", Function(__global_Network_Socket_send, "send"));
-    global_Network_Socket->PrototypeTemplate()->Set("close", Function(__global_Network_Socket_close, "close"));
-    global_Network_Socket->PrototypeTemplate()->Set("block", Function(__global_Network_Socket_block, "block"));
-    global_Network_Socket->PrototypeTemplate()->Set("socket", Value(-1));
-    global_Network_Socket->PrototypeTemplate()->Set("family", Value(-1));
-    global_Network_Socket->PrototypeTemplate()->Set("type", Value(-1));
-    global_Network_Socket->PrototypeTemplate()->Set("isConnected", Value(false));
-    global_Network_Socket->GetFunction()->Set(String("INET"), Value(AF_INET));
-    global_Network_Socket->GetFunction()->Set(String("UNIX"), Value(AF_UNIX));
-    global_Network_Socket->GetFunction()->Set(String("TCP"), Value(SOCK_STREAM));
-    global_Network_Socket->GetFunction()->Set(String("UDP"), Value(SOCK_DGRAM));
-    global_Network->Set(String("Socket"), global_Network_Socket->GetFunction());
-    global_Network->Set(String("toString"), Function(__global_Network_toString, "toString"));
+#line 140 "src/modules/Network.cc"
+static void _setup_Network(Value _exports) {
+    v8::Handle<v8::FunctionTemplate> _Network_Socket = v8::FunctionTemplate::New(_Network_Socket_Socket);
+    _Network_Socket->SetClassName(String("Socket"));
+    _Network_Socket->PrototypeTemplate()->Set("connect", Function(_Network_Socket_connect, "connect"));
+    _Network_Socket->PrototypeTemplate()->Set("receive", Function(_Network_Socket_receive, "receive"));
+    _Network_Socket->PrototypeTemplate()->Set("send", Function(_Network_Socket_send, "send"));
+    _Network_Socket->PrototypeTemplate()->Set("close", Function(_Network_Socket_close, "close"));
+    _Network_Socket->PrototypeTemplate()->Set("block", Function(_Network_Socket_block, "block"));
+    _Network_Socket->PrototypeTemplate()->Set("socket", Value(-1));
+    _Network_Socket->PrototypeTemplate()->Set("family", Value(-1));
+    _Network_Socket->PrototypeTemplate()->Set("type", Value(-1));
+    _Network_Socket->PrototypeTemplate()->Set("isConnected", Value(false));
+    _exports["Socket"] = _Network_Socket->GetFunction();
+    _exports["Socket"]["INET"] = Value(AF_INET);
+    _exports["Socket"]["UNIX"] = Value(AF_UNIX);
+    _exports["Socket"]["TCP"] = Value(SOCK_STREAM);
+    _exports["Socket"]["UDP"] = Value(SOCK_DGRAM);
+    _exports["toString"] = Function(_Network_toString, "toString");
 }
+static Module _module_Network("Network", _setup_Network);

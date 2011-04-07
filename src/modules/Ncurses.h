@@ -14,11 +14,9 @@
  * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef MODULE_NCURSES_H
-#define MODULE_NCURSES_H
+#ifndef V8_GEARBOX_MODULES_NCURSES_H
+#define V8_GEARBOX_MODULES_NCURSES_H
 
 #include <v8.h>
-
-void SetupNcurses(v8::Handle<v8::Object> global);
 
 #endif

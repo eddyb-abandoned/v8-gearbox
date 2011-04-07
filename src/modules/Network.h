@@ -14,11 +14,9 @@
  * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef MODULE_NETWORK_H
-#define MODULE_NETWORK_H
+#ifndef V8_GEARBOX_MODULES_NETWORK_H
+#define V8_GEARBOX_MODULES_NETWORK_H
 
 #include <v8.h>
-
-void SetupNetwork(v8::Handle<v8::Object> global);
 
 #endif

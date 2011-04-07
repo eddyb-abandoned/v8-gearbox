@@ -20,7 +20,7 @@ top {
     #include <curses.h>
 }
 
-namespace Ncurses {
+module Ncurses {
     class Window {
         var win = 0;
         var autoRefresh = true;

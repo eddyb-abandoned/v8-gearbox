@@ -133,10 +133,20 @@ Value GLError() {
         return undefined;
 }
 
-v8::Handle<v8::Value> __global_GL_initWindow(const v8::Arguments& args) {
-    if(args.Length() >= 3)
-    {
-        #line 88 "src/modules/GL.gear"
+template <class T>
+T *ArrayToVector(Value array) {
+    if(!array.is<Array>())
+        return 0;
+    int length = array.length();
+    T *vector = new T [length];
+    for(int i = 0; i < length; i++)
+        vector[i] = array[i];
+    return vector;
+}
+
+static v8::Handle<v8::Value> _GL_initWindow(const v8::Arguments& args) {
+    if(args.Length() >= 3) {
+        #line 144 "src/modules/GL.gear"
         Value name(args[0]), w(args[1]), h(args[2]);
         if(bGLIsUsed)
             return Throw(Error("GL is already being used"));
@@ -150,10 +160,9 @@ v8::Handle<v8::Value> __global_GL_initWindow(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.initWindow"));
 }
 
-v8::Handle<v8::Value> __global_GL_mainLoop(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 98 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_mainLoop(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 154 "src/modules/GL.gear"
         Value handlers(args[0]);
         if(handlers["redraw"]) {
             pGlutRedrawFunc = handlers["redraw"];
@@ -191,10 +200,9 @@ v8::Handle<v8::Value> __global_GL_mainLoop(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.mainLoop"));
 }
 
-v8::Handle<v8::Value> __global_GL_addTimer(const v8::Arguments& args) {
-    if(args.Length() >= 2)
-    {
-        #line 121 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_addTimer(const v8::Arguments& args) {
+    if(args.Length() >= 2) {
+        #line 188 "src/modules/GL.gear"
         Value ms(args[0]), func(args[1]);
         pTimers[nLastTimer] = new TimerCallback(func);
         glutTimerFunc(ms, GLProxyTimerFunc, nLastTimer);
@@ -203,10 +211,9 @@ v8::Handle<v8::Value> __global_GL_addTimer(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.addTimer"));
 }
 
-v8::Handle<v8::Value> __global_GL_cancelTimer(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 127 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_cancelTimer(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 194 "src/modules/GL.gear"
         Value idx(args[0]);
         if(!pTimers.count(idx))
             return undefined;
@@ -218,10 +225,9 @@ v8::Handle<v8::Value> __global_GL_cancelTimer(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.cancelTimer"));
 }
 
-v8::Handle<v8::Value> __global_GL_ignoreKeyRepeat(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 135 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_ignoreKeyRepeat(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 202 "src/modules/GL.gear"
         Value ignore(args[0]);
         glutIgnoreKeyRepeat(ignore);
         return undefined;
@@ -229,10 +235,9 @@ v8::Handle<v8::Value> __global_GL_ignoreKeyRepeat(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.ignoreKeyRepeat"));
 }
 
-v8::Handle<v8::Value> __global_GL_warpPointer(const v8::Arguments& args) {
-    if(args.Length() >= 2)
-    {
-        #line 139 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_warpPointer(const v8::Arguments& args) {
+    if(args.Length() >= 2) {
+        #line 206 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]);
         glutWarpPointer(x, y);
         return undefined;
@@ -240,33 +245,31 @@ v8::Handle<v8::Value> __global_GL_warpPointer(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.warpPointer"));
 }
 
-v8::Handle<v8::Value> __global_GL_setCursor(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 143 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_setCursor(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 210 "src/modules/GL.gear"
         Value cursor(args[0]);
         glutSetCursor(cursor);
         return undefined;
     }
-    return Error("Invalid call to GL.setCursor");
+    return Throw(Error("Invalid call to GL.setCursor"));
 }
 
-v8::Handle<v8::Value> __global_GL_swapBuffers(const v8::Arguments& args) {
-    #line 148 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_swapBuffers(const v8::Arguments& args) {
+    #line 215 "src/modules/GL.gear"
     glutSwapBuffers();
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_GL_postRedisplay(const v8::Arguments& args) {
-    #line 152 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_postRedisplay(const v8::Arguments& args) {
+    #line 219 "src/modules/GL.gear"
     glutPostRedisplay();
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_GL_bitmapCharacter(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 155 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_bitmapCharacter(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 222 "src/modules/GL.gear"
         Value c(args[0]);
         if(c.length())
             glutBitmapCharacter(GLUT_BITMAP_9_BY_15, **c.to<String>());
@@ -275,10 +278,9 @@ v8::Handle<v8::Value> __global_GL_bitmapCharacter(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.bitmapCharacter"));
 }
 
-v8::Handle<v8::Value> __global_GL_perspective(const v8::Arguments& args) {
-    if(args.Length() >= 4)
-    {
-        #line 189 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_perspective(const v8::Arguments& args) {
+    if(args.Length() >= 4) {
+        #line 256 "src/modules/GL.gear"
         Value fovy(args[0]), aspect(args[1]), zNear(args[2]), zFar(args[3]);
         gluPerspective(fovy, aspect, zNear, zFar);
         return undefined;
@@ -286,10 +288,9 @@ v8::Handle<v8::Value> __global_GL_perspective(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.perspective"));
 }
 
-v8::Handle<v8::Value> __global_GL_ortho2D(const v8::Arguments& args) {
-    if(args.Length() >= 4)
-    {
-        #line 193 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_ortho2D(const v8::Arguments& args) {
+    if(args.Length() >= 4) {
+        #line 260 "src/modules/GL.gear"
         Value left(args[0]), right(args[1]), bottom(args[2]), top(args[3]);
         gluOrtho2D(left, right, bottom, top);
         return undefined;
@@ -297,10 +298,9 @@ v8::Handle<v8::Value> __global_GL_ortho2D(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.ortho2D"));
 }
 
-v8::Handle<v8::Value> __global_GL_lookAt(const v8::Arguments& args) {
-    if(args.Length() >= 9)
-    {
-        #line 197 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_lookAt(const v8::Arguments& args) {
+    if(args.Length() >= 9) {
+        #line 264 "src/modules/GL.gear"
         Value eyeX(args[0]), eyeY(args[1]), eyeZ(args[2]), centerX(args[3]), centerY(args[4]), centerZ(args[5]), upX(args[6]), upY(args[7]), upZ(args[8]);
         gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
         return undefined;
@@ -308,10 +308,104 @@ v8::Handle<v8::Value> __global_GL_lookAt(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.lookAt"));
 }
 
-v8::Handle<v8::Value> __global_GL_enable(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 203 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_makeFloatArray(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 269 "src/modules/GL.gear"
+        Value size(args[0]);
+        float *array = new float [size.to<size_t>()];
+        var obj = Object();
+        obj.to<v8::Handle<v8::Object>>()->SetIndexedPropertiesToExternalArrayData(array, v8::kExternalFloatArray, size);
+        return obj;
+    }
+    return Throw(Error("Invalid call to GL.makeFloatArray"));
+}
+
+static v8::Handle<v8::Value> _GL_makeUInt32Array(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 275 "src/modules/GL.gear"
+        Value size(args[0]);
+        uint32_t *array = new uint32_t [size.to<size_t>()];
+        var obj = Object();
+        obj.to<v8::Handle<v8::Object>>()->SetIndexedPropertiesToExternalArrayData(array, v8::kExternalUnsignedIntArray, size);
+        return obj;
+    }
+    return Throw(Error("Invalid call to GL.makeUInt32Array"));
+}
+
+static v8::Handle<v8::Value> _GL_drawElements(const v8::Arguments& args) {
+    if(args.Length() >= 3) {
+        #line 281 "src/modules/GL.gear"
+        Value mode(args[0]), count(args[1]), indices(args[2]);
+        /*uint32_t *_indices = ArrayToVector<uint32_t>(indices);
+        double *_vertices = ArrayToVector<double>(vertices);
+        double *_normals = ArrayToVector<double>(normals);
+        
+        if(texCoords) {
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            float *_texCoords = reinterpret_cast<float*>(texCoords.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData());
+            glTexCoordPointer(2, GL_FLOAT, 0, _texCoords);
+        }
+        if(normals) {
+            glEnableClientState(GL_NORMAL_ARRAY);
+            float *_normals = reinterpret_cast<float*>(normals.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData());
+            glNormalPointer(GL_FLOAT, 0, _normals);
+        }
+        glEnableClientState(GL_VERTEX_ARRAY);
+        float *_vertices = reinterpret_cast<float*>(vertices.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData());
+        glVertexPointer(3, GL_FLOAT, 0, _vertices);*/
+        
+        glDrawElements(mode, count, GL_UNSIGNED_INT, reinterpret_cast<uint32_t*>(indices.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
+        /*delete [] _indices;
+        delete [] _vertices;
+        delete [] _normals;*/
+        return GLError();
+    }
+    return Throw(Error("Invalid call to GL.drawElements"));
+}
+
+static v8::Handle<v8::Value> _GL_vertexPointer(const v8::Arguments& args) {
+    if(args.Length() >= 2) {
+        #line 308 "src/modules/GL.gear"
+        Value size(args[0]), vertices(args[1]);
+        glVertexPointer(size, GL_FLOAT, 0, reinterpret_cast<float*>(vertices.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
+        return GLError();
+    }
+    return Throw(Error("Invalid call to GL.vertexPointer"));
+}
+
+static v8::Handle<v8::Value> _GL_normalPointer(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 313 "src/modules/GL.gear"
+        Value normals(args[0]);
+        glNormalPointer(GL_FLOAT, 0, reinterpret_cast<float*>(normals.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
+        return GLError();
+    }
+    return Throw(Error("Invalid call to GL.normalPointer"));
+}
+
+static v8::Handle<v8::Value> _GL_texCoordPointer(const v8::Arguments& args) {
+    if(args.Length() >= 2) {
+        #line 318 "src/modules/GL.gear"
+        Value size(args[0]), texCoords(args[1]);
+        glTexCoordPointer(size, GL_FLOAT, 0, reinterpret_cast<float*>(texCoords.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
+        return GLError();
+    }
+    return Throw(Error("Invalid call to GL.texCoordPointer"));
+}
+
+static v8::Handle<v8::Value> _GL_enableClientState(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 323 "src/modules/GL.gear"
+        Value that(args[0]);
+        glEnableClientState(that);
+        return GLError();
+    }
+    return Throw(Error("Invalid call to GL.enableClientState"));
+}
+
+static v8::Handle<v8::Value> _GL_enable(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 328 "src/modules/GL.gear"
         Value that(args[0]);
         glEnable(that);
         return GLError();
@@ -319,10 +413,9 @@ v8::Handle<v8::Value> __global_GL_enable(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.enable"));
 }
 
-v8::Handle<v8::Value> __global_GL_disable(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 208 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_disable(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 333 "src/modules/GL.gear"
         Value that(args[0]);
         glDisable(that);
         return GLError();
@@ -330,22 +423,41 @@ v8::Handle<v8::Value> __global_GL_disable(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.disable"));
 }
 
-v8::Handle<v8::Value> __global_GL_flush(const v8::Arguments& args) {
-    #line 214 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_hint(const v8::Arguments& args) {
+    if(args.Length() >= 2) {
+        #line 338 "src/modules/GL.gear"
+        Value target(args[0]), mode(args[1]);
+        glHint(target, mode);
+        return GLError();
+    }
+    return Throw(Error("Invalid call to GL.hint"));
+}
+
+static v8::Handle<v8::Value> _GL_shadeModel(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 343 "src/modules/GL.gear"
+        Value mode(args[0]);
+        glShadeModel(mode);
+        return GLError();
+    }
+    return Throw(Error("Invalid call to GL.shadeModel"));
+}
+
+static v8::Handle<v8::Value> _GL_flush(const v8::Arguments& args) {
+    #line 349 "src/modules/GL.gear"
     glFlush();
     return GLError();
 }
 
-v8::Handle<v8::Value> __global_GL_loadIdentity(const v8::Arguments& args) {
-    #line 219 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_loadIdentity(const v8::Arguments& args) {
+    #line 354 "src/modules/GL.gear"
     glLoadIdentity();
     return GLError();
 }
 
-v8::Handle<v8::Value> __global_GL_clearColor(const v8::Arguments& args) {
-    if(args.Length() >= 4)
-    {
-        #line 223 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_clearColor(const v8::Arguments& args) {
+    if(args.Length() >= 4) {
+        #line 358 "src/modules/GL.gear"
         Value r(args[0]), g(args[1]), b(args[2]), a(args[3]);
         glClearColor(r, g, b, a);
         return GLError();
@@ -353,10 +465,9 @@ v8::Handle<v8::Value> __global_GL_clearColor(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.clearColor"));
 }
 
-v8::Handle<v8::Value> __global_GL_clear(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 228 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_clear(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 363 "src/modules/GL.gear"
         Value bits(args[0]);
         glClear(bits);
         return GLError();
@@ -364,10 +475,9 @@ v8::Handle<v8::Value> __global_GL_clear(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.clear"));
 }
 
-v8::Handle<v8::Value> __global_GL_viewport(const v8::Arguments& args) {
-    if(args.Length() >= 4)
-    {
-        #line 233 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_viewport(const v8::Arguments& args) {
+    if(args.Length() >= 4) {
+        #line 368 "src/modules/GL.gear"
         Value x1(args[0]), y1(args[1]), x2(args[2]), y2(args[3]);
         glViewport(x1, y1, x2, y2);
         return GLError();
@@ -375,10 +485,9 @@ v8::Handle<v8::Value> __global_GL_viewport(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.viewport"));
 }
 
-v8::Handle<v8::Value> __global_GL_matrixMode(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 238 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_matrixMode(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 373 "src/modules/GL.gear"
         Value mode(args[0]);
         glMatrixMode(mode);
         return GLError();
@@ -386,22 +495,21 @@ v8::Handle<v8::Value> __global_GL_matrixMode(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.matrixMode"));
 }
 
-v8::Handle<v8::Value> __global_GL_pushMatrix(const v8::Arguments& args) {
-    #line 244 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_pushMatrix(const v8::Arguments& args) {
+    #line 379 "src/modules/GL.gear"
     glPushMatrix();
     return GLError();
 }
 
-v8::Handle<v8::Value> __global_GL_popMatrix(const v8::Arguments& args) {
-    #line 249 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_popMatrix(const v8::Arguments& args) {
+    #line 384 "src/modules/GL.gear"
     glPopMatrix();
     return GLError();
 }
 
-v8::Handle<v8::Value> __global_GL_translate(const v8::Arguments& args) {
-    if(args.Length() >= 3)
-    {
-        #line 253 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_translate(const v8::Arguments& args) {
+    if(args.Length() >= 3) {
+        #line 388 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
         glTranslated(x, y, z);
         return GLError();
@@ -409,10 +517,9 @@ v8::Handle<v8::Value> __global_GL_translate(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.translate"));
 }
 
-v8::Handle<v8::Value> __global_GL_scale(const v8::Arguments& args) {
-    if(args.Length() >= 3)
-    {
-        #line 258 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_scale(const v8::Arguments& args) {
+    if(args.Length() >= 3) {
+        #line 393 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
         glScaled(x, y, z);
         return GLError();
@@ -420,10 +527,9 @@ v8::Handle<v8::Value> __global_GL_scale(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.scale"));
 }
 
-v8::Handle<v8::Value> __global_GL_rotate(const v8::Arguments& args) {
-    if(args.Length() >= 4)
-    {
-        #line 263 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_rotate(const v8::Arguments& args) {
+    if(args.Length() >= 4) {
+        #line 398 "src/modules/GL.gear"
         Value angle(args[0]), x(args[1]), y(args[2]), z(args[3]);
         glRotated(angle, x, y, z);
         return GLError();
@@ -431,30 +537,51 @@ v8::Handle<v8::Value> __global_GL_rotate(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.rotate"));
 }
 
-v8::Handle<v8::Value> __global_GL_color(const v8::Arguments& args) {
-    if(args.Length() >= 4)
-    {
-        #line 273 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_color(const v8::Arguments& args) {
+    if(args.Length() >= 4) {
+        #line 408 "src/modules/GL.gear"
         Value r(args[0]), g(args[1]), b(args[2]), a(args[3]);
         glColor4d(r, g, b, a);
         //return GLError();
         return undefined;
     }
 
-    if(args.Length() >= 3)
-    {
-        #line 268 "src/modules/GL.gear"
+    if(args.Length() >= 3) {
+        #line 403 "src/modules/GL.gear"
         Value r(args[0]), g(args[1]), b(args[2]);
         glColor3d(r, g, b);
-        return GLError();
+        //return GLError();
+        return undefined;
     }
-    return Error("Invalid call to GL.color");
+    return Throw(Error("Invalid call to GL.color"));
 }
 
-v8::Handle<v8::Value> __global_GL_light(const v8::Arguments& args) {
-    if(args.Length() >= 6)
-    {
-        #line 278 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_fog(const v8::Arguments& args) {
+    if(args.Length() >= 2) {
+        #line 413 "src/modules/GL.gear"
+        Value what(args[0]), val(args[1]);
+        if(what == GL_FOG_COLOR && val.is<Object>()) {
+            float fog[] = {val["r"], val["g"], val["b"], val["a"]};
+            glFogfv(what, fog);
+            return GLError();
+        }
+        if(what == GL_FOG_COLOR && val.is<Array>()) {
+            float fog[] = {val[0], val[1], val[2], val[3]};
+            glFogfv(what, fog);
+            return GLError();
+        }
+        if(what == GL_FOG_MODE)
+            glFogi(what, val);
+        else
+            glFogf(what, val);
+        return GLError();
+    }
+    return Throw(Error("Invalid call to GL.fog"));
+}
+
+static v8::Handle<v8::Value> _GL_light(const v8::Arguments& args) {
+    if(args.Length() >= 6) {
+        #line 431 "src/modules/GL.gear"
         Value which(args[0]), type(args[1]), a(args[2]), b(args[3]), c(args[4]), d(args[5]);
         float light[] = {a, b, c, d};
         glLightfv(which, type, light);
@@ -463,10 +590,9 @@ v8::Handle<v8::Value> __global_GL_light(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.light"));
 }
 
-v8::Handle<v8::Value> __global_GL_material(const v8::Arguments& args) {
-    if(args.Length() >= 6)
-    {
-        #line 284 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_material(const v8::Arguments& args) {
+    if(args.Length() >= 6) {
+        #line 437 "src/modules/GL.gear"
         Value which(args[0]), type(args[1]), r(args[2]), g(args[3]), b(args[4]), a(args[5]);
         /*
         // Create light components
@@ -482,7 +608,7 @@ v8::Handle<v8::Value> __global_GL_material(const v8::Arguments& args) {
         glLightfv(GL_LIGHT0, GL_POSITION, position);
         */
         
-        float material[] = {r.to<float>(), g.to<float>(), b.to<float>(), a.to<float>()};
+        float material[] = {r, g, b, a};
         //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);
         glMaterialfv(which, type, material);
         return GLError();
@@ -490,10 +616,9 @@ v8::Handle<v8::Value> __global_GL_material(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.material"));
 }
 
-v8::Handle<v8::Value> __global_GL_begin(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
-        #line 305 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_begin(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
+        #line 458 "src/modules/GL.gear"
         Value what(args[0]);
         glBegin(what);
         //return GLError();
@@ -502,16 +627,15 @@ v8::Handle<v8::Value> __global_GL_begin(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.begin"));
 }
 
-v8::Handle<v8::Value> __global_GL_end(const v8::Arguments& args) {
-    #line 311 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_end(const v8::Arguments& args) {
+    #line 464 "src/modules/GL.gear"
     glEnd();
     return GLError();
 }
 
-v8::Handle<v8::Value> __global_GL_vertex(const v8::Arguments& args) {
-    if(args.Length() >= 3)
-    {
-        #line 315 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_vertex(const v8::Arguments& args) {
+    if(args.Length() >= 3) {
+        #line 468 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
         glVertex3d(x, y, z);
         //return GLError();
@@ -520,10 +644,9 @@ v8::Handle<v8::Value> __global_GL_vertex(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.vertex"));
 }
 
-v8::Handle<v8::Value> __global_GL_normal(const v8::Arguments& args) {
-    if(args.Length() >= 3)
-    {
-        #line 320 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_normal(const v8::Arguments& args) {
+    if(args.Length() >= 3) {
+        #line 473 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
         glNormal3d(x, y, z);
         //return GLError();
@@ -532,10 +655,9 @@ v8::Handle<v8::Value> __global_GL_normal(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.normal"));
 }
 
-v8::Handle<v8::Value> __global_GL_rasterPos(const v8::Arguments& args) {
-    if(args.Length() >= 2)
-    {
-        #line 325 "src/modules/GL.gear"
+static v8::Handle<v8::Value> _GL_rasterPos(const v8::Arguments& args) {
+    if(args.Length() >= 2) {
+        #line 478 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]);
         glRasterPos2d(x, y);
         return GLError();
@@ -543,592 +665,601 @@ v8::Handle<v8::Value> __global_GL_rasterPos(const v8::Arguments& args) {
     return Throw(Error("Invalid call to GL.rasterPos"));
 }
 
-v8::Handle<v8::Value> __global_GL_toString(const v8::Arguments& args) {
-    #line 88 "src/modules/GL.gear"
-    return String("[object GL]");
+static v8::Handle<v8::Value> _GL_toString(const v8::Arguments& args) {
+    #line 144 "src/modules/GL.gear"
+    return String("[module GL]");
 }
 
 
-#line 497 "src/modules/GL.cc"
-void SetupGL(v8::Handle<v8::Object> global) {
-    v8::Handle<v8::Object> global_GL = v8::Object::New();
-    global->Set(String("GL"), global_GL);
-    global_GL->Set(String("initWindow"), Function(__global_GL_initWindow, "initWindow"));
-    global_GL->Set(String("mainLoop"), Function(__global_GL_mainLoop, "mainLoop"));
-    global_GL->Set(String("addTimer"), Function(__global_GL_addTimer, "addTimer"));
-    global_GL->Set(String("cancelTimer"), Function(__global_GL_cancelTimer, "cancelTimer"));
-    global_GL->Set(String("ignoreKeyRepeat"), Function(__global_GL_ignoreKeyRepeat, "ignoreKeyRepeat"));
-    global_GL->Set(String("warpPointer"), Function(__global_GL_warpPointer, "warpPointer"));
-    global_GL->Set(String("setCursor"), Function(__global_GL_setCursor, "setCursor"));
-    global_GL->Set(String("swapBuffers"), Function(__global_GL_swapBuffers, "swapBuffers"));
-    global_GL->Set(String("postRedisplay"), Function(__global_GL_postRedisplay, "postRedisplay"));
-    global_GL->Set(String("bitmapCharacter"), Function(__global_GL_bitmapCharacter, "bitmapCharacter"));
-    global_GL->Set(String("perspective"), Function(__global_GL_perspective, "perspective"));
-    global_GL->Set(String("ortho2D"), Function(__global_GL_ortho2D, "ortho2D"));
-    global_GL->Set(String("lookAt"), Function(__global_GL_lookAt, "lookAt"));
-    global_GL->Set(String("enable"), Function(__global_GL_enable, "enable"));
-    global_GL->Set(String("disable"), Function(__global_GL_disable, "disable"));
-    global_GL->Set(String("flush"), Function(__global_GL_flush, "flush"));
-    global_GL->Set(String("loadIdentity"), Function(__global_GL_loadIdentity, "loadIdentity"));
-    global_GL->Set(String("clearColor"), Function(__global_GL_clearColor, "clearColor"));
-    global_GL->Set(String("clear"), Function(__global_GL_clear, "clear"));
-    global_GL->Set(String("viewport"), Function(__global_GL_viewport, "viewport"));
-    global_GL->Set(String("matrixMode"), Function(__global_GL_matrixMode, "matrixMode"));
-    global_GL->Set(String("pushMatrix"), Function(__global_GL_pushMatrix, "pushMatrix"));
-    global_GL->Set(String("popMatrix"), Function(__global_GL_popMatrix, "popMatrix"));
-    global_GL->Set(String("translate"), Function(__global_GL_translate, "translate"));
-    global_GL->Set(String("scale"), Function(__global_GL_scale, "scale"));
-    global_GL->Set(String("rotate"), Function(__global_GL_rotate, "rotate"));
-    global_GL->Set(String("color"), Function(__global_GL_color, "color"));
-    global_GL->Set(String("light"), Function(__global_GL_light, "light"));
-    global_GL->Set(String("material"), Function(__global_GL_material, "material"));
-    global_GL->Set(String("begin"), Function(__global_GL_begin, "begin"));
-    global_GL->Set(String("end"), Function(__global_GL_end, "end"));
-    global_GL->Set(String("vertex"), Function(__global_GL_vertex, "vertex"));
-    global_GL->Set(String("normal"), Function(__global_GL_normal, "normal"));
-    global_GL->Set(String("rasterPos"), Function(__global_GL_rasterPos, "rasterPos"));
-    global_GL->Set(String("toString"), Function(__global_GL_toString, "toString"));
-    global_GL->Set(String("CURSOR_RIGHT_ARROW"), Value(GLUT_CURSOR_RIGHT_ARROW));
-    global_GL->Set(String("CURSOR_LEFT_ARROW"), Value(GLUT_CURSOR_LEFT_ARROW));
-    global_GL->Set(String("CURSOR_INFO"), Value(GLUT_CURSOR_INFO));
-    global_GL->Set(String("CURSOR_DESTROY"), Value(GLUT_CURSOR_DESTROY));
-    global_GL->Set(String("CURSOR_HELP"), Value(GLUT_CURSOR_HELP));
-    global_GL->Set(String("CURSOR_CYCLE"), Value(GLUT_CURSOR_CYCLE));
-    global_GL->Set(String("CURSOR_SPRAY"), Value(GLUT_CURSOR_SPRAY));
-    global_GL->Set(String("CURSOR_WAIT"), Value(GLUT_CURSOR_WAIT));
-    global_GL->Set(String("CURSOR_TEXT"), Value(GLUT_CURSOR_TEXT));
-    global_GL->Set(String("CURSOR_CROSSHAIR"), Value(GLUT_CURSOR_CROSSHAIR));
-    global_GL->Set(String("CURSOR_UP_DOWN"), Value(GLUT_CURSOR_UP_DOWN));
-    global_GL->Set(String("CURSOR_LEFT_RIGHT"), Value(GLUT_CURSOR_LEFT_RIGHT));
-    global_GL->Set(String("CURSOR_TOP_SIDE"), Value(GLUT_CURSOR_TOP_SIDE));
-    global_GL->Set(String("CURSOR_BOTTOM_SIDE"), Value(GLUT_CURSOR_BOTTOM_SIDE));
-    global_GL->Set(String("CURSOR_LEFT_SIDE"), Value(GLUT_CURSOR_LEFT_SIDE));
-    global_GL->Set(String("CURSOR_RIGHT_SIDE"), Value(GLUT_CURSOR_RIGHT_SIDE));
-    global_GL->Set(String("CURSOR_TOP_LEFT_CORNER"), Value(GLUT_CURSOR_TOP_LEFT_CORNER));
-    global_GL->Set(String("CURSOR_TOP_RIGHT_CORNER"), Value(GLUT_CURSOR_TOP_RIGHT_CORNER));
-    global_GL->Set(String("CURSOR_BOTTOM_RIGHT_CORNER"), Value(GLUT_CURSOR_BOTTOM_RIGHT_CORNER));
-    global_GL->Set(String("CURSOR_BOTTOM_LEFT_CORNER"), Value(GLUT_CURSOR_BOTTOM_LEFT_CORNER));
-    global_GL->Set(String("CURSOR_INHERIT"), Value(GLUT_CURSOR_INHERIT));
-    global_GL->Set(String("CURSOR_NONE"), Value(GLUT_CURSOR_NONE));
-    global_GL->Set(String("CURSOR_FULL_CROSSHAIR"), Value(GLUT_CURSOR_FULL_CROSSHAIR));
-    global_GL->Set(String("FALSE"), Value(GL_FALSE));
-    global_GL->Set(String("TRUE"), Value(GL_TRUE));
-    global_GL->Set(String("BYTE"), Value(GL_BYTE));
-    global_GL->Set(String("UNSIGNED_BYTE"), Value(GL_UNSIGNED_BYTE));
-    global_GL->Set(String("SHORT"), Value(GL_SHORT));
-    global_GL->Set(String("UNSIGNED_SHORT"), Value(GL_UNSIGNED_SHORT));
-    global_GL->Set(String("INT"), Value(GL_INT));
-    global_GL->Set(String("UNSIGNED_INT"), Value(GL_UNSIGNED_INT));
-    global_GL->Set(String("FLOAT"), Value(GL_FLOAT));
-    global_GL->Set(String("DOUBLE"), Value(GL_DOUBLE));
-    global_GL->Set(String("POINTS"), Value(GL_POINTS));
-    global_GL->Set(String("LINES"), Value(GL_LINES));
-    global_GL->Set(String("LINE_LOOP"), Value(GL_LINE_LOOP));
-    global_GL->Set(String("LINE_STRIP"), Value(GL_LINE_STRIP));
-    global_GL->Set(String("TRIANGLES"), Value(GL_TRIANGLES));
-    global_GL->Set(String("TRIANGLE_STRIP"), Value(GL_TRIANGLE_STRIP));
-    global_GL->Set(String("TRIANGLE_FAN"), Value(GL_TRIANGLE_FAN));
-    global_GL->Set(String("QUADS"), Value(GL_QUADS));
-    global_GL->Set(String("QUAD_STRIP"), Value(GL_QUAD_STRIP));
-    global_GL->Set(String("POLYGON"), Value(GL_POLYGON));
-    global_GL->Set(String("VERTEX_ARRAY"), Value(GL_VERTEX_ARRAY));
-    global_GL->Set(String("NORMAL_ARRAY"), Value(GL_NORMAL_ARRAY));
-    global_GL->Set(String("COLOR_ARRAY"), Value(GL_COLOR_ARRAY));
-    global_GL->Set(String("INDEX_ARRAY"), Value(GL_INDEX_ARRAY));
-    global_GL->Set(String("TEXTURE_COORD_ARRAY"), Value(GL_TEXTURE_COORD_ARRAY));
-    global_GL->Set(String("EDGE_FLAG_ARRAY"), Value(GL_EDGE_FLAG_ARRAY));
-    global_GL->Set(String("VERTEX_ARRAY_SIZE"), Value(GL_VERTEX_ARRAY_SIZE));
-    global_GL->Set(String("VERTEX_ARRAY_TYPE"), Value(GL_VERTEX_ARRAY_TYPE));
-    global_GL->Set(String("VERTEX_ARRAY_STRIDE"), Value(GL_VERTEX_ARRAY_STRIDE));
-    global_GL->Set(String("NORMAL_ARRAY_TYPE"), Value(GL_NORMAL_ARRAY_TYPE));
-    global_GL->Set(String("NORMAL_ARRAY_STRIDE"), Value(GL_NORMAL_ARRAY_STRIDE));
-    global_GL->Set(String("COLOR_ARRAY_SIZE"), Value(GL_COLOR_ARRAY_SIZE));
-    global_GL->Set(String("COLOR_ARRAY_TYPE"), Value(GL_COLOR_ARRAY_TYPE));
-    global_GL->Set(String("COLOR_ARRAY_STRIDE"), Value(GL_COLOR_ARRAY_STRIDE));
-    global_GL->Set(String("INDEX_ARRAY_TYPE"), Value(GL_INDEX_ARRAY_TYPE));
-    global_GL->Set(String("INDEX_ARRAY_STRIDE"), Value(GL_INDEX_ARRAY_STRIDE));
-    global_GL->Set(String("TEXTURE_COORD_ARRAY_SIZE"), Value(GL_TEXTURE_COORD_ARRAY_SIZE));
-    global_GL->Set(String("TEXTURE_COORD_ARRAY_TYPE"), Value(GL_TEXTURE_COORD_ARRAY_TYPE));
-    global_GL->Set(String("TEXTURE_COORD_ARRAY_STRIDE"), Value(GL_TEXTURE_COORD_ARRAY_STRIDE));
-    global_GL->Set(String("EDGE_FLAG_ARRAY_STRIDE"), Value(GL_EDGE_FLAG_ARRAY_STRIDE));
-    global_GL->Set(String("VERTEX_ARRAY_POINTER"), Value(GL_VERTEX_ARRAY_POINTER));
-    global_GL->Set(String("NORMAL_ARRAY_POINTER"), Value(GL_NORMAL_ARRAY_POINTER));
-    global_GL->Set(String("COLOR_ARRAY_POINTER"), Value(GL_COLOR_ARRAY_POINTER));
-    global_GL->Set(String("INDEX_ARRAY_POINTER"), Value(GL_INDEX_ARRAY_POINTER));
-    global_GL->Set(String("TEXTURE_COORD_ARRAY_POINTER"), Value(GL_TEXTURE_COORD_ARRAY_POINTER));
-    global_GL->Set(String("EDGE_FLAG_ARRAY_POINTER"), Value(GL_EDGE_FLAG_ARRAY_POINTER));
-    global_GL->Set(String("V2F"), Value(GL_V2F));
-    global_GL->Set(String("V3F"), Value(GL_V3F));
-    global_GL->Set(String("C4UB_V2F"), Value(GL_C4UB_V2F));
-    global_GL->Set(String("C4UB_V3F"), Value(GL_C4UB_V3F));
-    global_GL->Set(String("C3F_V3F"), Value(GL_C3F_V3F));
-    global_GL->Set(String("N3F_V3F"), Value(GL_N3F_V3F));
-    global_GL->Set(String("C4F_N3F_V3F"), Value(GL_C4F_N3F_V3F));
-    global_GL->Set(String("T2F_V3F"), Value(GL_T2F_V3F));
-    global_GL->Set(String("T4F_V4F"), Value(GL_T4F_V4F));
-    global_GL->Set(String("T2F_C4UB_V3F"), Value(GL_T2F_C4UB_V3F));
-    global_GL->Set(String("T2F_C3F_V3F"), Value(GL_T2F_C3F_V3F));
-    global_GL->Set(String("T2F_N3F_V3F"), Value(GL_T2F_N3F_V3F));
-    global_GL->Set(String("T2F_C4F_N3F_V3F"), Value(GL_T2F_C4F_N3F_V3F));
-    global_GL->Set(String("T4F_C4F_N3F_V4F"), Value(GL_T4F_C4F_N3F_V4F));
-    global_GL->Set(String("MATRIX_MODE"), Value(GL_MATRIX_MODE));
-    global_GL->Set(String("MODELVIEW"), Value(GL_MODELVIEW));
-    global_GL->Set(String("PROJECTION"), Value(GL_PROJECTION));
-    global_GL->Set(String("TEXTURE"), Value(GL_TEXTURE));
-    global_GL->Set(String("POINT_SMOOTH"), Value(GL_POINT_SMOOTH));
-    global_GL->Set(String("POINT_SIZE"), Value(GL_POINT_SIZE));
-    global_GL->Set(String("POINT_SIZE_GRANULARITY"), Value(GL_POINT_SIZE_GRANULARITY));
-    global_GL->Set(String("POINT_SIZE_RANGE"), Value(GL_POINT_SIZE_RANGE));
-    global_GL->Set(String("LINE_SMOOTH"), Value(GL_LINE_SMOOTH));
-    global_GL->Set(String("LINE_STIPPLE"), Value(GL_LINE_STIPPLE));
-    global_GL->Set(String("LINE_STIPPLE_PATTERN"), Value(GL_LINE_STIPPLE_PATTERN));
-    global_GL->Set(String("LINE_STIPPLE_REPEAT"), Value(GL_LINE_STIPPLE_REPEAT));
-    global_GL->Set(String("LINE_WIDTH"), Value(GL_LINE_WIDTH));
-    global_GL->Set(String("LINE_WIDTH_GRANULARITY"), Value(GL_LINE_WIDTH_GRANULARITY));
-    global_GL->Set(String("LINE_WIDTH_RANGE"), Value(GL_LINE_WIDTH_RANGE));
-    global_GL->Set(String("POINT"), Value(GL_POINT));
-    global_GL->Set(String("LINE"), Value(GL_LINE));
-    global_GL->Set(String("FILL"), Value(GL_FILL));
-    global_GL->Set(String("CW"), Value(GL_CW));
-    global_GL->Set(String("CCW"), Value(GL_CCW));
-    global_GL->Set(String("FRONT"), Value(GL_FRONT));
-    global_GL->Set(String("BACK"), Value(GL_BACK));
-    global_GL->Set(String("POLYGON_MODE"), Value(GL_POLYGON_MODE));
-    global_GL->Set(String("POLYGON_SMOOTH"), Value(GL_POLYGON_SMOOTH));
-    global_GL->Set(String("POLYGON_STIPPLE"), Value(GL_POLYGON_STIPPLE));
-    global_GL->Set(String("EDGE_FLAG"), Value(GL_EDGE_FLAG));
-    global_GL->Set(String("CULL_FACE"), Value(GL_CULL_FACE));
-    global_GL->Set(String("CULL_FACE_MODE"), Value(GL_CULL_FACE_MODE));
-    global_GL->Set(String("FRONT_FACE"), Value(GL_FRONT_FACE));
-    global_GL->Set(String("POLYGON_OFFSET_FACTOR"), Value(GL_POLYGON_OFFSET_FACTOR));
-    global_GL->Set(String("POLYGON_OFFSET_UNITS"), Value(GL_POLYGON_OFFSET_UNITS));
-    global_GL->Set(String("POLYGON_OFFSET_POINT"), Value(GL_POLYGON_OFFSET_POINT));
-    global_GL->Set(String("POLYGON_OFFSET_LINE"), Value(GL_POLYGON_OFFSET_LINE));
-    global_GL->Set(String("POLYGON_OFFSET_FILL"), Value(GL_POLYGON_OFFSET_FILL));
-    global_GL->Set(String("COMPILE"), Value(GL_COMPILE));
-    global_GL->Set(String("COMPILE_AND_EXECUTE"), Value(GL_COMPILE_AND_EXECUTE));
-    global_GL->Set(String("LIST_BASE"), Value(GL_LIST_BASE));
-    global_GL->Set(String("LIST_INDEX"), Value(GL_LIST_INDEX));
-    global_GL->Set(String("LIST_MODE"), Value(GL_LIST_MODE));
-    global_GL->Set(String("NEVER"), Value(GL_NEVER));
-    global_GL->Set(String("LESS"), Value(GL_LESS));
-    global_GL->Set(String("EQUAL"), Value(GL_EQUAL));
-    global_GL->Set(String("LEQUAL"), Value(GL_LEQUAL));
-    global_GL->Set(String("GREATER"), Value(GL_GREATER));
-    global_GL->Set(String("NOTEQUAL"), Value(GL_NOTEQUAL));
-    global_GL->Set(String("GEQUAL"), Value(GL_GEQUAL));
-    global_GL->Set(String("ALWAYS"), Value(GL_ALWAYS));
-    global_GL->Set(String("DEPTH_TEST"), Value(GL_DEPTH_TEST));
-    global_GL->Set(String("DEPTH_BITS"), Value(GL_DEPTH_BITS));
-    global_GL->Set(String("DEPTH_CLEAR_VALUE"), Value(GL_DEPTH_CLEAR_VALUE));
-    global_GL->Set(String("DEPTH_FUNC"), Value(GL_DEPTH_FUNC));
-    global_GL->Set(String("DEPTH_RANGE"), Value(GL_DEPTH_RANGE));
-    global_GL->Set(String("DEPTH_WRITEMASK"), Value(GL_DEPTH_WRITEMASK));
-    global_GL->Set(String("DEPTH_COMPONENT"), Value(GL_DEPTH_COMPONENT));
-    global_GL->Set(String("LIGHTING"), Value(GL_LIGHTING));
-    global_GL->Set(String("LIGHT0"), Value(GL_LIGHT0));
-    global_GL->Set(String("LIGHT1"), Value(GL_LIGHT1));
-    global_GL->Set(String("LIGHT2"), Value(GL_LIGHT2));
-    global_GL->Set(String("LIGHT3"), Value(GL_LIGHT3));
-    global_GL->Set(String("LIGHT4"), Value(GL_LIGHT4));
-    global_GL->Set(String("LIGHT5"), Value(GL_LIGHT5));
-    global_GL->Set(String("LIGHT6"), Value(GL_LIGHT6));
-    global_GL->Set(String("LIGHT7"), Value(GL_LIGHT7));
-    global_GL->Set(String("SPOT_EXPONENT"), Value(GL_SPOT_EXPONENT));
-    global_GL->Set(String("SPOT_CUTOFF"), Value(GL_SPOT_CUTOFF));
-    global_GL->Set(String("CONSTANT_ATTENUATION"), Value(GL_CONSTANT_ATTENUATION));
-    global_GL->Set(String("LINEAR_ATTENUATION"), Value(GL_LINEAR_ATTENUATION));
-    global_GL->Set(String("QUADRATIC_ATTENUATION"), Value(GL_QUADRATIC_ATTENUATION));
-    global_GL->Set(String("AMBIENT"), Value(GL_AMBIENT));
-    global_GL->Set(String("DIFFUSE"), Value(GL_DIFFUSE));
-    global_GL->Set(String("SPECULAR"), Value(GL_SPECULAR));
-    global_GL->Set(String("SHININESS"), Value(GL_SHININESS));
-    global_GL->Set(String("EMISSION"), Value(GL_EMISSION));
-    global_GL->Set(String("POSITION"), Value(GL_POSITION));
-    global_GL->Set(String("SPOT_DIRECTION"), Value(GL_SPOT_DIRECTION));
-    global_GL->Set(String("AMBIENT_AND_DIFFUSE"), Value(GL_AMBIENT_AND_DIFFUSE));
-    global_GL->Set(String("COLOR_INDEXES"), Value(GL_COLOR_INDEXES));
-    global_GL->Set(String("LIGHT_MODEL_TWO_SIDE"), Value(GL_LIGHT_MODEL_TWO_SIDE));
-    global_GL->Set(String("LIGHT_MODEL_LOCAL_VIEWER"), Value(GL_LIGHT_MODEL_LOCAL_VIEWER));
-    global_GL->Set(String("LIGHT_MODEL_AMBIENT"), Value(GL_LIGHT_MODEL_AMBIENT));
-    global_GL->Set(String("FRONT_AND_BACK"), Value(GL_FRONT_AND_BACK));
-    global_GL->Set(String("SHADE_MODEL"), Value(GL_SHADE_MODEL));
-    global_GL->Set(String("FLAT"), Value(GL_FLAT));
-    global_GL->Set(String("SMOOTH"), Value(GL_SMOOTH));
-    global_GL->Set(String("COLOR_MATERIAL"), Value(GL_COLOR_MATERIAL));
-    global_GL->Set(String("COLOR_MATERIAL_FACE"), Value(GL_COLOR_MATERIAL_FACE));
-    global_GL->Set(String("COLOR_MATERIAL_PARAMETER"), Value(GL_COLOR_MATERIAL_PARAMETER));
-    global_GL->Set(String("NORMALIZE"), Value(GL_NORMALIZE));
-    global_GL->Set(String("CLIP_PLANE0"), Value(GL_CLIP_PLANE0));
-    global_GL->Set(String("CLIP_PLANE1"), Value(GL_CLIP_PLANE1));
-    global_GL->Set(String("CLIP_PLANE2"), Value(GL_CLIP_PLANE2));
-    global_GL->Set(String("CLIP_PLANE3"), Value(GL_CLIP_PLANE3));
-    global_GL->Set(String("CLIP_PLANE4"), Value(GL_CLIP_PLANE4));
-    global_GL->Set(String("CLIP_PLANE5"), Value(GL_CLIP_PLANE5));
-    global_GL->Set(String("ACCUM_RED_BITS"), Value(GL_ACCUM_RED_BITS));
-    global_GL->Set(String("ACCUM_GREEN_BITS"), Value(GL_ACCUM_GREEN_BITS));
-    global_GL->Set(String("ACCUM_BLUE_BITS"), Value(GL_ACCUM_BLUE_BITS));
-    global_GL->Set(String("ACCUM_ALPHA_BITS"), Value(GL_ACCUM_ALPHA_BITS));
-    global_GL->Set(String("ACCUM_CLEAR_VALUE"), Value(GL_ACCUM_CLEAR_VALUE));
-    global_GL->Set(String("ACCUM"), Value(GL_ACCUM));
-    global_GL->Set(String("ADD"), Value(GL_ADD));
-    global_GL->Set(String("LOAD"), Value(GL_LOAD));
-    global_GL->Set(String("MULT"), Value(GL_MULT));
-    global_GL->Set(String("RETURN"), Value(GL_RETURN));
-    global_GL->Set(String("ALPHA_TEST"), Value(GL_ALPHA_TEST));
-    global_GL->Set(String("ALPHA_TEST_REF"), Value(GL_ALPHA_TEST_REF));
-    global_GL->Set(String("ALPHA_TEST_FUNC"), Value(GL_ALPHA_TEST_FUNC));
-    global_GL->Set(String("BLEND"), Value(GL_BLEND));
-    global_GL->Set(String("BLEND_SRC"), Value(GL_BLEND_SRC));
-    global_GL->Set(String("BLEND_DST"), Value(GL_BLEND_DST));
-    global_GL->Set(String("ZERO"), Value(GL_ZERO));
-    global_GL->Set(String("ONE"), Value(GL_ONE));
-    global_GL->Set(String("SRC_COLOR"), Value(GL_SRC_COLOR));
-    global_GL->Set(String("ONE_MINUS_SRC_COLOR"), Value(GL_ONE_MINUS_SRC_COLOR));
-    global_GL->Set(String("SRC_ALPHA"), Value(GL_SRC_ALPHA));
-    global_GL->Set(String("ONE_MINUS_SRC_ALPHA"), Value(GL_ONE_MINUS_SRC_ALPHA));
-    global_GL->Set(String("DST_ALPHA"), Value(GL_DST_ALPHA));
-    global_GL->Set(String("ONE_MINUS_DST_ALPHA"), Value(GL_ONE_MINUS_DST_ALPHA));
-    global_GL->Set(String("DST_COLOR"), Value(GL_DST_COLOR));
-    global_GL->Set(String("ONE_MINUS_DST_COLOR"), Value(GL_ONE_MINUS_DST_COLOR));
-    global_GL->Set(String("SRC_ALPHA_SATURATE"), Value(GL_SRC_ALPHA_SATURATE));
-    global_GL->Set(String("FEEDBACK"), Value(GL_FEEDBACK));
-    global_GL->Set(String("RENDER"), Value(GL_RENDER));
-    global_GL->Set(String("SELECT"), Value(GL_SELECT));
-    global_GL->Set(String("POINT_TOKEN"), Value(GL_POINT_TOKEN));
-    global_GL->Set(String("LINE_TOKEN"), Value(GL_LINE_TOKEN));
-    global_GL->Set(String("LINE_RESET_TOKEN"), Value(GL_LINE_RESET_TOKEN));
-    global_GL->Set(String("POLYGON_TOKEN"), Value(GL_POLYGON_TOKEN));
-    global_GL->Set(String("BITMAP_TOKEN"), Value(GL_BITMAP_TOKEN));
-    global_GL->Set(String("DRAW_PIXEL_TOKEN"), Value(GL_DRAW_PIXEL_TOKEN));
-    global_GL->Set(String("COPY_PIXEL_TOKEN"), Value(GL_COPY_PIXEL_TOKEN));
-    global_GL->Set(String("PASS_THROUGH_TOKEN"), Value(GL_PASS_THROUGH_TOKEN));
-    global_GL->Set(String("FEEDBACK_BUFFER_POINTER"), Value(GL_FEEDBACK_BUFFER_POINTER));
-    global_GL->Set(String("FEEDBACK_BUFFER_SIZE"), Value(GL_FEEDBACK_BUFFER_SIZE));
-    global_GL->Set(String("FEEDBACK_BUFFER_TYPE"), Value(GL_FEEDBACK_BUFFER_TYPE));
-    global_GL->Set(String("SELECTION_BUFFER_POINTER"), Value(GL_SELECTION_BUFFER_POINTER));
-    global_GL->Set(String("SELECTION_BUFFER_SIZE"), Value(GL_SELECTION_BUFFER_SIZE));
-    global_GL->Set(String("FOG"), Value(GL_FOG));
-    global_GL->Set(String("FOG_MODE"), Value(GL_FOG_MODE));
-    global_GL->Set(String("FOG_DENSITY"), Value(GL_FOG_DENSITY));
-    global_GL->Set(String("FOG_COLOR"), Value(GL_FOG_COLOR));
-    global_GL->Set(String("FOG_INDEX"), Value(GL_FOG_INDEX));
-    global_GL->Set(String("FOG_START"), Value(GL_FOG_START));
-    global_GL->Set(String("FOG_END"), Value(GL_FOG_END));
-    global_GL->Set(String("LINEAR"), Value(GL_LINEAR));
-    global_GL->Set(String("EXP"), Value(GL_EXP));
-    global_GL->Set(String("EXP2"), Value(GL_EXP2));
-    global_GL->Set(String("LOGIC_OP"), Value(GL_LOGIC_OP));
-    global_GL->Set(String("INDEX_LOGIC_OP"), Value(GL_INDEX_LOGIC_OP));
-    global_GL->Set(String("COLOR_LOGIC_OP"), Value(GL_COLOR_LOGIC_OP));
-    global_GL->Set(String("LOGIC_OP_MODE"), Value(GL_LOGIC_OP_MODE));
-    global_GL->Set(String("CLEAR"), Value(GL_CLEAR));
-    global_GL->Set(String("SET"), Value(GL_SET));
-    global_GL->Set(String("COPY"), Value(GL_COPY));
-    global_GL->Set(String("COPY_INVERTED"), Value(GL_COPY_INVERTED));
-    global_GL->Set(String("NOOP"), Value(GL_NOOP));
-    global_GL->Set(String("INVERT"), Value(GL_INVERT));
-    global_GL->Set(String("AND"), Value(GL_AND));
-    global_GL->Set(String("NAND"), Value(GL_NAND));
-    global_GL->Set(String("OR"), Value(GL_OR));
-    global_GL->Set(String("NOR"), Value(GL_NOR));
-    global_GL->Set(String("XOR"), Value(GL_XOR));
-    global_GL->Set(String("EQUIV"), Value(GL_EQUIV));
-    global_GL->Set(String("AND_REVERSE"), Value(GL_AND_REVERSE));
-    global_GL->Set(String("AND_INVERTED"), Value(GL_AND_INVERTED));
-    global_GL->Set(String("OR_REVERSE"), Value(GL_OR_REVERSE));
-    global_GL->Set(String("OR_INVERTED"), Value(GL_OR_INVERTED));
-    global_GL->Set(String("STENCIL_BITS"), Value(GL_STENCIL_BITS));
-    global_GL->Set(String("STENCIL_TEST"), Value(GL_STENCIL_TEST));
-    global_GL->Set(String("STENCIL_CLEAR_VALUE"), Value(GL_STENCIL_CLEAR_VALUE));
-    global_GL->Set(String("STENCIL_FUNC"), Value(GL_STENCIL_FUNC));
-    global_GL->Set(String("STENCIL_VALUE_MASK"), Value(GL_STENCIL_VALUE_MASK));
-    global_GL->Set(String("STENCIL_FAIL"), Value(GL_STENCIL_FAIL));
-    global_GL->Set(String("STENCIL_PASS_DEPTH_FAIL"), Value(GL_STENCIL_PASS_DEPTH_FAIL));
-    global_GL->Set(String("STENCIL_PASS_DEPTH_PASS"), Value(GL_STENCIL_PASS_DEPTH_PASS));
-    global_GL->Set(String("STENCIL_REF"), Value(GL_STENCIL_REF));
-    global_GL->Set(String("STENCIL_WRITEMASK"), Value(GL_STENCIL_WRITEMASK));
-    global_GL->Set(String("STENCIL_INDEX"), Value(GL_STENCIL_INDEX));
-    global_GL->Set(String("KEEP"), Value(GL_KEEP));
-    global_GL->Set(String("REPLACE"), Value(GL_REPLACE));
-    global_GL->Set(String("INCR"), Value(GL_INCR));
-    global_GL->Set(String("DECR"), Value(GL_DECR));
-    global_GL->Set(String("NONE"), Value(GL_NONE));
-    global_GL->Set(String("LEFT"), Value(GL_LEFT));
-    global_GL->Set(String("RIGHT"), Value(GL_RIGHT));
-    global_GL->Set(String("FRONT_LEFT"), Value(GL_FRONT_LEFT));
-    global_GL->Set(String("FRONT_RIGHT"), Value(GL_FRONT_RIGHT));
-    global_GL->Set(String("BACK_LEFT"), Value(GL_BACK_LEFT));
-    global_GL->Set(String("BACK_RIGHT"), Value(GL_BACK_RIGHT));
-    global_GL->Set(String("AUX0"), Value(GL_AUX0));
-    global_GL->Set(String("AUX1"), Value(GL_AUX1));
-    global_GL->Set(String("AUX2"), Value(GL_AUX2));
-    global_GL->Set(String("AUX3"), Value(GL_AUX3));
-    global_GL->Set(String("COLOR_INDEX"), Value(GL_COLOR_INDEX));
-    global_GL->Set(String("RED"), Value(GL_RED));
-    global_GL->Set(String("GREEN"), Value(GL_GREEN));
-    global_GL->Set(String("BLUE"), Value(GL_BLUE));
-    global_GL->Set(String("ALPHA"), Value(GL_ALPHA));
-    global_GL->Set(String("LUMINANCE"), Value(GL_LUMINANCE));
-    global_GL->Set(String("LUMINANCE_ALPHA"), Value(GL_LUMINANCE_ALPHA));
-    global_GL->Set(String("ALPHA_BITS"), Value(GL_ALPHA_BITS));
-    global_GL->Set(String("RED_BITS"), Value(GL_RED_BITS));
-    global_GL->Set(String("GREEN_BITS"), Value(GL_GREEN_BITS));
-    global_GL->Set(String("BLUE_BITS"), Value(GL_BLUE_BITS));
-    global_GL->Set(String("INDEX_BITS"), Value(GL_INDEX_BITS));
-    global_GL->Set(String("SUBPIXEL_BITS"), Value(GL_SUBPIXEL_BITS));
-    global_GL->Set(String("AUX_BUFFERS"), Value(GL_AUX_BUFFERS));
-    global_GL->Set(String("READ_BUFFER"), Value(GL_READ_BUFFER));
-    global_GL->Set(String("DRAW_BUFFER"), Value(GL_DRAW_BUFFER));
-    global_GL->Set(String("DOUBLEBUFFER"), Value(GL_DOUBLEBUFFER));
-    global_GL->Set(String("STEREO"), Value(GL_STEREO));
-    global_GL->Set(String("BITMAP"), Value(GL_BITMAP));
-    global_GL->Set(String("COLOR"), Value(GL_COLOR));
-    global_GL->Set(String("DEPTH"), Value(GL_DEPTH));
-    global_GL->Set(String("STENCIL"), Value(GL_STENCIL));
-    global_GL->Set(String("DITHER"), Value(GL_DITHER));
-    global_GL->Set(String("RGB"), Value(GL_RGB));
-    global_GL->Set(String("RGBA"), Value(GL_RGBA));
-    global_GL->Set(String("MAX_LIST_NESTING"), Value(GL_MAX_LIST_NESTING));
-    global_GL->Set(String("MAX_EVAL_ORDER"), Value(GL_MAX_EVAL_ORDER));
-    global_GL->Set(String("MAX_LIGHTS"), Value(GL_MAX_LIGHTS));
-    global_GL->Set(String("MAX_CLIP_PLANES"), Value(GL_MAX_CLIP_PLANES));
-    global_GL->Set(String("MAX_TEXTURE_SIZE"), Value(GL_MAX_TEXTURE_SIZE));
-    global_GL->Set(String("MAX_PIXEL_MAP_TABLE"), Value(GL_MAX_PIXEL_MAP_TABLE));
-    global_GL->Set(String("MAX_ATTRIB_STACK_DEPTH"), Value(GL_MAX_ATTRIB_STACK_DEPTH));
-    global_GL->Set(String("MAX_MODELVIEW_STACK_DEPTH"), Value(GL_MAX_MODELVIEW_STACK_DEPTH));
-    global_GL->Set(String("MAX_NAME_STACK_DEPTH"), Value(GL_MAX_NAME_STACK_DEPTH));
-    global_GL->Set(String("MAX_PROJECTION_STACK_DEPTH"), Value(GL_MAX_PROJECTION_STACK_DEPTH));
-    global_GL->Set(String("MAX_TEXTURE_STACK_DEPTH"), Value(GL_MAX_TEXTURE_STACK_DEPTH));
-    global_GL->Set(String("MAX_VIEWPORT_DIMS"), Value(GL_MAX_VIEWPORT_DIMS));
-    global_GL->Set(String("MAX_CLIENT_ATTRIB_STACK_DEPTH"), Value(GL_MAX_CLIENT_ATTRIB_STACK_DEPTH));
-    global_GL->Set(String("ATTRIB_STACK_DEPTH"), Value(GL_ATTRIB_STACK_DEPTH));
-    global_GL->Set(String("CLIENT_ATTRIB_STACK_DEPTH"), Value(GL_CLIENT_ATTRIB_STACK_DEPTH));
-    global_GL->Set(String("COLOR_CLEAR_VALUE"), Value(GL_COLOR_CLEAR_VALUE));
-    global_GL->Set(String("COLOR_WRITEMASK"), Value(GL_COLOR_WRITEMASK));
-    global_GL->Set(String("CURRENT_INDEX"), Value(GL_CURRENT_INDEX));
-    global_GL->Set(String("CURRENT_COLOR"), Value(GL_CURRENT_COLOR));
-    global_GL->Set(String("CURRENT_NORMAL"), Value(GL_CURRENT_NORMAL));
-    global_GL->Set(String("CURRENT_RASTER_COLOR"), Value(GL_CURRENT_RASTER_COLOR));
-    global_GL->Set(String("CURRENT_RASTER_DISTANCE"), Value(GL_CURRENT_RASTER_DISTANCE));
-    global_GL->Set(String("CURRENT_RASTER_INDEX"), Value(GL_CURRENT_RASTER_INDEX));
-    global_GL->Set(String("CURRENT_RASTER_POSITION"), Value(GL_CURRENT_RASTER_POSITION));
-    global_GL->Set(String("CURRENT_RASTER_TEXTURE_COORDS"), Value(GL_CURRENT_RASTER_TEXTURE_COORDS));
-    global_GL->Set(String("CURRENT_RASTER_POSITION_VALID"), Value(GL_CURRENT_RASTER_POSITION_VALID));
-    global_GL->Set(String("CURRENT_TEXTURE_COORDS"), Value(GL_CURRENT_TEXTURE_COORDS));
-    global_GL->Set(String("INDEX_CLEAR_VALUE"), Value(GL_INDEX_CLEAR_VALUE));
-    global_GL->Set(String("INDEX_MODE"), Value(GL_INDEX_MODE));
-    global_GL->Set(String("INDEX_WRITEMASK"), Value(GL_INDEX_WRITEMASK));
-    global_GL->Set(String("MODELVIEW_MATRIX"), Value(GL_MODELVIEW_MATRIX));
-    global_GL->Set(String("MODELVIEW_STACK_DEPTH"), Value(GL_MODELVIEW_STACK_DEPTH));
-    global_GL->Set(String("NAME_STACK_DEPTH"), Value(GL_NAME_STACK_DEPTH));
-    global_GL->Set(String("PROJECTION_MATRIX"), Value(GL_PROJECTION_MATRIX));
-    global_GL->Set(String("PROJECTION_STACK_DEPTH"), Value(GL_PROJECTION_STACK_DEPTH));
-    global_GL->Set(String("RENDER_MODE"), Value(GL_RENDER_MODE));
-    global_GL->Set(String("RGBA_MODE"), Value(GL_RGBA_MODE));
-    global_GL->Set(String("TEXTURE_MATRIX"), Value(GL_TEXTURE_MATRIX));
-    global_GL->Set(String("TEXTURE_STACK_DEPTH"), Value(GL_TEXTURE_STACK_DEPTH));
-    global_GL->Set(String("VIEWPORT"), Value(GL_VIEWPORT));
-    global_GL->Set(String("AUTO_NORMAL"), Value(GL_AUTO_NORMAL));
-    global_GL->Set(String("MAP1_COLOR_4"), Value(GL_MAP1_COLOR_4));
-    global_GL->Set(String("MAP1_INDEX"), Value(GL_MAP1_INDEX));
-    global_GL->Set(String("MAP1_NORMAL"), Value(GL_MAP1_NORMAL));
-    global_GL->Set(String("MAP1_TEXTURE_COORD_1"), Value(GL_MAP1_TEXTURE_COORD_1));
-    global_GL->Set(String("MAP1_TEXTURE_COORD_2"), Value(GL_MAP1_TEXTURE_COORD_2));
-    global_GL->Set(String("MAP1_TEXTURE_COORD_3"), Value(GL_MAP1_TEXTURE_COORD_3));
-    global_GL->Set(String("MAP1_TEXTURE_COORD_4"), Value(GL_MAP1_TEXTURE_COORD_4));
-    global_GL->Set(String("MAP1_VERTEX_3"), Value(GL_MAP1_VERTEX_3));
-    global_GL->Set(String("MAP1_VERTEX_4"), Value(GL_MAP1_VERTEX_4));
-    global_GL->Set(String("MAP2_COLOR_4"), Value(GL_MAP2_COLOR_4));
-    global_GL->Set(String("MAP2_INDEX"), Value(GL_MAP2_INDEX));
-    global_GL->Set(String("MAP2_NORMAL"), Value(GL_MAP2_NORMAL));
-    global_GL->Set(String("MAP2_TEXTURE_COORD_1"), Value(GL_MAP2_TEXTURE_COORD_1));
-    global_GL->Set(String("MAP2_TEXTURE_COORD_2"), Value(GL_MAP2_TEXTURE_COORD_2));
-    global_GL->Set(String("MAP2_TEXTURE_COORD_3"), Value(GL_MAP2_TEXTURE_COORD_3));
-    global_GL->Set(String("MAP2_TEXTURE_COORD_4"), Value(GL_MAP2_TEXTURE_COORD_4));
-    global_GL->Set(String("MAP2_VERTEX_3"), Value(GL_MAP2_VERTEX_3));
-    global_GL->Set(String("MAP2_VERTEX_4"), Value(GL_MAP2_VERTEX_4));
-    global_GL->Set(String("MAP1_GRID_DOMAIN"), Value(GL_MAP1_GRID_DOMAIN));
-    global_GL->Set(String("MAP1_GRID_SEGMENTS"), Value(GL_MAP1_GRID_SEGMENTS));
-    global_GL->Set(String("MAP2_GRID_DOMAIN"), Value(GL_MAP2_GRID_DOMAIN));
-    global_GL->Set(String("MAP2_GRID_SEGMENTS"), Value(GL_MAP2_GRID_SEGMENTS));
-    global_GL->Set(String("COEFF"), Value(GL_COEFF));
-    global_GL->Set(String("ORDER"), Value(GL_ORDER));
-    global_GL->Set(String("DOMAIN"), Value(GL_DOMAIN));
-    global_GL->Set(String("PERSPECTIVE_CORRECTION_HINT"), Value(GL_PERSPECTIVE_CORRECTION_HINT));
-    global_GL->Set(String("POINT_SMOOTH_HINT"), Value(GL_POINT_SMOOTH_HINT));
-    global_GL->Set(String("LINE_SMOOTH_HINT"), Value(GL_LINE_SMOOTH_HINT));
-    global_GL->Set(String("POLYGON_SMOOTH_HINT"), Value(GL_POLYGON_SMOOTH_HINT));
-    global_GL->Set(String("FOG_HINT"), Value(GL_FOG_HINT));
-    global_GL->Set(String("DONT_CARE"), Value(GL_DONT_CARE));
-    global_GL->Set(String("FASTEST"), Value(GL_FASTEST));
-    global_GL->Set(String("NICEST"), Value(GL_NICEST));
-    global_GL->Set(String("SCISSOR_BOX"), Value(GL_SCISSOR_BOX));
-    global_GL->Set(String("SCISSOR_TEST"), Value(GL_SCISSOR_TEST));
-    global_GL->Set(String("MAP_COLOR"), Value(GL_MAP_COLOR));
-    global_GL->Set(String("MAP_STENCIL"), Value(GL_MAP_STENCIL));
-    global_GL->Set(String("INDEX_SHIFT"), Value(GL_INDEX_SHIFT));
-    global_GL->Set(String("INDEX_OFFSET"), Value(GL_INDEX_OFFSET));
-    global_GL->Set(String("RED_SCALE"), Value(GL_RED_SCALE));
-    global_GL->Set(String("RED_BIAS"), Value(GL_RED_BIAS));
-    global_GL->Set(String("GREEN_SCALE"), Value(GL_GREEN_SCALE));
-    global_GL->Set(String("GREEN_BIAS"), Value(GL_GREEN_BIAS));
-    global_GL->Set(String("BLUE_SCALE"), Value(GL_BLUE_SCALE));
-    global_GL->Set(String("BLUE_BIAS"), Value(GL_BLUE_BIAS));
-    global_GL->Set(String("ALPHA_SCALE"), Value(GL_ALPHA_SCALE));
-    global_GL->Set(String("ALPHA_BIAS"), Value(GL_ALPHA_BIAS));
-    global_GL->Set(String("DEPTH_SCALE"), Value(GL_DEPTH_SCALE));
-    global_GL->Set(String("DEPTH_BIAS"), Value(GL_DEPTH_BIAS));
-    global_GL->Set(String("PIXEL_MAP_S_TO_S_SIZE"), Value(GL_PIXEL_MAP_S_TO_S_SIZE));
-    global_GL->Set(String("PIXEL_MAP_I_TO_I_SIZE"), Value(GL_PIXEL_MAP_I_TO_I_SIZE));
-    global_GL->Set(String("PIXEL_MAP_I_TO_R_SIZE"), Value(GL_PIXEL_MAP_I_TO_R_SIZE));
-    global_GL->Set(String("PIXEL_MAP_I_TO_G_SIZE"), Value(GL_PIXEL_MAP_I_TO_G_SIZE));
-    global_GL->Set(String("PIXEL_MAP_I_TO_B_SIZE"), Value(GL_PIXEL_MAP_I_TO_B_SIZE));
-    global_GL->Set(String("PIXEL_MAP_I_TO_A_SIZE"), Value(GL_PIXEL_MAP_I_TO_A_SIZE));
-    global_GL->Set(String("PIXEL_MAP_R_TO_R_SIZE"), Value(GL_PIXEL_MAP_R_TO_R_SIZE));
-    global_GL->Set(String("PIXEL_MAP_G_TO_G_SIZE"), Value(GL_PIXEL_MAP_G_TO_G_SIZE));
-    global_GL->Set(String("PIXEL_MAP_B_TO_B_SIZE"), Value(GL_PIXEL_MAP_B_TO_B_SIZE));
-    global_GL->Set(String("PIXEL_MAP_A_TO_A_SIZE"), Value(GL_PIXEL_MAP_A_TO_A_SIZE));
-    global_GL->Set(String("PIXEL_MAP_S_TO_S"), Value(GL_PIXEL_MAP_S_TO_S));
-    global_GL->Set(String("PIXEL_MAP_I_TO_I"), Value(GL_PIXEL_MAP_I_TO_I));
-    global_GL->Set(String("PIXEL_MAP_I_TO_R"), Value(GL_PIXEL_MAP_I_TO_R));
-    global_GL->Set(String("PIXEL_MAP_I_TO_G"), Value(GL_PIXEL_MAP_I_TO_G));
-    global_GL->Set(String("PIXEL_MAP_I_TO_B"), Value(GL_PIXEL_MAP_I_TO_B));
-    global_GL->Set(String("PIXEL_MAP_I_TO_A"), Value(GL_PIXEL_MAP_I_TO_A));
-    global_GL->Set(String("PIXEL_MAP_R_TO_R"), Value(GL_PIXEL_MAP_R_TO_R));
-    global_GL->Set(String("PIXEL_MAP_G_TO_G"), Value(GL_PIXEL_MAP_G_TO_G));
-    global_GL->Set(String("PIXEL_MAP_B_TO_B"), Value(GL_PIXEL_MAP_B_TO_B));
-    global_GL->Set(String("PIXEL_MAP_A_TO_A"), Value(GL_PIXEL_MAP_A_TO_A));
-    global_GL->Set(String("PACK_ALIGNMENT"), Value(GL_PACK_ALIGNMENT));
-    global_GL->Set(String("PACK_LSB_FIRST"), Value(GL_PACK_LSB_FIRST));
-    global_GL->Set(String("PACK_ROW_LENGTH"), Value(GL_PACK_ROW_LENGTH));
-    global_GL->Set(String("PACK_SKIP_PIXELS"), Value(GL_PACK_SKIP_PIXELS));
-    global_GL->Set(String("PACK_SKIP_ROWS"), Value(GL_PACK_SKIP_ROWS));
-    global_GL->Set(String("PACK_SWAP_BYTES"), Value(GL_PACK_SWAP_BYTES));
-    global_GL->Set(String("UNPACK_ALIGNMENT"), Value(GL_UNPACK_ALIGNMENT));
-    global_GL->Set(String("UNPACK_LSB_FIRST"), Value(GL_UNPACK_LSB_FIRST));
-    global_GL->Set(String("UNPACK_ROW_LENGTH"), Value(GL_UNPACK_ROW_LENGTH));
-    global_GL->Set(String("UNPACK_SKIP_PIXELS"), Value(GL_UNPACK_SKIP_PIXELS));
-    global_GL->Set(String("UNPACK_SKIP_ROWS"), Value(GL_UNPACK_SKIP_ROWS));
-    global_GL->Set(String("UNPACK_SWAP_BYTES"), Value(GL_UNPACK_SWAP_BYTES));
-    global_GL->Set(String("ZOOM_X"), Value(GL_ZOOM_X));
-    global_GL->Set(String("ZOOM_Y"), Value(GL_ZOOM_Y));
-    global_GL->Set(String("TEXTURE_ENV"), Value(GL_TEXTURE_ENV));
-    global_GL->Set(String("TEXTURE_ENV_MODE"), Value(GL_TEXTURE_ENV_MODE));
-    global_GL->Set(String("TEXTURE_1D"), Value(GL_TEXTURE_1D));
-    global_GL->Set(String("TEXTURE_2D"), Value(GL_TEXTURE_2D));
-    global_GL->Set(String("TEXTURE_WRAP_S"), Value(GL_TEXTURE_WRAP_S));
-    global_GL->Set(String("TEXTURE_WRAP_T"), Value(GL_TEXTURE_WRAP_T));
-    global_GL->Set(String("TEXTURE_MAG_FILTER"), Value(GL_TEXTURE_MAG_FILTER));
-    global_GL->Set(String("TEXTURE_MIN_FILTER"), Value(GL_TEXTURE_MIN_FILTER));
-    global_GL->Set(String("TEXTURE_ENV_COLOR"), Value(GL_TEXTURE_ENV_COLOR));
-    global_GL->Set(String("TEXTURE_GEN_S"), Value(GL_TEXTURE_GEN_S));
-    global_GL->Set(String("TEXTURE_GEN_T"), Value(GL_TEXTURE_GEN_T));
-    global_GL->Set(String("TEXTURE_GEN_MODE"), Value(GL_TEXTURE_GEN_MODE));
-    global_GL->Set(String("TEXTURE_BORDER_COLOR"), Value(GL_TEXTURE_BORDER_COLOR));
-    global_GL->Set(String("TEXTURE_WIDTH"), Value(GL_TEXTURE_WIDTH));
-    global_GL->Set(String("TEXTURE_HEIGHT"), Value(GL_TEXTURE_HEIGHT));
-    global_GL->Set(String("TEXTURE_BORDER"), Value(GL_TEXTURE_BORDER));
-    global_GL->Set(String("TEXTURE_COMPONENTS"), Value(GL_TEXTURE_COMPONENTS));
-    global_GL->Set(String("TEXTURE_RED_SIZE"), Value(GL_TEXTURE_RED_SIZE));
-    global_GL->Set(String("TEXTURE_GREEN_SIZE"), Value(GL_TEXTURE_GREEN_SIZE));
-    global_GL->Set(String("TEXTURE_BLUE_SIZE"), Value(GL_TEXTURE_BLUE_SIZE));
-    global_GL->Set(String("TEXTURE_ALPHA_SIZE"), Value(GL_TEXTURE_ALPHA_SIZE));
-    global_GL->Set(String("TEXTURE_LUMINANCE_SIZE"), Value(GL_TEXTURE_LUMINANCE_SIZE));
-    global_GL->Set(String("TEXTURE_INTENSITY_SIZE"), Value(GL_TEXTURE_INTENSITY_SIZE));
-    global_GL->Set(String("NEAREST_MIPMAP_NEAREST"), Value(GL_NEAREST_MIPMAP_NEAREST));
-    global_GL->Set(String("NEAREST_MIPMAP_LINEAR"), Value(GL_NEAREST_MIPMAP_LINEAR));
-    global_GL->Set(String("LINEAR_MIPMAP_NEAREST"), Value(GL_LINEAR_MIPMAP_NEAREST));
-    global_GL->Set(String("LINEAR_MIPMAP_LINEAR"), Value(GL_LINEAR_MIPMAP_LINEAR));
-    global_GL->Set(String("OBJECT_LINEAR"), Value(GL_OBJECT_LINEAR));
-    global_GL->Set(String("OBJECT_PLANE"), Value(GL_OBJECT_PLANE));
-    global_GL->Set(String("EYE_LINEAR"), Value(GL_EYE_LINEAR));
-    global_GL->Set(String("EYE_PLANE"), Value(GL_EYE_PLANE));
-    global_GL->Set(String("SPHERE_MAP"), Value(GL_SPHERE_MAP));
-    global_GL->Set(String("DECAL"), Value(GL_DECAL));
-    global_GL->Set(String("MODULATE"), Value(GL_MODULATE));
-    global_GL->Set(String("NEAREST"), Value(GL_NEAREST));
-    global_GL->Set(String("REPEAT"), Value(GL_REPEAT));
-    global_GL->Set(String("CLAMP"), Value(GL_CLAMP));
-    global_GL->Set(String("S"), Value(GL_S));
-    global_GL->Set(String("T"), Value(GL_T));
-    global_GL->Set(String("R"), Value(GL_R));
-    global_GL->Set(String("Q"), Value(GL_Q));
-    global_GL->Set(String("TEXTURE_GEN_R"), Value(GL_TEXTURE_GEN_R));
-    global_GL->Set(String("TEXTURE_GEN_Q"), Value(GL_TEXTURE_GEN_Q));
-    global_GL->Set(String("VENDOR"), Value(GL_VENDOR));
-    global_GL->Set(String("RENDERER"), Value(GL_RENDERER));
-    global_GL->Set(String("VERSION"), Value(GL_VERSION));
-    global_GL->Set(String("EXTENSIONS"), Value(GL_EXTENSIONS));
-    global_GL->Set(String("NO_ERROR"), Value(GL_NO_ERROR));
-    global_GL->Set(String("INVALID_ENUM"), Value(GL_INVALID_ENUM));
-    global_GL->Set(String("INVALID_VALUE"), Value(GL_INVALID_VALUE));
-    global_GL->Set(String("INVALID_OPERATION"), Value(GL_INVALID_OPERATION));
-    global_GL->Set(String("STACK_OVERFLOW"), Value(GL_STACK_OVERFLOW));
-    global_GL->Set(String("STACK_UNDERFLOW"), Value(GL_STACK_UNDERFLOW));
-    global_GL->Set(String("OUT_OF_MEMORY"), Value(GL_OUT_OF_MEMORY));
-    global_GL->Set(String("CURRENT_BIT"), Value(GL_CURRENT_BIT));
-    global_GL->Set(String("POINT_BIT"), Value(GL_POINT_BIT));
-    global_GL->Set(String("LINE_BIT"), Value(GL_LINE_BIT));
-    global_GL->Set(String("POLYGON_BIT"), Value(GL_POLYGON_BIT));
-    global_GL->Set(String("POLYGON_STIPPLE_BIT"), Value(GL_POLYGON_STIPPLE_BIT));
-    global_GL->Set(String("PIXEL_MODE_BIT"), Value(GL_PIXEL_MODE_BIT));
-    global_GL->Set(String("LIGHTING_BIT"), Value(GL_LIGHTING_BIT));
-    global_GL->Set(String("FOG_BIT"), Value(GL_FOG_BIT));
-    global_GL->Set(String("DEPTH_BUFFER_BIT"), Value(GL_DEPTH_BUFFER_BIT));
-    global_GL->Set(String("ACCUM_BUFFER_BIT"), Value(GL_ACCUM_BUFFER_BIT));
-    global_GL->Set(String("STENCIL_BUFFER_BIT"), Value(GL_STENCIL_BUFFER_BIT));
-    global_GL->Set(String("VIEWPORT_BIT"), Value(GL_VIEWPORT_BIT));
-    global_GL->Set(String("TRANSFORM_BIT"), Value(GL_TRANSFORM_BIT));
-    global_GL->Set(String("ENABLE_BIT"), Value(GL_ENABLE_BIT));
-    global_GL->Set(String("COLOR_BUFFER_BIT"), Value(GL_COLOR_BUFFER_BIT));
-    global_GL->Set(String("HINT_BIT"), Value(GL_HINT_BIT));
-    global_GL->Set(String("EVAL_BIT"), Value(GL_EVAL_BIT));
-    global_GL->Set(String("LIST_BIT"), Value(GL_LIST_BIT));
-    global_GL->Set(String("TEXTURE_BIT"), Value(GL_TEXTURE_BIT));
-    global_GL->Set(String("SCISSOR_BIT"), Value(GL_SCISSOR_BIT));
-    global_GL->Set(String("ALL_ATTRIB_BITS"), Value(GL_ALL_ATTRIB_BITS));
-    global_GL->Set(String("PROXY_TEXTURE_1D"), Value(GL_PROXY_TEXTURE_1D));
-    global_GL->Set(String("PROXY_TEXTURE_2D"), Value(GL_PROXY_TEXTURE_2D));
-    global_GL->Set(String("TEXTURE_PRIORITY"), Value(GL_TEXTURE_PRIORITY));
-    global_GL->Set(String("TEXTURE_RESIDENT"), Value(GL_TEXTURE_RESIDENT));
-    global_GL->Set(String("TEXTURE_BINDING_1D"), Value(GL_TEXTURE_BINDING_1D));
-    global_GL->Set(String("TEXTURE_BINDING_2D"), Value(GL_TEXTURE_BINDING_2D));
-    global_GL->Set(String("TEXTURE_INTERNAL_FORMAT"), Value(GL_TEXTURE_INTERNAL_FORMAT));
-    global_GL->Set(String("ALPHA4"), Value(GL_ALPHA4));
-    global_GL->Set(String("ALPHA8"), Value(GL_ALPHA8));
-    global_GL->Set(String("ALPHA12"), Value(GL_ALPHA12));
-    global_GL->Set(String("ALPHA16"), Value(GL_ALPHA16));
-    global_GL->Set(String("LUMINANCE4"), Value(GL_LUMINANCE4));
-    global_GL->Set(String("LUMINANCE8"), Value(GL_LUMINANCE8));
-    global_GL->Set(String("LUMINANCE12"), Value(GL_LUMINANCE12));
-    global_GL->Set(String("LUMINANCE16"), Value(GL_LUMINANCE16));
-    global_GL->Set(String("LUMINANCE4_ALPHA4"), Value(GL_LUMINANCE4_ALPHA4));
-    global_GL->Set(String("LUMINANCE6_ALPHA2"), Value(GL_LUMINANCE6_ALPHA2));
-    global_GL->Set(String("LUMINANCE8_ALPHA8"), Value(GL_LUMINANCE8_ALPHA8));
-    global_GL->Set(String("LUMINANCE12_ALPHA4"), Value(GL_LUMINANCE12_ALPHA4));
-    global_GL->Set(String("LUMINANCE12_ALPHA12"), Value(GL_LUMINANCE12_ALPHA12));
-    global_GL->Set(String("LUMINANCE16_ALPHA16"), Value(GL_LUMINANCE16_ALPHA16));
-    global_GL->Set(String("INTENSITY"), Value(GL_INTENSITY));
-    global_GL->Set(String("INTENSITY4"), Value(GL_INTENSITY4));
-    global_GL->Set(String("INTENSITY8"), Value(GL_INTENSITY8));
-    global_GL->Set(String("INTENSITY12"), Value(GL_INTENSITY12));
-    global_GL->Set(String("INTENSITY16"), Value(GL_INTENSITY16));
-    global_GL->Set(String("R3_G3_B2"), Value(GL_R3_G3_B2));
-    global_GL->Set(String("RGB4"), Value(GL_RGB4));
-    global_GL->Set(String("RGB5"), Value(GL_RGB5));
-    global_GL->Set(String("RGB8"), Value(GL_RGB8));
-    global_GL->Set(String("RGB10"), Value(GL_RGB10));
-    global_GL->Set(String("RGB12"), Value(GL_RGB12));
-    global_GL->Set(String("RGB16"), Value(GL_RGB16));
-    global_GL->Set(String("RGBA2"), Value(GL_RGBA2));
-    global_GL->Set(String("RGBA4"), Value(GL_RGBA4));
-    global_GL->Set(String("RGB5_A1"), Value(GL_RGB5_A1));
-    global_GL->Set(String("RGBA8"), Value(GL_RGBA8));
-    global_GL->Set(String("RGB10_A2"), Value(GL_RGB10_A2));
-    global_GL->Set(String("RGBA12"), Value(GL_RGBA12));
-    global_GL->Set(String("RGBA16"), Value(GL_RGBA16));
-    global_GL->Set(String("CLIENT_PIXEL_STORE_BIT"), Value(GL_CLIENT_PIXEL_STORE_BIT));
-    global_GL->Set(String("CLIENT_VERTEX_ARRAY_BIT"), Value(GL_CLIENT_VERTEX_ARRAY_BIT));
-    global_GL->Set(String("CLIENT_ALL_ATTRIB_BITS"), Value(GL_CLIENT_ALL_ATTRIB_BITS));
+#line 674 "src/modules/GL.cc"
+static void _setup_GL(Value _exports) {
+    _exports["initWindow"] = Function(_GL_initWindow, "initWindow");
+    _exports["mainLoop"] = Function(_GL_mainLoop, "mainLoop");
+    _exports["addTimer"] = Function(_GL_addTimer, "addTimer");
+    _exports["cancelTimer"] = Function(_GL_cancelTimer, "cancelTimer");
+    _exports["ignoreKeyRepeat"] = Function(_GL_ignoreKeyRepeat, "ignoreKeyRepeat");
+    _exports["warpPointer"] = Function(_GL_warpPointer, "warpPointer");
+    _exports["setCursor"] = Function(_GL_setCursor, "setCursor");
+    _exports["swapBuffers"] = Function(_GL_swapBuffers, "swapBuffers");
+    _exports["postRedisplay"] = Function(_GL_postRedisplay, "postRedisplay");
+    _exports["bitmapCharacter"] = Function(_GL_bitmapCharacter, "bitmapCharacter");
+    _exports["perspective"] = Function(_GL_perspective, "perspective");
+    _exports["ortho2D"] = Function(_GL_ortho2D, "ortho2D");
+    _exports["lookAt"] = Function(_GL_lookAt, "lookAt");
+    _exports["makeFloatArray"] = Function(_GL_makeFloatArray, "makeFloatArray");
+    _exports["makeUInt32Array"] = Function(_GL_makeUInt32Array, "makeUInt32Array");
+    _exports["drawElements"] = Function(_GL_drawElements, "drawElements");
+    _exports["vertexPointer"] = Function(_GL_vertexPointer, "vertexPointer");
+    _exports["normalPointer"] = Function(_GL_normalPointer, "normalPointer");
+    _exports["texCoordPointer"] = Function(_GL_texCoordPointer, "texCoordPointer");
+    _exports["enableClientState"] = Function(_GL_enableClientState, "enableClientState");
+    _exports["enable"] = Function(_GL_enable, "enable");
+    _exports["disable"] = Function(_GL_disable, "disable");
+    _exports["hint"] = Function(_GL_hint, "hint");
+    _exports["shadeModel"] = Function(_GL_shadeModel, "shadeModel");
+    _exports["flush"] = Function(_GL_flush, "flush");
+    _exports["loadIdentity"] = Function(_GL_loadIdentity, "loadIdentity");
+    _exports["clearColor"] = Function(_GL_clearColor, "clearColor");
+    _exports["clear"] = Function(_GL_clear, "clear");
+    _exports["viewport"] = Function(_GL_viewport, "viewport");
+    _exports["matrixMode"] = Function(_GL_matrixMode, "matrixMode");
+    _exports["pushMatrix"] = Function(_GL_pushMatrix, "pushMatrix");
+    _exports["popMatrix"] = Function(_GL_popMatrix, "popMatrix");
+    _exports["translate"] = Function(_GL_translate, "translate");
+    _exports["scale"] = Function(_GL_scale, "scale");
+    _exports["rotate"] = Function(_GL_rotate, "rotate");
+    _exports["color"] = Function(_GL_color, "color");
+    _exports["fog"] = Function(_GL_fog, "fog");
+    _exports["light"] = Function(_GL_light, "light");
+    _exports["material"] = Function(_GL_material, "material");
+    _exports["begin"] = Function(_GL_begin, "begin");
+    _exports["end"] = Function(_GL_end, "end");
+    _exports["vertex"] = Function(_GL_vertex, "vertex");
+    _exports["normal"] = Function(_GL_normal, "normal");
+    _exports["rasterPos"] = Function(_GL_rasterPos, "rasterPos");
+    _exports["toString"] = Function(_GL_toString, "toString");
+    _exports["CURSOR_RIGHT_ARROW"] = Value(GLUT_CURSOR_RIGHT_ARROW);
+    _exports["CURSOR_LEFT_ARROW"] = Value(GLUT_CURSOR_LEFT_ARROW);
+    _exports["CURSOR_INFO"] = Value(GLUT_CURSOR_INFO);
+    _exports["CURSOR_DESTROY"] = Value(GLUT_CURSOR_DESTROY);
+    _exports["CURSOR_HELP"] = Value(GLUT_CURSOR_HELP);
+    _exports["CURSOR_CYCLE"] = Value(GLUT_CURSOR_CYCLE);
+    _exports["CURSOR_SPRAY"] = Value(GLUT_CURSOR_SPRAY);
+    _exports["CURSOR_WAIT"] = Value(GLUT_CURSOR_WAIT);
+    _exports["CURSOR_TEXT"] = Value(GLUT_CURSOR_TEXT);
+    _exports["CURSOR_CROSSHAIR"] = Value(GLUT_CURSOR_CROSSHAIR);
+    _exports["CURSOR_UP_DOWN"] = Value(GLUT_CURSOR_UP_DOWN);
+    _exports["CURSOR_LEFT_RIGHT"] = Value(GLUT_CURSOR_LEFT_RIGHT);
+    _exports["CURSOR_TOP_SIDE"] = Value(GLUT_CURSOR_TOP_SIDE);
+    _exports["CURSOR_BOTTOM_SIDE"] = Value(GLUT_CURSOR_BOTTOM_SIDE);
+    _exports["CURSOR_LEFT_SIDE"] = Value(GLUT_CURSOR_LEFT_SIDE);
+    _exports["CURSOR_RIGHT_SIDE"] = Value(GLUT_CURSOR_RIGHT_SIDE);
+    _exports["CURSOR_TOP_LEFT_CORNER"] = Value(GLUT_CURSOR_TOP_LEFT_CORNER);
+    _exports["CURSOR_TOP_RIGHT_CORNER"] = Value(GLUT_CURSOR_TOP_RIGHT_CORNER);
+    _exports["CURSOR_BOTTOM_RIGHT_CORNER"] = Value(GLUT_CURSOR_BOTTOM_RIGHT_CORNER);
+    _exports["CURSOR_BOTTOM_LEFT_CORNER"] = Value(GLUT_CURSOR_BOTTOM_LEFT_CORNER);
+    _exports["CURSOR_INHERIT"] = Value(GLUT_CURSOR_INHERIT);
+    _exports["CURSOR_NONE"] = Value(GLUT_CURSOR_NONE);
+    _exports["CURSOR_FULL_CROSSHAIR"] = Value(GLUT_CURSOR_FULL_CROSSHAIR);
+    _exports["FALSE"] = Value(GL_FALSE);
+    _exports["TRUE"] = Value(GL_TRUE);
+    _exports["BYTE"] = Value(GL_BYTE);
+    _exports["UNSIGNED_BYTE"] = Value(GL_UNSIGNED_BYTE);
+    _exports["SHORT"] = Value(GL_SHORT);
+    _exports["UNSIGNED_SHORT"] = Value(GL_UNSIGNED_SHORT);
+    _exports["INT"] = Value(GL_INT);
+    _exports["UNSIGNED_INT"] = Value(GL_UNSIGNED_INT);
+    _exports["FLOAT"] = Value(GL_FLOAT);
+    _exports["DOUBLE"] = Value(GL_DOUBLE);
+    _exports["POINTS"] = Value(GL_POINTS);
+    _exports["LINES"] = Value(GL_LINES);
+    _exports["LINE_LOOP"] = Value(GL_LINE_LOOP);
+    _exports["LINE_STRIP"] = Value(GL_LINE_STRIP);
+    _exports["TRIANGLES"] = Value(GL_TRIANGLES);
+    _exports["TRIANGLE_STRIP"] = Value(GL_TRIANGLE_STRIP);
+    _exports["TRIANGLE_FAN"] = Value(GL_TRIANGLE_FAN);
+    _exports["QUADS"] = Value(GL_QUADS);
+    _exports["QUAD_STRIP"] = Value(GL_QUAD_STRIP);
+    _exports["POLYGON"] = Value(GL_POLYGON);
+    _exports["VERTEX_ARRAY"] = Value(GL_VERTEX_ARRAY);
+    _exports["NORMAL_ARRAY"] = Value(GL_NORMAL_ARRAY);
+    _exports["COLOR_ARRAY"] = Value(GL_COLOR_ARRAY);
+    _exports["INDEX_ARRAY"] = Value(GL_INDEX_ARRAY);
+    _exports["TEXTURE_COORD_ARRAY"] = Value(GL_TEXTURE_COORD_ARRAY);
+    _exports["EDGE_FLAG_ARRAY"] = Value(GL_EDGE_FLAG_ARRAY);
+    _exports["VERTEX_ARRAY_SIZE"] = Value(GL_VERTEX_ARRAY_SIZE);
+    _exports["VERTEX_ARRAY_TYPE"] = Value(GL_VERTEX_ARRAY_TYPE);
+    _exports["VERTEX_ARRAY_STRIDE"] = Value(GL_VERTEX_ARRAY_STRIDE);
+    _exports["NORMAL_ARRAY_TYPE"] = Value(GL_NORMAL_ARRAY_TYPE);
+    _exports["NORMAL_ARRAY_STRIDE"] = Value(GL_NORMAL_ARRAY_STRIDE);
+    _exports["COLOR_ARRAY_SIZE"] = Value(GL_COLOR_ARRAY_SIZE);
+    _exports["COLOR_ARRAY_TYPE"] = Value(GL_COLOR_ARRAY_TYPE);
+    _exports["COLOR_ARRAY_STRIDE"] = Value(GL_COLOR_ARRAY_STRIDE);
+    _exports["INDEX_ARRAY_TYPE"] = Value(GL_INDEX_ARRAY_TYPE);
+    _exports["INDEX_ARRAY_STRIDE"] = Value(GL_INDEX_ARRAY_STRIDE);
+    _exports["TEXTURE_COORD_ARRAY_SIZE"] = Value(GL_TEXTURE_COORD_ARRAY_SIZE);
+    _exports["TEXTURE_COORD_ARRAY_TYPE"] = Value(GL_TEXTURE_COORD_ARRAY_TYPE);
+    _exports["TEXTURE_COORD_ARRAY_STRIDE"] = Value(GL_TEXTURE_COORD_ARRAY_STRIDE);
+    _exports["EDGE_FLAG_ARRAY_STRIDE"] = Value(GL_EDGE_FLAG_ARRAY_STRIDE);
+    _exports["VERTEX_ARRAY_POINTER"] = Value(GL_VERTEX_ARRAY_POINTER);
+    _exports["NORMAL_ARRAY_POINTER"] = Value(GL_NORMAL_ARRAY_POINTER);
+    _exports["COLOR_ARRAY_POINTER"] = Value(GL_COLOR_ARRAY_POINTER);
+    _exports["INDEX_ARRAY_POINTER"] = Value(GL_INDEX_ARRAY_POINTER);
+    _exports["TEXTURE_COORD_ARRAY_POINTER"] = Value(GL_TEXTURE_COORD_ARRAY_POINTER);
+    _exports["EDGE_FLAG_ARRAY_POINTER"] = Value(GL_EDGE_FLAG_ARRAY_POINTER);
+    _exports["V2F"] = Value(GL_V2F);
+    _exports["V3F"] = Value(GL_V3F);
+    _exports["C4UB_V2F"] = Value(GL_C4UB_V2F);
+    _exports["C4UB_V3F"] = Value(GL_C4UB_V3F);
+    _exports["C3F_V3F"] = Value(GL_C3F_V3F);
+    _exports["N3F_V3F"] = Value(GL_N3F_V3F);
+    _exports["C4F_N3F_V3F"] = Value(GL_C4F_N3F_V3F);
+    _exports["T2F_V3F"] = Value(GL_T2F_V3F);
+    _exports["T4F_V4F"] = Value(GL_T4F_V4F);
+    _exports["T2F_C4UB_V3F"] = Value(GL_T2F_C4UB_V3F);
+    _exports["T2F_C3F_V3F"] = Value(GL_T2F_C3F_V3F);
+    _exports["T2F_N3F_V3F"] = Value(GL_T2F_N3F_V3F);
+    _exports["T2F_C4F_N3F_V3F"] = Value(GL_T2F_C4F_N3F_V3F);
+    _exports["T4F_C4F_N3F_V4F"] = Value(GL_T4F_C4F_N3F_V4F);
+    _exports["MATRIX_MODE"] = Value(GL_MATRIX_MODE);
+    _exports["MODELVIEW"] = Value(GL_MODELVIEW);
+    _exports["PROJECTION"] = Value(GL_PROJECTION);
+    _exports["TEXTURE"] = Value(GL_TEXTURE);
+    _exports["POINT_SMOOTH"] = Value(GL_POINT_SMOOTH);
+    _exports["POINT_SIZE"] = Value(GL_POINT_SIZE);
+    _exports["POINT_SIZE_GRANULARITY"] = Value(GL_POINT_SIZE_GRANULARITY);
+    _exports["POINT_SIZE_RANGE"] = Value(GL_POINT_SIZE_RANGE);
+    _exports["LINE_SMOOTH"] = Value(GL_LINE_SMOOTH);
+    _exports["LINE_STIPPLE"] = Value(GL_LINE_STIPPLE);
+    _exports["LINE_STIPPLE_PATTERN"] = Value(GL_LINE_STIPPLE_PATTERN);
+    _exports["LINE_STIPPLE_REPEAT"] = Value(GL_LINE_STIPPLE_REPEAT);
+    _exports["LINE_WIDTH"] = Value(GL_LINE_WIDTH);
+    _exports["LINE_WIDTH_GRANULARITY"] = Value(GL_LINE_WIDTH_GRANULARITY);
+    _exports["LINE_WIDTH_RANGE"] = Value(GL_LINE_WIDTH_RANGE);
+    _exports["POINT"] = Value(GL_POINT);
+    _exports["LINE"] = Value(GL_LINE);
+    _exports["FILL"] = Value(GL_FILL);
+    _exports["CW"] = Value(GL_CW);
+    _exports["CCW"] = Value(GL_CCW);
+    _exports["FRONT"] = Value(GL_FRONT);
+    _exports["BACK"] = Value(GL_BACK);
+    _exports["POLYGON_MODE"] = Value(GL_POLYGON_MODE);
+    _exports["POLYGON_SMOOTH"] = Value(GL_POLYGON_SMOOTH);
+    _exports["POLYGON_STIPPLE"] = Value(GL_POLYGON_STIPPLE);
+    _exports["EDGE_FLAG"] = Value(GL_EDGE_FLAG);
+    _exports["CULL_FACE"] = Value(GL_CULL_FACE);
+    _exports["CULL_FACE_MODE"] = Value(GL_CULL_FACE_MODE);
+    _exports["FRONT_FACE"] = Value(GL_FRONT_FACE);
+    _exports["POLYGON_OFFSET_FACTOR"] = Value(GL_POLYGON_OFFSET_FACTOR);
+    _exports["POLYGON_OFFSET_UNITS"] = Value(GL_POLYGON_OFFSET_UNITS);
+    _exports["POLYGON_OFFSET_POINT"] = Value(GL_POLYGON_OFFSET_POINT);
+    _exports["POLYGON_OFFSET_LINE"] = Value(GL_POLYGON_OFFSET_LINE);
+    _exports["POLYGON_OFFSET_FILL"] = Value(GL_POLYGON_OFFSET_FILL);
+    _exports["COMPILE"] = Value(GL_COMPILE);
+    _exports["COMPILE_AND_EXECUTE"] = Value(GL_COMPILE_AND_EXECUTE);
+    _exports["LIST_BASE"] = Value(GL_LIST_BASE);
+    _exports["LIST_INDEX"] = Value(GL_LIST_INDEX);
+    _exports["LIST_MODE"] = Value(GL_LIST_MODE);
+    _exports["NEVER"] = Value(GL_NEVER);
+    _exports["LESS"] = Value(GL_LESS);
+    _exports["EQUAL"] = Value(GL_EQUAL);
+    _exports["LEQUAL"] = Value(GL_LEQUAL);
+    _exports["GREATER"] = Value(GL_GREATER);
+    _exports["NOTEQUAL"] = Value(GL_NOTEQUAL);
+    _exports["GEQUAL"] = Value(GL_GEQUAL);
+    _exports["ALWAYS"] = Value(GL_ALWAYS);
+    _exports["DEPTH_TEST"] = Value(GL_DEPTH_TEST);
+    _exports["DEPTH_BITS"] = Value(GL_DEPTH_BITS);
+    _exports["DEPTH_CLEAR_VALUE"] = Value(GL_DEPTH_CLEAR_VALUE);
+    _exports["DEPTH_FUNC"] = Value(GL_DEPTH_FUNC);
+    _exports["DEPTH_RANGE"] = Value(GL_DEPTH_RANGE);
+    _exports["DEPTH_WRITEMASK"] = Value(GL_DEPTH_WRITEMASK);
+    _exports["DEPTH_COMPONENT"] = Value(GL_DEPTH_COMPONENT);
+    _exports["LIGHTING"] = Value(GL_LIGHTING);
+    _exports["LIGHT0"] = Value(GL_LIGHT0);
+    _exports["LIGHT1"] = Value(GL_LIGHT1);
+    _exports["LIGHT2"] = Value(GL_LIGHT2);
+    _exports["LIGHT3"] = Value(GL_LIGHT3);
+    _exports["LIGHT4"] = Value(GL_LIGHT4);
+    _exports["LIGHT5"] = Value(GL_LIGHT5);
+    _exports["LIGHT6"] = Value(GL_LIGHT6);
+    _exports["LIGHT7"] = Value(GL_LIGHT7);
+    _exports["SPOT_EXPONENT"] = Value(GL_SPOT_EXPONENT);
+    _exports["SPOT_CUTOFF"] = Value(GL_SPOT_CUTOFF);
+    _exports["CONSTANT_ATTENUATION"] = Value(GL_CONSTANT_ATTENUATION);
+    _exports["LINEAR_ATTENUATION"] = Value(GL_LINEAR_ATTENUATION);
+    _exports["QUADRATIC_ATTENUATION"] = Value(GL_QUADRATIC_ATTENUATION);
+    _exports["AMBIENT"] = Value(GL_AMBIENT);
+    _exports["DIFFUSE"] = Value(GL_DIFFUSE);
+    _exports["SPECULAR"] = Value(GL_SPECULAR);
+    _exports["SHININESS"] = Value(GL_SHININESS);
+    _exports["EMISSION"] = Value(GL_EMISSION);
+    _exports["POSITION"] = Value(GL_POSITION);
+    _exports["SPOT_DIRECTION"] = Value(GL_SPOT_DIRECTION);
+    _exports["AMBIENT_AND_DIFFUSE"] = Value(GL_AMBIENT_AND_DIFFUSE);
+    _exports["COLOR_INDEXES"] = Value(GL_COLOR_INDEXES);
+    _exports["LIGHT_MODEL_TWO_SIDE"] = Value(GL_LIGHT_MODEL_TWO_SIDE);
+    _exports["LIGHT_MODEL_LOCAL_VIEWER"] = Value(GL_LIGHT_MODEL_LOCAL_VIEWER);
+    _exports["LIGHT_MODEL_AMBIENT"] = Value(GL_LIGHT_MODEL_AMBIENT);
+    _exports["FRONT_AND_BACK"] = Value(GL_FRONT_AND_BACK);
+    _exports["SHADE_MODEL"] = Value(GL_SHADE_MODEL);
+    _exports["FLAT"] = Value(GL_FLAT);
+    _exports["SMOOTH"] = Value(GL_SMOOTH);
+    _exports["COLOR_MATERIAL"] = Value(GL_COLOR_MATERIAL);
+    _exports["COLOR_MATERIAL_FACE"] = Value(GL_COLOR_MATERIAL_FACE);
+    _exports["COLOR_MATERIAL_PARAMETER"] = Value(GL_COLOR_MATERIAL_PARAMETER);
+    _exports["NORMALIZE"] = Value(GL_NORMALIZE);
+    _exports["CLIP_PLANE0"] = Value(GL_CLIP_PLANE0);
+    _exports["CLIP_PLANE1"] = Value(GL_CLIP_PLANE1);
+    _exports["CLIP_PLANE2"] = Value(GL_CLIP_PLANE2);
+    _exports["CLIP_PLANE3"] = Value(GL_CLIP_PLANE3);
+    _exports["CLIP_PLANE4"] = Value(GL_CLIP_PLANE4);
+    _exports["CLIP_PLANE5"] = Value(GL_CLIP_PLANE5);
+    _exports["ACCUM_RED_BITS"] = Value(GL_ACCUM_RED_BITS);
+    _exports["ACCUM_GREEN_BITS"] = Value(GL_ACCUM_GREEN_BITS);
+    _exports["ACCUM_BLUE_BITS"] = Value(GL_ACCUM_BLUE_BITS);
+    _exports["ACCUM_ALPHA_BITS"] = Value(GL_ACCUM_ALPHA_BITS);
+    _exports["ACCUM_CLEAR_VALUE"] = Value(GL_ACCUM_CLEAR_VALUE);
+    _exports["ACCUM"] = Value(GL_ACCUM);
+    _exports["ADD"] = Value(GL_ADD);
+    _exports["LOAD"] = Value(GL_LOAD);
+    _exports["MULT"] = Value(GL_MULT);
+    _exports["RETURN"] = Value(GL_RETURN);
+    _exports["ALPHA_TEST"] = Value(GL_ALPHA_TEST);
+    _exports["ALPHA_TEST_REF"] = Value(GL_ALPHA_TEST_REF);
+    _exports["ALPHA_TEST_FUNC"] = Value(GL_ALPHA_TEST_FUNC);
+    _exports["BLEND"] = Value(GL_BLEND);
+    _exports["BLEND_SRC"] = Value(GL_BLEND_SRC);
+    _exports["BLEND_DST"] = Value(GL_BLEND_DST);
+    _exports["ZERO"] = Value(GL_ZERO);
+    _exports["ONE"] = Value(GL_ONE);
+    _exports["SRC_COLOR"] = Value(GL_SRC_COLOR);
+    _exports["ONE_MINUS_SRC_COLOR"] = Value(GL_ONE_MINUS_SRC_COLOR);
+    _exports["SRC_ALPHA"] = Value(GL_SRC_ALPHA);
+    _exports["ONE_MINUS_SRC_ALPHA"] = Value(GL_ONE_MINUS_SRC_ALPHA);
+    _exports["DST_ALPHA"] = Value(GL_DST_ALPHA);
+    _exports["ONE_MINUS_DST_ALPHA"] = Value(GL_ONE_MINUS_DST_ALPHA);
+    _exports["DST_COLOR"] = Value(GL_DST_COLOR);
+    _exports["ONE_MINUS_DST_COLOR"] = Value(GL_ONE_MINUS_DST_COLOR);
+    _exports["SRC_ALPHA_SATURATE"] = Value(GL_SRC_ALPHA_SATURATE);
+    _exports["FEEDBACK"] = Value(GL_FEEDBACK);
+    _exports["RENDER"] = Value(GL_RENDER);
+    _exports["SELECT"] = Value(GL_SELECT);
+    _exports["POINT_TOKEN"] = Value(GL_POINT_TOKEN);
+    _exports["LINE_TOKEN"] = Value(GL_LINE_TOKEN);
+    _exports["LINE_RESET_TOKEN"] = Value(GL_LINE_RESET_TOKEN);
+    _exports["POLYGON_TOKEN"] = Value(GL_POLYGON_TOKEN);
+    _exports["BITMAP_TOKEN"] = Value(GL_BITMAP_TOKEN);
+    _exports["DRAW_PIXEL_TOKEN"] = Value(GL_DRAW_PIXEL_TOKEN);
+    _exports["COPY_PIXEL_TOKEN"] = Value(GL_COPY_PIXEL_TOKEN);
+    _exports["PASS_THROUGH_TOKEN"] = Value(GL_PASS_THROUGH_TOKEN);
+    _exports["FEEDBACK_BUFFER_POINTER"] = Value(GL_FEEDBACK_BUFFER_POINTER);
+    _exports["FEEDBACK_BUFFER_SIZE"] = Value(GL_FEEDBACK_BUFFER_SIZE);
+    _exports["FEEDBACK_BUFFER_TYPE"] = Value(GL_FEEDBACK_BUFFER_TYPE);
+    _exports["SELECTION_BUFFER_POINTER"] = Value(GL_SELECTION_BUFFER_POINTER);
+    _exports["SELECTION_BUFFER_SIZE"] = Value(GL_SELECTION_BUFFER_SIZE);
+    _exports["FOG"] = Value(GL_FOG);
+    _exports["FOG_MODE"] = Value(GL_FOG_MODE);
+    _exports["FOG_DENSITY"] = Value(GL_FOG_DENSITY);
+    _exports["FOG_COLOR"] = Value(GL_FOG_COLOR);
+    _exports["FOG_INDEX"] = Value(GL_FOG_INDEX);
+    _exports["FOG_START"] = Value(GL_FOG_START);
+    _exports["FOG_END"] = Value(GL_FOG_END);
+    _exports["LINEAR"] = Value(GL_LINEAR);
+    _exports["EXP"] = Value(GL_EXP);
+    _exports["EXP2"] = Value(GL_EXP2);
+    _exports["LOGIC_OP"] = Value(GL_LOGIC_OP);
+    _exports["INDEX_LOGIC_OP"] = Value(GL_INDEX_LOGIC_OP);
+    _exports["COLOR_LOGIC_OP"] = Value(GL_COLOR_LOGIC_OP);
+    _exports["LOGIC_OP_MODE"] = Value(GL_LOGIC_OP_MODE);
+    _exports["CLEAR"] = Value(GL_CLEAR);
+    _exports["SET"] = Value(GL_SET);
+    _exports["COPY"] = Value(GL_COPY);
+    _exports["COPY_INVERTED"] = Value(GL_COPY_INVERTED);
+    _exports["NOOP"] = Value(GL_NOOP);
+    _exports["INVERT"] = Value(GL_INVERT);
+    _exports["AND"] = Value(GL_AND);
+    _exports["NAND"] = Value(GL_NAND);
+    _exports["OR"] = Value(GL_OR);
+    _exports["NOR"] = Value(GL_NOR);
+    _exports["XOR"] = Value(GL_XOR);
+    _exports["EQUIV"] = Value(GL_EQUIV);
+    _exports["AND_REVERSE"] = Value(GL_AND_REVERSE);
+    _exports["AND_INVERTED"] = Value(GL_AND_INVERTED);
+    _exports["OR_REVERSE"] = Value(GL_OR_REVERSE);
+    _exports["OR_INVERTED"] = Value(GL_OR_INVERTED);
+    _exports["STENCIL_BITS"] = Value(GL_STENCIL_BITS);
+    _exports["STENCIL_TEST"] = Value(GL_STENCIL_TEST);
+    _exports["STENCIL_CLEAR_VALUE"] = Value(GL_STENCIL_CLEAR_VALUE);
+    _exports["STENCIL_FUNC"] = Value(GL_STENCIL_FUNC);
+    _exports["STENCIL_VALUE_MASK"] = Value(GL_STENCIL_VALUE_MASK);
+    _exports["STENCIL_FAIL"] = Value(GL_STENCIL_FAIL);
+    _exports["STENCIL_PASS_DEPTH_FAIL"] = Value(GL_STENCIL_PASS_DEPTH_FAIL);
+    _exports["STENCIL_PASS_DEPTH_PASS"] = Value(GL_STENCIL_PASS_DEPTH_PASS);
+    _exports["STENCIL_REF"] = Value(GL_STENCIL_REF);
+    _exports["STENCIL_WRITEMASK"] = Value(GL_STENCIL_WRITEMASK);
+    _exports["STENCIL_INDEX"] = Value(GL_STENCIL_INDEX);
+    _exports["KEEP"] = Value(GL_KEEP);
+    _exports["REPLACE"] = Value(GL_REPLACE);
+    _exports["INCR"] = Value(GL_INCR);
+    _exports["DECR"] = Value(GL_DECR);
+    _exports["NONE"] = Value(GL_NONE);
+    _exports["LEFT"] = Value(GL_LEFT);
+    _exports["RIGHT"] = Value(GL_RIGHT);
+    _exports["FRONT_LEFT"] = Value(GL_FRONT_LEFT);
+    _exports["FRONT_RIGHT"] = Value(GL_FRONT_RIGHT);
+    _exports["BACK_LEFT"] = Value(GL_BACK_LEFT);
+    _exports["BACK_RIGHT"] = Value(GL_BACK_RIGHT);
+    _exports["AUX0"] = Value(GL_AUX0);
+    _exports["AUX1"] = Value(GL_AUX1);
+    _exports["AUX2"] = Value(GL_AUX2);
+    _exports["AUX3"] = Value(GL_AUX3);
+    _exports["COLOR_INDEX"] = Value(GL_COLOR_INDEX);
+    _exports["RED"] = Value(GL_RED);
+    _exports["GREEN"] = Value(GL_GREEN);
+    _exports["BLUE"] = Value(GL_BLUE);
+    _exports["ALPHA"] = Value(GL_ALPHA);
+    _exports["LUMINANCE"] = Value(GL_LUMINANCE);
+    _exports["LUMINANCE_ALPHA"] = Value(GL_LUMINANCE_ALPHA);
+    _exports["ALPHA_BITS"] = Value(GL_ALPHA_BITS);
+    _exports["RED_BITS"] = Value(GL_RED_BITS);
+    _exports["GREEN_BITS"] = Value(GL_GREEN_BITS);
+    _exports["BLUE_BITS"] = Value(GL_BLUE_BITS);
+    _exports["INDEX_BITS"] = Value(GL_INDEX_BITS);
+    _exports["SUBPIXEL_BITS"] = Value(GL_SUBPIXEL_BITS);
+    _exports["AUX_BUFFERS"] = Value(GL_AUX_BUFFERS);
+    _exports["READ_BUFFER"] = Value(GL_READ_BUFFER);
+    _exports["DRAW_BUFFER"] = Value(GL_DRAW_BUFFER);
+    _exports["DOUBLEBUFFER"] = Value(GL_DOUBLEBUFFER);
+    _exports["STEREO"] = Value(GL_STEREO);
+    _exports["BITMAP"] = Value(GL_BITMAP);
+    _exports["COLOR"] = Value(GL_COLOR);
+    _exports["DEPTH"] = Value(GL_DEPTH);
+    _exports["STENCIL"] = Value(GL_STENCIL);
+    _exports["DITHER"] = Value(GL_DITHER);
+    _exports["RGB"] = Value(GL_RGB);
+    _exports["RGBA"] = Value(GL_RGBA);
+    _exports["MAX_LIST_NESTING"] = Value(GL_MAX_LIST_NESTING);
+    _exports["MAX_EVAL_ORDER"] = Value(GL_MAX_EVAL_ORDER);
+    _exports["MAX_LIGHTS"] = Value(GL_MAX_LIGHTS);
+    _exports["MAX_CLIP_PLANES"] = Value(GL_MAX_CLIP_PLANES);
+    _exports["MAX_TEXTURE_SIZE"] = Value(GL_MAX_TEXTURE_SIZE);
+    _exports["MAX_PIXEL_MAP_TABLE"] = Value(GL_MAX_PIXEL_MAP_TABLE);
+    _exports["MAX_ATTRIB_STACK_DEPTH"] = Value(GL_MAX_ATTRIB_STACK_DEPTH);
+    _exports["MAX_MODELVIEW_STACK_DEPTH"] = Value(GL_MAX_MODELVIEW_STACK_DEPTH);
+    _exports["MAX_NAME_STACK_DEPTH"] = Value(GL_MAX_NAME_STACK_DEPTH);
+    _exports["MAX_PROJECTION_STACK_DEPTH"] = Value(GL_MAX_PROJECTION_STACK_DEPTH);
+    _exports["MAX_TEXTURE_STACK_DEPTH"] = Value(GL_MAX_TEXTURE_STACK_DEPTH);
+    _exports["MAX_VIEWPORT_DIMS"] = Value(GL_MAX_VIEWPORT_DIMS);
+    _exports["MAX_CLIENT_ATTRIB_STACK_DEPTH"] = Value(GL_MAX_CLIENT_ATTRIB_STACK_DEPTH);
+    _exports["ATTRIB_STACK_DEPTH"] = Value(GL_ATTRIB_STACK_DEPTH);
+    _exports["CLIENT_ATTRIB_STACK_DEPTH"] = Value(GL_CLIENT_ATTRIB_STACK_DEPTH);
+    _exports["COLOR_CLEAR_VALUE"] = Value(GL_COLOR_CLEAR_VALUE);
+    _exports["COLOR_WRITEMASK"] = Value(GL_COLOR_WRITEMASK);
+    _exports["CURRENT_INDEX"] = Value(GL_CURRENT_INDEX);
+    _exports["CURRENT_COLOR"] = Value(GL_CURRENT_COLOR);
+    _exports["CURRENT_NORMAL"] = Value(GL_CURRENT_NORMAL);
+    _exports["CURRENT_RASTER_COLOR"] = Value(GL_CURRENT_RASTER_COLOR);
+    _exports["CURRENT_RASTER_DISTANCE"] = Value(GL_CURRENT_RASTER_DISTANCE);
+    _exports["CURRENT_RASTER_INDEX"] = Value(GL_CURRENT_RASTER_INDEX);
+    _exports["CURRENT_RASTER_POSITION"] = Value(GL_CURRENT_RASTER_POSITION);
+    _exports["CURRENT_RASTER_TEXTURE_COORDS"] = Value(GL_CURRENT_RASTER_TEXTURE_COORDS);
+    _exports["CURRENT_RASTER_POSITION_VALID"] = Value(GL_CURRENT_RASTER_POSITION_VALID);
+    _exports["CURRENT_TEXTURE_COORDS"] = Value(GL_CURRENT_TEXTURE_COORDS);
+    _exports["INDEX_CLEAR_VALUE"] = Value(GL_INDEX_CLEAR_VALUE);
+    _exports["INDEX_MODE"] = Value(GL_INDEX_MODE);
+    _exports["INDEX_WRITEMASK"] = Value(GL_INDEX_WRITEMASK);
+    _exports["MODELVIEW_MATRIX"] = Value(GL_MODELVIEW_MATRIX);
+    _exports["MODELVIEW_STACK_DEPTH"] = Value(GL_MODELVIEW_STACK_DEPTH);
+    _exports["NAME_STACK_DEPTH"] = Value(GL_NAME_STACK_DEPTH);
+    _exports["PROJECTION_MATRIX"] = Value(GL_PROJECTION_MATRIX);
+    _exports["PROJECTION_STACK_DEPTH"] = Value(GL_PROJECTION_STACK_DEPTH);
+    _exports["RENDER_MODE"] = Value(GL_RENDER_MODE);
+    _exports["RGBA_MODE"] = Value(GL_RGBA_MODE);
+    _exports["TEXTURE_MATRIX"] = Value(GL_TEXTURE_MATRIX);
+    _exports["TEXTURE_STACK_DEPTH"] = Value(GL_TEXTURE_STACK_DEPTH);
+    _exports["VIEWPORT"] = Value(GL_VIEWPORT);
+    _exports["AUTO_NORMAL"] = Value(GL_AUTO_NORMAL);
+    _exports["MAP1_COLOR_4"] = Value(GL_MAP1_COLOR_4);
+    _exports["MAP1_INDEX"] = Value(GL_MAP1_INDEX);
+    _exports["MAP1_NORMAL"] = Value(GL_MAP1_NORMAL);
+    _exports["MAP1_TEXTURE_COORD_1"] = Value(GL_MAP1_TEXTURE_COORD_1);
+    _exports["MAP1_TEXTURE_COORD_2"] = Value(GL_MAP1_TEXTURE_COORD_2);
+    _exports["MAP1_TEXTURE_COORD_3"] = Value(GL_MAP1_TEXTURE_COORD_3);
+    _exports["MAP1_TEXTURE_COORD_4"] = Value(GL_MAP1_TEXTURE_COORD_4);
+    _exports["MAP1_VERTEX_3"] = Value(GL_MAP1_VERTEX_3);
+    _exports["MAP1_VERTEX_4"] = Value(GL_MAP1_VERTEX_4);
+    _exports["MAP2_COLOR_4"] = Value(GL_MAP2_COLOR_4);
+    _exports["MAP2_INDEX"] = Value(GL_MAP2_INDEX);
+    _exports["MAP2_NORMAL"] = Value(GL_MAP2_NORMAL);
+    _exports["MAP2_TEXTURE_COORD_1"] = Value(GL_MAP2_TEXTURE_COORD_1);
+    _exports["MAP2_TEXTURE_COORD_2"] = Value(GL_MAP2_TEXTURE_COORD_2);
+    _exports["MAP2_TEXTURE_COORD_3"] = Value(GL_MAP2_TEXTURE_COORD_3);
+    _exports["MAP2_TEXTURE_COORD_4"] = Value(GL_MAP2_TEXTURE_COORD_4);
+    _exports["MAP2_VERTEX_3"] = Value(GL_MAP2_VERTEX_3);
+    _exports["MAP2_VERTEX_4"] = Value(GL_MAP2_VERTEX_4);
+    _exports["MAP1_GRID_DOMAIN"] = Value(GL_MAP1_GRID_DOMAIN);
+    _exports["MAP1_GRID_SEGMENTS"] = Value(GL_MAP1_GRID_SEGMENTS);
+    _exports["MAP2_GRID_DOMAIN"] = Value(GL_MAP2_GRID_DOMAIN);
+    _exports["MAP2_GRID_SEGMENTS"] = Value(GL_MAP2_GRID_SEGMENTS);
+    _exports["COEFF"] = Value(GL_COEFF);
+    _exports["ORDER"] = Value(GL_ORDER);
+    _exports["DOMAIN"] = Value(GL_DOMAIN);
+    _exports["PERSPECTIVE_CORRECTION_HINT"] = Value(GL_PERSPECTIVE_CORRECTION_HINT);
+    _exports["POINT_SMOOTH_HINT"] = Value(GL_POINT_SMOOTH_HINT);
+    _exports["LINE_SMOOTH_HINT"] = Value(GL_LINE_SMOOTH_HINT);
+    _exports["POLYGON_SMOOTH_HINT"] = Value(GL_POLYGON_SMOOTH_HINT);
+    _exports["FOG_HINT"] = Value(GL_FOG_HINT);
+    _exports["DONT_CARE"] = Value(GL_DONT_CARE);
+    _exports["FASTEST"] = Value(GL_FASTEST);
+    _exports["NICEST"] = Value(GL_NICEST);
+    _exports["SCISSOR_BOX"] = Value(GL_SCISSOR_BOX);
+    _exports["SCISSOR_TEST"] = Value(GL_SCISSOR_TEST);
+    _exports["MAP_COLOR"] = Value(GL_MAP_COLOR);
+    _exports["MAP_STENCIL"] = Value(GL_MAP_STENCIL);
+    _exports["INDEX_SHIFT"] = Value(GL_INDEX_SHIFT);
+    _exports["INDEX_OFFSET"] = Value(GL_INDEX_OFFSET);
+    _exports["RED_SCALE"] = Value(GL_RED_SCALE);
+    _exports["RED_BIAS"] = Value(GL_RED_BIAS);
+    _exports["GREEN_SCALE"] = Value(GL_GREEN_SCALE);
+    _exports["GREEN_BIAS"] = Value(GL_GREEN_BIAS);
+    _exports["BLUE_SCALE"] = Value(GL_BLUE_SCALE);
+    _exports["BLUE_BIAS"] = Value(GL_BLUE_BIAS);
+    _exports["ALPHA_SCALE"] = Value(GL_ALPHA_SCALE);
+    _exports["ALPHA_BIAS"] = Value(GL_ALPHA_BIAS);
+    _exports["DEPTH_SCALE"] = Value(GL_DEPTH_SCALE);
+    _exports["DEPTH_BIAS"] = Value(GL_DEPTH_BIAS);
+    _exports["PIXEL_MAP_S_TO_S_SIZE"] = Value(GL_PIXEL_MAP_S_TO_S_SIZE);
+    _exports["PIXEL_MAP_I_TO_I_SIZE"] = Value(GL_PIXEL_MAP_I_TO_I_SIZE);
+    _exports["PIXEL_MAP_I_TO_R_SIZE"] = Value(GL_PIXEL_MAP_I_TO_R_SIZE);
+    _exports["PIXEL_MAP_I_TO_G_SIZE"] = Value(GL_PIXEL_MAP_I_TO_G_SIZE);
+    _exports["PIXEL_MAP_I_TO_B_SIZE"] = Value(GL_PIXEL_MAP_I_TO_B_SIZE);
+    _exports["PIXEL_MAP_I_TO_A_SIZE"] = Value(GL_PIXEL_MAP_I_TO_A_SIZE);
+    _exports["PIXEL_MAP_R_TO_R_SIZE"] = Value(GL_PIXEL_MAP_R_TO_R_SIZE);
+    _exports["PIXEL_MAP_G_TO_G_SIZE"] = Value(GL_PIXEL_MAP_G_TO_G_SIZE);
+    _exports["PIXEL_MAP_B_TO_B_SIZE"] = Value(GL_PIXEL_MAP_B_TO_B_SIZE);
+    _exports["PIXEL_MAP_A_TO_A_SIZE"] = Value(GL_PIXEL_MAP_A_TO_A_SIZE);
+    _exports["PIXEL_MAP_S_TO_S"] = Value(GL_PIXEL_MAP_S_TO_S);
+    _exports["PIXEL_MAP_I_TO_I"] = Value(GL_PIXEL_MAP_I_TO_I);
+    _exports["PIXEL_MAP_I_TO_R"] = Value(GL_PIXEL_MAP_I_TO_R);
+    _exports["PIXEL_MAP_I_TO_G"] = Value(GL_PIXEL_MAP_I_TO_G);
+    _exports["PIXEL_MAP_I_TO_B"] = Value(GL_PIXEL_MAP_I_TO_B);
+    _exports["PIXEL_MAP_I_TO_A"] = Value(GL_PIXEL_MAP_I_TO_A);
+    _exports["PIXEL_MAP_R_TO_R"] = Value(GL_PIXEL_MAP_R_TO_R);
+    _exports["PIXEL_MAP_G_TO_G"] = Value(GL_PIXEL_MAP_G_TO_G);
+    _exports["PIXEL_MAP_B_TO_B"] = Value(GL_PIXEL_MAP_B_TO_B);
+    _exports["PIXEL_MAP_A_TO_A"] = Value(GL_PIXEL_MAP_A_TO_A);
+    _exports["PACK_ALIGNMENT"] = Value(GL_PACK_ALIGNMENT);
+    _exports["PACK_LSB_FIRST"] = Value(GL_PACK_LSB_FIRST);
+    _exports["PACK_ROW_LENGTH"] = Value(GL_PACK_ROW_LENGTH);
+    _exports["PACK_SKIP_PIXELS"] = Value(GL_PACK_SKIP_PIXELS);
+    _exports["PACK_SKIP_ROWS"] = Value(GL_PACK_SKIP_ROWS);
+    _exports["PACK_SWAP_BYTES"] = Value(GL_PACK_SWAP_BYTES);
+    _exports["UNPACK_ALIGNMENT"] = Value(GL_UNPACK_ALIGNMENT);
+    _exports["UNPACK_LSB_FIRST"] = Value(GL_UNPACK_LSB_FIRST);
+    _exports["UNPACK_ROW_LENGTH"] = Value(GL_UNPACK_ROW_LENGTH);
+    _exports["UNPACK_SKIP_PIXELS"] = Value(GL_UNPACK_SKIP_PIXELS);
+    _exports["UNPACK_SKIP_ROWS"] = Value(GL_UNPACK_SKIP_ROWS);
+    _exports["UNPACK_SWAP_BYTES"] = Value(GL_UNPACK_SWAP_BYTES);
+    _exports["ZOOM_X"] = Value(GL_ZOOM_X);
+    _exports["ZOOM_Y"] = Value(GL_ZOOM_Y);
+    _exports["TEXTURE_ENV"] = Value(GL_TEXTURE_ENV);
+    _exports["TEXTURE_ENV_MODE"] = Value(GL_TEXTURE_ENV_MODE);
+    _exports["TEXTURE_1D"] = Value(GL_TEXTURE_1D);
+    _exports["TEXTURE_2D"] = Value(GL_TEXTURE_2D);
+    _exports["TEXTURE_WRAP_S"] = Value(GL_TEXTURE_WRAP_S);
+    _exports["TEXTURE_WRAP_T"] = Value(GL_TEXTURE_WRAP_T);
+    _exports["TEXTURE_MAG_FILTER"] = Value(GL_TEXTURE_MAG_FILTER);
+    _exports["TEXTURE_MIN_FILTER"] = Value(GL_TEXTURE_MIN_FILTER);
+    _exports["TEXTURE_ENV_COLOR"] = Value(GL_TEXTURE_ENV_COLOR);
+    _exports["TEXTURE_GEN_S"] = Value(GL_TEXTURE_GEN_S);
+    _exports["TEXTURE_GEN_T"] = Value(GL_TEXTURE_GEN_T);
+    _exports["TEXTURE_GEN_MODE"] = Value(GL_TEXTURE_GEN_MODE);
+    _exports["TEXTURE_BORDER_COLOR"] = Value(GL_TEXTURE_BORDER_COLOR);
+    _exports["TEXTURE_WIDTH"] = Value(GL_TEXTURE_WIDTH);
+    _exports["TEXTURE_HEIGHT"] = Value(GL_TEXTURE_HEIGHT);
+    _exports["TEXTURE_BORDER"] = Value(GL_TEXTURE_BORDER);
+    _exports["TEXTURE_COMPONENTS"] = Value(GL_TEXTURE_COMPONENTS);
+    _exports["TEXTURE_RED_SIZE"] = Value(GL_TEXTURE_RED_SIZE);
+    _exports["TEXTURE_GREEN_SIZE"] = Value(GL_TEXTURE_GREEN_SIZE);
+    _exports["TEXTURE_BLUE_SIZE"] = Value(GL_TEXTURE_BLUE_SIZE);
+    _exports["TEXTURE_ALPHA_SIZE"] = Value(GL_TEXTURE_ALPHA_SIZE);
+    _exports["TEXTURE_LUMINANCE_SIZE"] = Value(GL_TEXTURE_LUMINANCE_SIZE);
+    _exports["TEXTURE_INTENSITY_SIZE"] = Value(GL_TEXTURE_INTENSITY_SIZE);
+    _exports["NEAREST_MIPMAP_NEAREST"] = Value(GL_NEAREST_MIPMAP_NEAREST);
+    _exports["NEAREST_MIPMAP_LINEAR"] = Value(GL_NEAREST_MIPMAP_LINEAR);
+    _exports["LINEAR_MIPMAP_NEAREST"] = Value(GL_LINEAR_MIPMAP_NEAREST);
+    _exports["LINEAR_MIPMAP_LINEAR"] = Value(GL_LINEAR_MIPMAP_LINEAR);
+    _exports["OBJECT_LINEAR"] = Value(GL_OBJECT_LINEAR);
+    _exports["OBJECT_PLANE"] = Value(GL_OBJECT_PLANE);
+    _exports["EYE_LINEAR"] = Value(GL_EYE_LINEAR);
+    _exports["EYE_PLANE"] = Value(GL_EYE_PLANE);
+    _exports["SPHERE_MAP"] = Value(GL_SPHERE_MAP);
+    _exports["DECAL"] = Value(GL_DECAL);
+    _exports["MODULATE"] = Value(GL_MODULATE);
+    _exports["NEAREST"] = Value(GL_NEAREST);
+    _exports["REPEAT"] = Value(GL_REPEAT);
+    _exports["CLAMP"] = Value(GL_CLAMP);
+    _exports["S"] = Value(GL_S);
+    _exports["T"] = Value(GL_T);
+    _exports["R"] = Value(GL_R);
+    _exports["Q"] = Value(GL_Q);
+    _exports["TEXTURE_GEN_R"] = Value(GL_TEXTURE_GEN_R);
+    _exports["TEXTURE_GEN_Q"] = Value(GL_TEXTURE_GEN_Q);
+    _exports["VENDOR"] = Value(GL_VENDOR);
+    _exports["RENDERER"] = Value(GL_RENDERER);
+    _exports["VERSION"] = Value(GL_VERSION);
+    _exports["EXTENSIONS"] = Value(GL_EXTENSIONS);
+    _exports["NO_ERROR"] = Value(GL_NO_ERROR);
+    _exports["INVALID_ENUM"] = Value(GL_INVALID_ENUM);
+    _exports["INVALID_VALUE"] = Value(GL_INVALID_VALUE);
+    _exports["INVALID_OPERATION"] = Value(GL_INVALID_OPERATION);
+    _exports["STACK_OVERFLOW"] = Value(GL_STACK_OVERFLOW);
+    _exports["STACK_UNDERFLOW"] = Value(GL_STACK_UNDERFLOW);
+    _exports["OUT_OF_MEMORY"] = Value(GL_OUT_OF_MEMORY);
+    _exports["CURRENT_BIT"] = Value(GL_CURRENT_BIT);
+    _exports["POINT_BIT"] = Value(GL_POINT_BIT);
+    _exports["LINE_BIT"] = Value(GL_LINE_BIT);
+    _exports["POLYGON_BIT"] = Value(GL_POLYGON_BIT);
+    _exports["POLYGON_STIPPLE_BIT"] = Value(GL_POLYGON_STIPPLE_BIT);
+    _exports["PIXEL_MODE_BIT"] = Value(GL_PIXEL_MODE_BIT);
+    _exports["LIGHTING_BIT"] = Value(GL_LIGHTING_BIT);
+    _exports["FOG_BIT"] = Value(GL_FOG_BIT);
+    _exports["DEPTH_BUFFER_BIT"] = Value(GL_DEPTH_BUFFER_BIT);
+    _exports["ACCUM_BUFFER_BIT"] = Value(GL_ACCUM_BUFFER_BIT);
+    _exports["STENCIL_BUFFER_BIT"] = Value(GL_STENCIL_BUFFER_BIT);
+    _exports["VIEWPORT_BIT"] = Value(GL_VIEWPORT_BIT);
+    _exports["TRANSFORM_BIT"] = Value(GL_TRANSFORM_BIT);
+    _exports["ENABLE_BIT"] = Value(GL_ENABLE_BIT);
+    _exports["COLOR_BUFFER_BIT"] = Value(GL_COLOR_BUFFER_BIT);
+    _exports["HINT_BIT"] = Value(GL_HINT_BIT);
+    _exports["EVAL_BIT"] = Value(GL_EVAL_BIT);
+    _exports["LIST_BIT"] = Value(GL_LIST_BIT);
+    _exports["TEXTURE_BIT"] = Value(GL_TEXTURE_BIT);
+    _exports["SCISSOR_BIT"] = Value(GL_SCISSOR_BIT);
+    _exports["ALL_ATTRIB_BITS"] = Value(GL_ALL_ATTRIB_BITS);
+    _exports["PROXY_TEXTURE_1D"] = Value(GL_PROXY_TEXTURE_1D);
+    _exports["PROXY_TEXTURE_2D"] = Value(GL_PROXY_TEXTURE_2D);
+    _exports["TEXTURE_PRIORITY"] = Value(GL_TEXTURE_PRIORITY);
+    _exports["TEXTURE_RESIDENT"] = Value(GL_TEXTURE_RESIDENT);
+    _exports["TEXTURE_BINDING_1D"] = Value(GL_TEXTURE_BINDING_1D);
+    _exports["TEXTURE_BINDING_2D"] = Value(GL_TEXTURE_BINDING_2D);
+    _exports["TEXTURE_INTERNAL_FORMAT"] = Value(GL_TEXTURE_INTERNAL_FORMAT);
+    _exports["ALPHA4"] = Value(GL_ALPHA4);
+    _exports["ALPHA8"] = Value(GL_ALPHA8);
+    _exports["ALPHA12"] = Value(GL_ALPHA12);
+    _exports["ALPHA16"] = Value(GL_ALPHA16);
+    _exports["LUMINANCE4"] = Value(GL_LUMINANCE4);
+    _exports["LUMINANCE8"] = Value(GL_LUMINANCE8);
+    _exports["LUMINANCE12"] = Value(GL_LUMINANCE12);
+    _exports["LUMINANCE16"] = Value(GL_LUMINANCE16);
+    _exports["LUMINANCE4_ALPHA4"] = Value(GL_LUMINANCE4_ALPHA4);
+    _exports["LUMINANCE6_ALPHA2"] = Value(GL_LUMINANCE6_ALPHA2);
+    _exports["LUMINANCE8_ALPHA8"] = Value(GL_LUMINANCE8_ALPHA8);
+    _exports["LUMINANCE12_ALPHA4"] = Value(GL_LUMINANCE12_ALPHA4);
+    _exports["LUMINANCE12_ALPHA12"] = Value(GL_LUMINANCE12_ALPHA12);
+    _exports["LUMINANCE16_ALPHA16"] = Value(GL_LUMINANCE16_ALPHA16);
+    _exports["INTENSITY"] = Value(GL_INTENSITY);
+    _exports["INTENSITY4"] = Value(GL_INTENSITY4);
+    _exports["INTENSITY8"] = Value(GL_INTENSITY8);
+    _exports["INTENSITY12"] = Value(GL_INTENSITY12);
+    _exports["INTENSITY16"] = Value(GL_INTENSITY16);
+    _exports["R3_G3_B2"] = Value(GL_R3_G3_B2);
+    _exports["RGB4"] = Value(GL_RGB4);
+    _exports["RGB5"] = Value(GL_RGB5);
+    _exports["RGB8"] = Value(GL_RGB8);
+    _exports["RGB10"] = Value(GL_RGB10);
+    _exports["RGB12"] = Value(GL_RGB12);
+    _exports["RGB16"] = Value(GL_RGB16);
+    _exports["RGBA2"] = Value(GL_RGBA2);
+    _exports["RGBA4"] = Value(GL_RGBA4);
+    _exports["RGB5_A1"] = Value(GL_RGB5_A1);
+    _exports["RGBA8"] = Value(GL_RGBA8);
+    _exports["RGB10_A2"] = Value(GL_RGB10_A2);
+    _exports["RGBA12"] = Value(GL_RGBA12);
+    _exports["RGBA16"] = Value(GL_RGBA16);
+    _exports["CLIENT_PIXEL_STORE_BIT"] = Value(GL_CLIENT_PIXEL_STORE_BIT);
+    _exports["CLIENT_VERTEX_ARRAY_BIT"] = Value(GL_CLIENT_VERTEX_ARRAY_BIT);
+    _exports["CLIENT_ALL_ATTRIB_BITS"] = Value(GL_CLIENT_ALL_ATTRIB_BITS);
 }
+static Module _module_GL("GL", _setup_GL);

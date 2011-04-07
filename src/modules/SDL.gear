@@ -86,7 +86,7 @@ top {
     }
 }
 
-namespace SDL {
+module SDL {
     class Window {
         var surface = 0;
         

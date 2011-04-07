@@ -14,11 +14,9 @@
  * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef MODULE_IO_H
-#define MODULE_IO_H
+#ifndef V8_GEARBOX_MODULES_IO_H
+#define V8_GEARBOX_MODULES_IO_H
 
 #include <v8.h>
-
-void SetupIo(v8::Handle<v8::Object> global);
 
 #endif

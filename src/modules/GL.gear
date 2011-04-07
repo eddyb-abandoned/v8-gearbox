@@ -140,7 +140,7 @@ top {
     }
 }
 
-namespace GL {
+module GL {
     function initWindow(name, w, h) {
         if(bGLIsUsed)
             return Throw(Error("GL is already being used"));

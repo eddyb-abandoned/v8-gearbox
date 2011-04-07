@@ -29,10 +29,9 @@ using namespace Gearbox;
 #define _FSTREAM_READ(x, i, dw) do {x i;_THIS_FSTREAM->read(reinterpret_cast<char*>(&i), sizeof(x));dw;} while(0)
 //printf("Error while reading an %s: %s\n", #x, strerror(errno));
 
-v8::Handle<v8::Value> __global_Io_Stream_Stream(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_Stream(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 2)
-    {
+    if(args.Length() >= 2) {
         #line 36 "src/modules/Io.gear"
         Value path(args[0]), mode(args[1]);
         std::ios_base::openmode openMode = static_cast<std::ios_base::openmode>(0);
@@ -65,8 +64,7 @@ v8::Handle<v8::Value> __global_Io_Stream_Stream(const v8::Arguments& args) {
         return undefined;
     }
 
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 32 "src/modules/Io.gear"
         Value path(args[0]);
         This["fstream"] = new std::fstream(path.to<String>());
@@ -75,24 +73,22 @@ v8::Handle<v8::Value> __global_Io_Stream_Stream(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Io.Stream"));
 }
 
-v8::Handle<v8::Value> __global_Io_Stream_tellg(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_tellg(const v8::Arguments& args) {
     Value This(args.This());
     #line 67 "src/modules/Io.gear"
     return Integer(_THIS_FSTREAM->tellg());
 }
 
-v8::Handle<v8::Value> __global_Io_Stream_seekg(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_seekg(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 2)
-    {
+    if(args.Length() >= 2) {
         #line 75 "src/modules/Io.gear"
         Value off(args[0]), dir(args[1]);
         _THIS_FSTREAM->seekg(off, static_cast<std::ios_base::seekdir>(dir.to<int>()));
         return undefined;
     }
 
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 70 "src/modules/Io.gear"
         Value pos(args[0]);
         _THIS_FSTREAM->seekg(pos.to<int>());
@@ -102,10 +98,9 @@ v8::Handle<v8::Value> __global_Io_Stream_seekg(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Io.Stream.prototype.seekg"));
 }
 
-v8::Handle<v8::Value> __global_Io_Stream_readInt(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_readInt(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 79 "src/modules/Io.gear"
         Value len(args[0]);
         if(len == 1)
@@ -121,10 +116,9 @@ v8::Handle<v8::Value> __global_Io_Stream_readInt(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Io.Stream.prototype.readInt"));
 }
 
-v8::Handle<v8::Value> __global_Io_Stream_readFloat(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_readFloat(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 94 "src/modules/Io.gear"
         Value prec(args[0]);
         if(prec == 1)
@@ -141,24 +135,22 @@ v8::Handle<v8::Value> __global_Io_Stream_readFloat(const v8::Arguments& args) {
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Io_Stream_tellp(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_tellp(const v8::Arguments& args) {
     Value This(args.This());
     #line 104 "src/modules/Io.gear"
     return Integer(_THIS_FSTREAM->tellp());
 }
 
-v8::Handle<v8::Value> __global_Io_Stream_seekp(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_seekp(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 2)
-    {
+    if(args.Length() >= 2) {
         #line 111 "src/modules/Io.gear"
         Value off(args[0]), dir(args[1]);
         _THIS_FSTREAM->seekp(off, static_cast<std::ios_base::seekdir>(dir.to<int>()));
         return undefined;
     }
 
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 107 "src/modules/Io.gear"
         Value pos(args[0]);
         _THIS_FSTREAM->seekp(pos.to<int>());
@@ -167,16 +159,15 @@ v8::Handle<v8::Value> __global_Io_Stream_seekp(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Io.Stream.prototype.seekp"));
 }
 
-v8::Handle<v8::Value> __global_Io_Stream_close(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_close(const v8::Arguments& args) {
     Value This(args.This());
     #line 116 "src/modules/Io.gear"
     _THIS_FSTREAM->close();
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Io_read(const v8::Arguments& args) {
-    if(args.Length() >= 1)
-    {
+static v8::Handle<v8::Value> _Io_read(const v8::Arguments& args) {
+    if(args.Length() >= 1) {
         #line 124 "src/modules/Io.gear"
         Value path(args[0]);
         std::ifstream file(path.to<String>(), std::ifstream::in | std::ifstream::binary);
@@ -198,9 +189,8 @@ v8::Handle<v8::Value> __global_Io_read(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Io.read"));
 }
 
-v8::Handle<v8::Value> __global_Io_write(const v8::Arguments& args) {
-    if(args.Length() >= 2)
-    {
+static v8::Handle<v8::Value> _Io_write(const v8::Arguments& args) {
+    if(args.Length() >= 2) {
         #line 142 "src/modules/Io.gear"
         Value path(args[0]), contents(args[1]);
         std::ofstream file(path.to<String>());
@@ -210,31 +200,30 @@ v8::Handle<v8::Value> __global_Io_write(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Io.write"));
 }
 
-v8::Handle<v8::Value> __global_Io_toString(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_toString(const v8::Arguments& args) {
     #line 29 "src/modules/Io.gear"
-    return String("[object Io]");
+    return String("[module Io]");
 }
 
 
-#line 219 "src/modules/Io.cc"
-void SetupIo(v8::Handle<v8::Object> global) {
-    v8::Handle<v8::Object> global_Io = v8::Object::New();
-    global->Set(String("Io"), global_Io);
-    v8::Handle<v8::FunctionTemplate> global_Io_Stream = v8::FunctionTemplate::New(__global_Io_Stream_Stream);
-    global_Io_Stream->SetClassName(String("Stream"));
-    global_Io_Stream->PrototypeTemplate()->Set("tellg", Function(__global_Io_Stream_tellg, "tellg"));
-    global_Io_Stream->PrototypeTemplate()->Set("seekg", Function(__global_Io_Stream_seekg, "seekg"));
-    global_Io_Stream->PrototypeTemplate()->Set("readInt", Function(__global_Io_Stream_readInt, "readInt"));
-    global_Io_Stream->PrototypeTemplate()->Set("readFloat", Function(__global_Io_Stream_readFloat, "readFloat"));
-    global_Io_Stream->PrototypeTemplate()->Set("tellp", Function(__global_Io_Stream_tellp, "tellp"));
-    global_Io_Stream->PrototypeTemplate()->Set("seekp", Function(__global_Io_Stream_seekp, "seekp"));
-    global_Io_Stream->PrototypeTemplate()->Set("close", Function(__global_Io_Stream_close, "close"));
-    global_Io_Stream->PrototypeTemplate()->Set("fstream", Value(0));
-    global_Io->Set(String("Stream"), global_Io_Stream->GetFunction());
-    global_Io->Set(String("read"), Function(__global_Io_read, "read"));
-    global_Io->Set(String("write"), Function(__global_Io_write, "write"));
-    global_Io->Set(String("toString"), Function(__global_Io_toString, "toString"));
-    global_Io->Set(String("SEEK_BEG"), Value(std::ios_base::beg));
-    global_Io->Set(String("SEEK_CUR"), Value(std::ios_base::cur));
-    global_Io->Set(String("SEEK_END"), Value(std::ios_base::end));
+#line 209 "src/modules/Io.cc"
+static void _setup_Io(Value _exports) {
+    v8::Handle<v8::FunctionTemplate> _Io_Stream = v8::FunctionTemplate::New(_Io_Stream_Stream);
+    _Io_Stream->SetClassName(String("Stream"));
+    _Io_Stream->PrototypeTemplate()->Set("tellg", Function(_Io_Stream_tellg, "tellg"));
+    _Io_Stream->PrototypeTemplate()->Set("seekg", Function(_Io_Stream_seekg, "seekg"));
+    _Io_Stream->PrototypeTemplate()->Set("readInt", Function(_Io_Stream_readInt, "readInt"));
+    _Io_Stream->PrototypeTemplate()->Set("readFloat", Function(_Io_Stream_readFloat, "readFloat"));
+    _Io_Stream->PrototypeTemplate()->Set("tellp", Function(_Io_Stream_tellp, "tellp"));
+    _Io_Stream->PrototypeTemplate()->Set("seekp", Function(_Io_Stream_seekp, "seekp"));
+    _Io_Stream->PrototypeTemplate()->Set("close", Function(_Io_Stream_close, "close"));
+    _Io_Stream->PrototypeTemplate()->Set("fstream", Value(0));
+    _exports["Stream"] = _Io_Stream->GetFunction();
+    _exports["read"] = Function(_Io_read, "read");
+    _exports["write"] = Function(_Io_write, "write");
+    _exports["toString"] = Function(_Io_toString, "toString");
+    _exports["SEEK_BEG"] = Value(std::ios_base::beg);
+    _exports["SEEK_CUR"] = Value(std::ios_base::cur);
+    _exports["SEEK_END"] = Value(std::ios_base::end);
 }
+static Module _module_Io("Io", _setup_Io);

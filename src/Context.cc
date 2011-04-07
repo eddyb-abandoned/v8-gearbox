@@ -18,27 +18,15 @@
 
 #include <cstdlib>
 
-#include "modules/Io.h"
-#include "modules/MySQL.h"
-#include "modules/Network.h"
-#include "modules/Ncurses.h"
-#include "modules/SDL.h"
-#include "modules/GL.h"
-
 namespace Gearbox {
     Context *Context::m_pCurrentContext = 0;
     
-    v8::Handle<v8::Value> _print(const v8::Arguments& args) {
-        if(args.Length()) {
-            for(int i = 0; i < args.Length(); i++)
-                printf(i ? " %s" : "%s", *Value(args[i]).to<String>());
-            printf(_STR_NEWLINE);
-            return undefined;
-        }
-        return Throw(Error("Invalid call to print"));
+    static v8::Handle<v8::Value> _exit(const v8::Arguments& args) {
+        std::_Exit(Value(args[0]));
+        return undefined;
     }
     
-    v8::Handle<v8::Value> _load(const v8::Arguments& args) {
+    static v8::Handle<v8::Value> _load(const v8::Arguments& args) {
         if(args.Length() >= 1) {
             String file = Value(args[0]);
             if(file.empty())
@@ -57,9 +45,20 @@ namespace Gearbox {
         return Throw(Error("Invalid call to load"));
     }
     
-    v8::Handle<v8::Value> _exit(const v8::Arguments& args) {
-        std::_Exit(Value(args[0]));
-        return undefined;
+    static v8::Handle<v8::Value> _print(const v8::Arguments& args) {
+        if(args.Length()) {
+            for(int i = 0; i < args.Length(); i++)
+                printf(i ? " %s" : "%s", *Value(args[i]).to<String>());
+            printf(_STR_NEWLINE);
+            return undefined;
+        }
+        return Throw(Error("Invalid call to print"));
+    }
+    
+    static v8::Handle<v8::Value> _require(const v8::Arguments& args) {
+        if(args.Length() >= 1)
+            return Module::require(Value(args[0]));
+        return Throw(Error("Invalid call to require"));
     }
     
     Context::Context() {
@@ -117,23 +116,11 @@ namespace Gearbox {
         // Get the global object
         var _global = global();
         
-        _global["print"] = Function(_print, "print");
-        _global["load"] = Function(_load, "load");
         _global["exit"] = Function(_exit, "exit");
+        _global["load"] = Function(_load, "load");
+        _global["print"] = Function(_print, "print");
+        _global["require"] = Function(_require, "require");
         
         _global["global"] = _global;
-        
-        // Setup GL functions
-        SetupGL(_global);
-        // Setup Io functions
-        SetupIo(_global);
-        // Setup MySQL functions
-        SetupMySQL(_global);
-        // Setup Network functions
-        SetupNetwork(_global);
-        // Setup Ncurses functions
-        SetupNcurses(_global);
-        // Setup SDL functions
-        SetupSDL(_global);
     }
 }

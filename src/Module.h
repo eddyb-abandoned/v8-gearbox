@@ -14,9 +14,34 @@
  * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef V8_GEARBOX_MODULES_MYSQL_H
-#define V8_GEARBOX_MODULES_MYSQL_H
+#ifndef V8_GEARBOX_MODULE_H
+#define V8_GEARBOX_MODULE_H
 
-#include <v8.h>
+#include <v8-gearbox.h>
+
+#include <map>
+
+namespace Gearbox {
+    class Module {
+        public:
+            typedef void (*SetupCallback)(Value exports);
+            
+            Module(String moduleName, SetupCallback pSetupCallback);
+            
+            virtual ~Module();
+            
+            Value require();
+            
+            static Value require(String moduleName);
+            
+        private:
+            String m_sModuleName;
+            SetupCallback m_pSetupCallback;
+            
+            Value m_Exports;
+            
+            static std::map<String, Module*> *m_pModules;
+    };
+}
 
 #endif

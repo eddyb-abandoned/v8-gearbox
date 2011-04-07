@@ -14,11 +14,9 @@
  * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef MODULE_GL_H
-#define MODULE_GL_H
+#ifndef V8_GEARBOX_MODULES_GL_H
+#define V8_GEARBOX_MODULES_GL_H
 
 #include <v8.h>
-
-void SetupGL(v8::Handle<v8::Object> global);
 
 #endif

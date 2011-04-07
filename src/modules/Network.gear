@@ -28,7 +28,7 @@ top {
 #endif
 }
 
-namespace Network {
+module Network {
     class Socket {
         var socket = -1;
         var family = -1;

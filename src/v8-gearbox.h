@@ -30,8 +30,10 @@ namespace Gearbox {
 
 #include "String.h"
 #include "Value.h"
-#include "TryCatch.h"
+
 #include "Context.h"
+#include "Module.h"
+#include "TryCatch.h"
 
 namespace Gearbox {
     

@@ -24,10 +24,9 @@ using namespace Gearbox;
 #line 1 "src/modules/Ncurses.gear"
 #include <curses.h>
 
-v8::Handle<v8::Value> __global_Ncurses_Window_Window(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_Window(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 4)
-    {
+    if(args.Length() >= 4) {
         #line 28 "src/modules/Ncurses.gear"
         Value x(args[0]), y(args[1]), cols(args[2]), rows(args[3]);
         This["win"] = newwin(rows.to<int>(), cols.to<int>(), y.to<int>(), x.to<int>());
@@ -38,10 +37,9 @@ v8::Handle<v8::Value> __global_Ncurses_Window_Window(const v8::Arguments& args) 
     return Throw(Error("Invalid call to Ncurses.Window"));
 }
 
-v8::Handle<v8::Value> __global_Ncurses_Window_bold(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_bold(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 34 "src/modules/Ncurses.gear"
         Value on(args[0]);
         if(on.to<bool>())
@@ -53,10 +51,9 @@ v8::Handle<v8::Value> __global_Ncurses_Window_bold(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Ncurses.Window.prototype.bold"));
 }
 
-v8::Handle<v8::Value> __global_Ncurses_Window_border(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_border(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 47 "src/modules/Ncurses.gear"
         Value obj(args[0]);
         wborder(This["win"], obj["Ls"].to<int>(), obj["Rs"].to<int>(), obj["Ts"].to<int>(), obj["Bs"].to<int>(), obj["TLc"].to<int>(), obj["TRc"].to<int>(), obj["BLc"].to<int>(), obj["BRc"].to<int>());
@@ -72,10 +69,9 @@ v8::Handle<v8::Value> __global_Ncurses_Window_border(const v8::Arguments& args) 
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Ncurses_Window_setBackground(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_setBackground(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 53 "src/modules/Ncurses.gear"
         Value _char(args[0]);
         wbkgd(This["win"], _char.to<String>()[0]);
@@ -86,10 +82,9 @@ v8::Handle<v8::Value> __global_Ncurses_Window_setBackground(const v8::Arguments&
     return Throw(Error("Invalid call to Ncurses.Window.prototype.setBackground"));
 }
 
-v8::Handle<v8::Value> __global_Ncurses_Window_print(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_print(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 59 "src/modules/Ncurses.gear"
         Value text(args[0]);
         waddstr(This["win"], text.to<String>());
@@ -100,7 +95,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_print(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Ncurses.Window.prototype.print"));
 }
 
-v8::Handle<v8::Value> __global_Ncurses_Window_clear(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_clear(const v8::Arguments& args) {
     Value This(args.This());
     #line 66 "src/modules/Ncurses.gear"
     werase(This["win"]);
@@ -109,7 +104,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_clear(const v8::Arguments& args) {
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Ncurses_Window_touch(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_touch(const v8::Arguments& args) {
     Value This(args.This());
     #line 72 "src/modules/Ncurses.gear"
     touchwin(This["win"].to<WINDOW*>());
@@ -118,10 +113,9 @@ v8::Handle<v8::Value> __global_Ncurses_Window_touch(const v8::Arguments& args) {
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Ncurses_Window_move(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_move(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 2)
-    {
+    if(args.Length() >= 2) {
         #line 77 "src/modules/Ncurses.gear"
         Value x(args[0]), y(args[1]);
         wmove(This["win"], y.to<int>(), x.to<int>());
@@ -132,7 +126,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_move(const v8::Arguments& args) {
     return Throw(Error("Invalid call to Ncurses.Window.prototype.move"));
 }
 
-v8::Handle<v8::Value> __global_Ncurses_Window_getChar(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_getChar(const v8::Arguments& args) {
     Value This(args.This());
     #line 84 "src/modules/Ncurses.gear"
     int c = wgetch(This["win"]);
@@ -141,7 +135,7 @@ v8::Handle<v8::Value> __global_Ncurses_Window_getChar(const v8::Arguments& args)
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Ncurses_enter(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_enter(const v8::Arguments& args) {
     #line 91 "src/modules/Ncurses.gear"
     initscr();
     scrollok(stdscr, true);
@@ -151,48 +145,47 @@ v8::Handle<v8::Value> __global_Ncurses_enter(const v8::Arguments& args) {
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Ncurses_exit(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_exit(const v8::Arguments& args) {
     #line 99 "src/modules/Ncurses.gear"
     endwin();
     return undefined;
 }
 
-v8::Handle<v8::Value> __global_Ncurses_cols(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_cols(const v8::Arguments& args) {
     #line 103 "src/modules/Ncurses.gear"
     return Integer(getmaxx(stdscr));
 }
 
-v8::Handle<v8::Value> __global_Ncurses_rows(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_rows(const v8::Arguments& args) {
     #line 107 "src/modules/Ncurses.gear"
     return Integer(getmaxy(stdscr));
 }
 
-v8::Handle<v8::Value> __global_Ncurses_toString(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_toString(const v8::Arguments& args) {
     #line 24 "src/modules/Ncurses.gear"
-    return String("[object Ncurses]");
+    return String("[module Ncurses]");
 }
 
 
-#line 176 "src/modules/Ncurses.cc"
-void SetupNcurses(v8::Handle<v8::Object> global) {
-    v8::Handle<v8::Object> global_Ncurses = v8::Object::New();
-    global->Set(String("Ncurses"), global_Ncurses);
-    v8::Handle<v8::FunctionTemplate> global_Ncurses_Window = v8::FunctionTemplate::New(__global_Ncurses_Window_Window);
-    global_Ncurses_Window->SetClassName(String("Window"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("bold", Function(__global_Ncurses_Window_bold, "bold"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("border", Function(__global_Ncurses_Window_border, "border"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("setBackground", Function(__global_Ncurses_Window_setBackground, "setBackground"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("print", Function(__global_Ncurses_Window_print, "print"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("clear", Function(__global_Ncurses_Window_clear, "clear"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("touch", Function(__global_Ncurses_Window_touch, "touch"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("move", Function(__global_Ncurses_Window_move, "move"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("getChar", Function(__global_Ncurses_Window_getChar, "getChar"));
-    global_Ncurses_Window->PrototypeTemplate()->Set("win", Value(0));
-    global_Ncurses_Window->PrototypeTemplate()->Set("autoRefresh", Value(true));
-    global_Ncurses->Set(String("Window"), global_Ncurses_Window->GetFunction());
-    global_Ncurses->Set(String("enter"), Function(__global_Ncurses_enter, "enter"));
-    global_Ncurses->Set(String("exit"), Function(__global_Ncurses_exit, "exit"));
-    global_Ncurses->Set(String("cols"), Function(__global_Ncurses_cols, "cols"));
-    global_Ncurses->Set(String("rows"), Function(__global_Ncurses_rows, "rows"));
-    global_Ncurses->Set(String("toString"), Function(__global_Ncurses_toString, "toString"));
+#line 170 "src/modules/Ncurses.cc"
+static void _setup_Ncurses(Value _exports) {
+    v8::Handle<v8::FunctionTemplate> _Ncurses_Window = v8::FunctionTemplate::New(_Ncurses_Window_Window);
+    _Ncurses_Window->SetClassName(String("Window"));
+    _Ncurses_Window->PrototypeTemplate()->Set("bold", Function(_Ncurses_Window_bold, "bold"));
+    _Ncurses_Window->PrototypeTemplate()->Set("border", Function(_Ncurses_Window_border, "border"));
+    _Ncurses_Window->PrototypeTemplate()->Set("setBackground", Function(_Ncurses_Window_setBackground, "setBackground"));
+    _Ncurses_Window->PrototypeTemplate()->Set("print", Function(_Ncurses_Window_print, "print"));
+    _Ncurses_Window->PrototypeTemplate()->Set("clear", Function(_Ncurses_Window_clear, "clear"));
+    _Ncurses_Window->PrototypeTemplate()->Set("touch", Function(_Ncurses_Window_touch, "touch"));
+    _Ncurses_Window->PrototypeTemplate()->Set("move", Function(_Ncurses_Window_move, "move"));
+    _Ncurses_Window->PrototypeTemplate()->Set("getChar", Function(_Ncurses_Window_getChar, "getChar"));
+    _Ncurses_Window->PrototypeTemplate()->Set("win", Value(0));
+    _Ncurses_Window->PrototypeTemplate()->Set("autoRefresh", Value(true));
+    _exports["Window"] = _Ncurses_Window->GetFunction();
+    _exports["enter"] = Function(_Ncurses_enter, "enter");
+    _exports["exit"] = Function(_Ncurses_exit, "exit");
+    _exports["cols"] = Function(_Ncurses_cols, "cols");
+    _exports["rows"] = Function(_Ncurses_rows, "rows");
+    _exports["toString"] = Function(_Ncurses_toString, "toString");
 }
+static Module _module_Ncurses("Ncurses", _setup_Ncurses);

@@ -29,10 +29,9 @@ using namespace Gearbox;
 #include <my_global.h>
 #include <mysql.h>
 
-v8::Handle<v8::Value> __global_MySQL_Connection_Connection(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _MySQL_Connection_Connection(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 4)
-    {
+    if(args.Length() >= 4) {
         #line 32 "src/modules/MySQL.gear"
         Value host(args[0]), user(args[1]), password(args[2]), db(args[3]);
         MYSQL *pMYSQL = mysql_init(NULL);
@@ -43,10 +42,9 @@ v8::Handle<v8::Value> __global_MySQL_Connection_Connection(const v8::Arguments& 
     return Throw(Error("Invalid call to MySQL.Connection"));
 }
 
-v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _MySQL_Connection_query(const v8::Arguments& args) {
     Value This(args.This());
-    if(args.Length() >= 1)
-    {
+    if(args.Length() >= 1) {
         #line 38 "src/modules/MySQL.gear"
         Value query(args[0]);
         MYSQL *pMYSQL = This["pMYSQL"];
@@ -90,20 +88,19 @@ v8::Handle<v8::Value> __global_MySQL_Connection_query(const v8::Arguments& args)
     return Throw(Error("Invalid call to MySQL.Connection.prototype.query"));
 }
 
-v8::Handle<v8::Value> __global_MySQL_toString(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _MySQL_toString(const v8::Arguments& args) {
     #line 29 "src/modules/MySQL.gear"
-    return String("[object MySQL]");
+    return String("[module MySQL]");
 }
 
 
-#line 99 "src/modules/MySQL.cc"
-void SetupMySQL(v8::Handle<v8::Object> global) {
-    v8::Handle<v8::Object> global_MySQL = v8::Object::New();
-    global->Set(String("MySQL"), global_MySQL);
-    v8::Handle<v8::FunctionTemplate> global_MySQL_Connection = v8::FunctionTemplate::New(__global_MySQL_Connection_Connection);
-    global_MySQL_Connection->SetClassName(String("Connection"));
-    global_MySQL_Connection->PrototypeTemplate()->Set("query", Function(__global_MySQL_Connection_query, "query"));
-    global_MySQL_Connection->PrototypeTemplate()->Set("pMYSQL", Value(0));
-    global_MySQL->Set(String("Connection"), global_MySQL_Connection->GetFunction());
-    global_MySQL->Set(String("toString"), Function(__global_MySQL_toString, "toString"));
+#line 97 "src/modules/MySQL.cc"
+static void _setup_MySQL(Value _exports) {
+    v8::Handle<v8::FunctionTemplate> _MySQL_Connection = v8::FunctionTemplate::New(_MySQL_Connection_Connection);
+    _MySQL_Connection->SetClassName(String("Connection"));
+    _MySQL_Connection->PrototypeTemplate()->Set("query", Function(_MySQL_Connection_query, "query"));
+    _MySQL_Connection->PrototypeTemplate()->Set("pMYSQL", Value(0));
+    _exports["Connection"] = _MySQL_Connection->GetFunction();
+    _exports["toString"] = Function(_MySQL_toString, "toString");
 }
+static Module _module_MySQL("MySQL", _setup_MySQL);

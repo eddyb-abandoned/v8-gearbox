@@ -74,6 +74,9 @@ namespace Gearbox {
             bool operator==(const char *that) {
                 return compare(that);
             }
+            bool operator<(const String &that) const {
+                return std::strcmp(m_pString, that.m_pString) < 0;
+            }
             
             /** Convert operators */
             operator char*() {
@@ -118,14 +121,14 @@ namespace Gearbox {
                 
                 // Use strlen to get the length if not provided
                 if(iLength == -1)
-                    iLength = strlen(pString);
+                    iLength = std::strlen(pString);
                 
                 // End the string with \0 to make C stuff happy
                 m_pString = new char [iLength + 1];
                 m_pString[iLength] = '\0';
                 
                 // Copy the original string over
-                memcpy(m_pString, pString, iLength);
+                std::memcpy(m_pString, pString, iLength);
                 m_iLength = iLength;
             }
             

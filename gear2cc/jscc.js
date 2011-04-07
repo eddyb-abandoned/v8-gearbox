@@ -4633,7 +4633,7 @@ function _quit( exitcode )
 {
 	exit( exitcode );
 }
-
+var Io = require("Io");
 function read_file( file )
 {
 	var src = new String();

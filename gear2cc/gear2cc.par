@@ -30,13 +30,16 @@ function createClass(name, childs) {
     return out;
 }
 
-function createNamespace(name, childs, line) {
-    var out = {type:'namespace', name:name, namespaces:{}, classes:{}, vars:{}, functions:{}, header:"", top:"", license:""};
+function createObject(name, childs, line, isModule) {
+    var out = {type:isModule?'module':'object', name:name, objects:{}, modules:{}, classes:{}, vars:{}, functions:{}, header:"", top:"", license:""};
     for(c in childs) {
         var node = childs[c];
         switch(node.type) {
-            case 'namespace':
-                out.namespaces[node.name] = {namespaces:node.namespaces, classes:node.classes, vars:node.vars, functions:node.functions, header:node.header};
+            case 'object':
+                out.objects[node.name] = {objects:node.objects, classes:node.classes, vars:node.vars, functions:node.functions, header:node.header};
+                break;
+            case 'module':
+                out.modules[node.name] = {objects:node.objects, classes:node.classes, vars:node.vars, functions:node.functions, header:node.header};
                 break;
             case 'class':
                 out.classes[node.name] = {classes:node.classes, vars:node.vars, staticVars:node.staticVars, functions:node.functions};
@@ -63,7 +66,7 @@ function createNamespace(name, childs, line) {
     }
     
     if(!out.functions.hasOwnProperty("toString"))
-        out.functions["toString"] = [{args:[], code:"return String(\"[object "+name+"]\");", line:line}];
+        out.functions["toString"] = [{args:[], code:"return String(\"["+(isModule?'module':'object')+" "+name+"]\");", line:line}];
     
     return out;
 }
@@ -83,8 +86,8 @@ function makeLine(tbs, line) {
 }
 
 var lineNumber = 1;
-function generateFunctionCode(functions, name, parentObjName, code, class, ctor) {
-    var objName = parentObjName + "_" + name, replaces = [], funcCode = "", hasNoArgsVer = false;
+function generateFunctionCode(functions, name, parentPrefix, parentPath, code, class, ctor) {
+    var prefix = parentPrefix + "_" + name, path = parentPath + "[\"" + name + "\"]", replaces = [], funcCode = "", hasNoArgsVer = false;
     functions.sort(function(a, b) {return b.args.length - a.args.length;});
     for(f in functions) {
         var func = functions[f], replaces = [], tbs = (func.args.length ? "\t\t" : "\t");
@@ -98,7 +101,7 @@ function generateFunctionCode(functions, name, parentObjName, code, class, ctor)
         else
             actualCode = makeLine(tbs, func.line + 1) + actualCode;
         
-        replaces.push({regex:"\n" + makeTabs(parentObjName.split("_").length, "    "), replace:"\n" + tbs});
+        replaces.push({regex:"\n" + makeTabs(prefix.split("_").length-1, "    "), replace:"\n" + tbs});
         replaces.push({regex:"\\breturn\\b\\s*;", replace:"return undefined;"});
         replaces.push({regex:"\\bthis\\b", replace:"This"});
         
@@ -110,7 +113,7 @@ function generateFunctionCode(functions, name, parentObjName, code, class, ctor)
             actualCode += tbs + "return undefined;\n";
         
         if(func.args.length)
-            funcCode += "\n\tif(args.Length() >= " + func.args.length + ")\n\t{" + actualCode + "\t}\n";
+            funcCode += "\n\tif(args.Length() >= " + func.args.length + ") {" + actualCode + "\t}\n";
         else {
             funcCode += actualCode;
             hasNoArgsVer = true;
@@ -121,88 +124,101 @@ function generateFunctionCode(functions, name, parentObjName, code, class, ctor)
         funcCode = "\n\tValue This(args.This());"+funcCode;
     
     if(!hasNoArgsVer)
-        funcCode += "\treturn Throw(Error(\"Invalid call to " + parentObjName.replace(/_/g, ".").replace(/^global\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\"));\n";
+        funcCode += "\treturn Throw(Error(\"Invalid call to " + parentPrefix.replace(/_/g, ".").replace(/^\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\"));\n";
     
-    code.func += "v8::Handle<v8::Value> __" + objName + "(const v8::Arguments& args) {" + funcCode + "}\n\n";
+    code.func += "static v8::Handle<v8::Value> " + prefix + "(const v8::Arguments& args) {" + funcCode + "}\n\n";
 }
 
-function generateClassCode(class, name, parentObjName, code) {
-    var objName = parentObjName + "_" + name;
+function generateClassCode(class, name, parentPrefix, parentPath, code) {
+    var prefix = parentPrefix + "_" + name, path = parentPath + "[\"" + name + "\"]";
     
-    code.addClass(objName, name);
+    code.addClass(prefix, name);
     
     for(className in class.classes)
-        generateClassCode(class.classes[className], className, objName, code);
+        generateClassCode(class.classes[className], className, prefix, prefix, code);
     
     for(funcName in class.functions) {
         if(funcName != name)
-            code.setPrototype(objName, funcName, "Function(__" + objName + "_" + funcName + ", \"" + funcName + "\")");
-        generateFunctionCode(class.functions[funcName], funcName, objName, code, class, funcName == name);
+            code.setPrototype(prefix, funcName, code.makeFunction(prefix + "_" + funcName, funcName));
+        generateFunctionCode(class.functions[funcName], funcName, prefix, prefix, code, class, funcName == name);
     }
     
     for(varName in class.vars) {
         var val = class.vars[varName].val;
-        code.setPrototype(objName, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
+        code.setPrototype(prefix, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
     }
     
+    code.setStatic(parentPath, name, prefix + "->GetFunction()");
     for(varName in class.staticVars) {
         var val = class.staticVars[varName].val;
-        code.setStatic(objName + "->GetFunction()", varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
+        code.setStatic(path, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
     }
-    code.setStatic(parentObjName, name, objName + "->GetFunction()");
 }
 
-function generateNamespaceCode(namespace, name, parentObjName, code) {
-    var objName = parentObjName + "_" + name;
+function generateObjectCode(object, name, parentPrefix, parentPath, code) {
+    var prefix = parentPrefix + "_" + name, path = parentPath + "[\"" + name + "\"]";
     
-    code.addNamespace(objName);
-    code.setStatic(parentObjName, name, objName);
+    for(className in object.classes)
+        generateClassCode(object.classes[className], className, prefix, path, code);
     
-    for(className in namespace.classes)
-        generateClassCode(namespace.classes[className], className, objName, code);
-    
-    for(funcName in namespace.functions) {
-        code.setStatic(objName, funcName, "Function(__" + objName + "_" + funcName + ", \"" + funcName + "\")");
-        generateFunctionCode(namespace.functions[funcName], funcName, objName, code);
+    for(funcName in object.functions) {
+        code.setStatic(path, funcName, code.makeFunction(prefix + "_" + funcName, funcName));
+        generateFunctionCode(object.functions[funcName], funcName, prefix, path, code);
     }
     
-    for(varName in namespace.vars) {
-        var val = namespace.vars[varName].val;
-        code.setStatic(objName, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
+    for(varName in object.vars) {
+        var val = object.vars[varName].val;
+        code.setStatic(path, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
+    }
+}
+
+function generateModuleCode(object, name, parentPrefix, parentPath, code) {
+    var prefix = parentPrefix + "_" + name, path = parentPath;
+    
+    for(className in object.classes)
+        generateClassCode(object.classes[className], className, prefix, path, code);
+    
+    for(funcName in object.functions) {
+        code.setStatic(path, funcName, code.makeFunction(prefix + "_" + funcName, funcName));
+        generateFunctionCode(object.functions[funcName], funcName, prefix, path, code);
+    }
+    
+    for(varName in object.vars) {
+        var val = object.vars[varName].val;
+        code.setStatic(path, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
     }
 }
 
 function generateCode(global) {
     var code = {
         func:"", init:"",
-        addNamespace: function(objName) {
-            this.init += "\tv8::Handle<v8::Object> " + objName + " = v8::Object::New();\n";
-        },
-        addFunction: function(objName, funcName) {
-            objName += "_" + funcName;
-            this.init += "\tv8::Handle<v8::Function> " + objName + " = v8::FunctionTemplate::New(__" + objName + ")->GetFunction();\n";
-            this.init += "\t" + objName + "->SetName(String(\"" + funcName + "\"));\n";
+        addObject: function(path) {
+            this.init += "\tvar " + path + " = Object();\n";
         },
         addClass: function(objName, ctor) {
-            this.init += "\tv8::Handle<v8::FunctionTemplate> " + objName + " = v8::FunctionTemplate::New(__" + objName + "_" + ctor + ");\n";
+            this.init += "\tv8::Handle<v8::FunctionTemplate> " + objName + " = v8::FunctionTemplate::New(" + objName + "_" + ctor + ");\n";
             this.init += "\t" + objName + "->SetClassName(String(\"" + ctor + "\"));\n";
         },
+        makeFunction: function(prefix, name) {
+            return "Function(" + prefix + ", \"" + name + "\")";
+        },
         setStatic: function(parentObjName, name, value) {
-            this.init += "\t" + parentObjName + "->Set(String(\"" + name + "\"), " + value + ");\n";
+            this.init += "\t" + parentObjName + "[\"" + name + "\"] = " + value + ";\n";
         },
         setPrototype: function(parentObjName, name, value) {
             this.init += "\t" + parentObjName + "->PrototypeTemplate()->Set(\"" + name + "\", " + value + ");\n";
         },
     };
     
-    var namespaces = Object.keys(global.namespaces);
+    var modules = Object.keys(global.modules);
     
-    if(!namespaces.length)
-        throw Error("No namespace");
-    else if(namespaces.length > 1)
-        throw Error("Too many namespaces");
+    if(!modules.length)
+        throw Error("No modules");
+    else if(modules.length > 1)
+        throw Error("More than one module");
     else {
-        generateNamespaceCode(global.namespaces[namespaces[0]], namespaces[0], "global", code);
+        var moduleName = modules[0], module = global.modules[moduleName];
+        generateModuleCode(module, moduleName, "", "_exports", code);
         
         var license = global.license.trim().replace(/\n    /g, "\n") + (global.license.trim()?"\n\n":"\n"),
             top = global.top.trim().replace(/\n    /g, "\n") + (global.top.trim()?"\n\n":"\n");
@@ -215,16 +231,16 @@ using namespace Gearbox;\n\
 /** \\file '+baseName+'.cc converted from '+baseName+'.gear */\n'+
         makeLine("",1) + "\n" + top + code.func;
         
-        ccCode += makeLine("",nLines(ccCode)+2).replace(".gear",".cc") + "\nvoid Setup" + baseName + "(v8::Handle<v8::Object> global) {\n" + code.init + "}";
+        ccCode += makeLine("",nLines(ccCode)+2).replace(".gear",".cc") + "\nstatic void _setup_" + moduleName + "(Value _exports) {\n" + code.init + "}\nstatic Module _module_" + moduleName + "(\""+moduleName+"\", _setup_" + moduleName + ");";
         ccCode = ccCode.replace(/\t/g, "    ");
         Io.write(gear.cc, ccCode);
         
         var hCode = license+'\
-#ifndef MODULE_'+baseName.toUpperCase()+'_H\n\
-#define MODULE_'+baseName.toUpperCase()+'_H\n\n\
-#include <v8.h>\n\n\
-void Setup'+baseName+'(v8::Handle<v8::Object> global);\n\n\
-#endif\n';
+#ifndef V8_GEARBOX_MODULES_'+baseName.toUpperCase()+'_H\n\
+#define V8_GEARBOX_MODULES_'+baseName.toUpperCase()+'_H\n\n\
+#include <v8.h>\n\n'+
+//void Setup'+baseName+'(v8::Handle<v8::Object> global);\n\n\
+'#endif\n';
         Io.write(gear.h, hCode);
     }
     
@@ -233,7 +249,8 @@ void Setup'+baseName+'(v8::Handle<v8::Object> global);\n\n\
 *]
 
     '[ \t\n]+' WHTS
-    'namespace'
+    'module'
+    'object'
     'class'
     'function'
     'static'
@@ -256,13 +273,15 @@ void Setup'+baseName+'(v8::Handle<v8::Object> global);\n\n\
 
 ##
 
-Global: NamespaceContents [* generateCode(createNamespace("global", %1)); *];
+Global: ObjectContents [* generateCode(createObject("global", %1), false); *];
 
-Namespace: 'namespace' W Identifier W '{' W NamespaceContents W '}'     [* %% = createNamespace(%3, %7, %2.line); *];
+Module: 'module' W Identifier W '{' W ObjectContents W '}'     [* %% = createObject(%3, %7, %2.line, true); *];
 
-NamespaceContents: NamespaceContents W NamespaceContent W [* %% = %1.concat([%3]); *] | W [* %% = []; *];
-                    
-NamespaceContent: Namespace | Class | VariableDef | Function | NativeBlock;
+Object: 'object' W Identifier W '{' W ObjectContents W '}'     [* %% = createObject(%3, %7, %2.line, false); *];
+
+ObjectContents: ObjectContents W ObjectContent W [* %% = %1.concat([%3]); *] | W [* %% = []; *];
+
+ObjectContent: Module | Object | Class | VariableDef | Function | NativeBlock;
 
 Class: 'class' W Identifier W '{' W ClassContents W '}'     [* %% = createClass(%3, %7); *];
 
@@ -306,7 +325,8 @@ MLComment: MLComment PossibleJunk
 ;
 
 PossibleJunk: Junk
-|'namespace'
+|'module'
+|'object'
 |'class'
 |'function'
 |'static'
@@ -326,6 +346,7 @@ _W:WHTS[* lineNumber += %1.replace(/[^\n]/g,"").length; %% = {s:%1,line:lineNumb
 //##PREFIX##_dbg_withtrace = true;
 //##PREFIX##_dbg_withparsetree = true;
 //##PREFIX##_dbg_withstepbystep = true;
+var Io = require("Io");
 var lastSlash = arguments[1].lastIndexOf('/')+1;
 var baseDir = arguments[1].substr(0, lastSlash), baseName = arguments[1].substr(lastSlash).replace(/\.gear$/, '');
 var gear = {gear:baseDir+baseName+".gear", cc:baseDir+baseName+".cc", h:baseDir+baseName+".h"};

@@ -14,11 +14,9 @@
  * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef MODULE_SDL_H
-#define MODULE_SDL_H
+#ifndef V8_GEARBOX_MODULES_SDL_H
+#define V8_GEARBOX_MODULES_SDL_H
 
 #include <v8.h>
-
-void SetupSDL(v8::Handle<v8::Object> global);
 
 #endif
