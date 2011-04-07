@@ -16,8 +16,52 @@ license {
      */
 }
 
+header {
+    namespace Gearbox {
+        namespace Modules {
+            namespace Io {
+                var read(String filePath);
+                var write(String filePath, String contents);
+            }
+        }
+    }
+}
+
 top {
     #include <fstream>
+    
+    using namespace Modules;
+    
+    static var CError(String prefix = "") {
+        return Throw(Error(prefix + strerror(errno)));
+    }
+    
+    var Io::read(String filePath) {
+        std::ifstream file(filePath, std::ifstream::in | std::ifstream::binary);
+        if(!file.good())
+            return CError(filePath + ": ");
+        
+        file.seekg(0, std::ios::end);
+        size_t length = file.tellg();
+        file.seekg(0, std::ios::beg);
+        
+        char *pBuffer = new char [length];
+        
+        file.read(pBuffer, length);
+        String contents(pBuffer, length);
+        
+        delete [] pBuffer;
+        return contents;
+    }
+    
+    var Io::write(String filePath, String contents) {
+        std::ofstream file(filePath);
+        if(!file.good())
+            return CError(filePath + ": ");
+        
+        file.write(contents, contents.length());
+        return undefined;
+    }
     
     #define _THIS_FSTREAM (This["fstream"].to<std::fstream*>())
     
@@ -121,26 +165,11 @@ module Io {
     var SEEK_CUR = std::ios_base::cur;
     var SEEK_END = std::ios_base::end;
     
-    function read(path) {
-        std::ifstream file(path.to<String>(), std::ifstream::in | std::ifstream::binary);
-        if(!file.good())
-            return;
-        
-        file.seekg(0, std::ios::end);
-        size_t length = file.tellg();
-        file.seekg(0, std::ios::beg);
-        
-        char *pBuffer = new char [length];
-        
-        file.read(pBuffer, length);
-        String contents(pBuffer, length);
-        
-        delete [] pBuffer;
-        return contents;
+    function read(filePath) {
+        return Io::read(filePath);
     }
     
-    function write(path, contents) {
-        std::ofstream file(path.to<String>());
-        file.write(contents.to<String>(), contents.length());
+    function write(filePath, contents) {
+        return Io::write(filePath, contents);
     }
 }

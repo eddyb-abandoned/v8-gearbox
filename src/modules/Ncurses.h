@@ -17,6 +17,7 @@
 #ifndef V8_GEARBOX_MODULES_NCURSES_H
 #define V8_GEARBOX_MODULES_NCURSES_H
 
-#include <v8.h>
+#include <v8-gearbox.h>
+
 
 #endif

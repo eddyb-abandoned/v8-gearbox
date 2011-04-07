@@ -236,7 +236,8 @@ function generateCode(global) {
         generateModuleCode(module, moduleName, "", "_exports", code);
         
         var license = global.license.trim().replace(/\n    /g, "\n") + (global.license.trim()?"\n\n":"\n"),
-            top = global.top.trim().replace(/\n    /g, "\n") + (global.top.trim()?"\n\n":"\n");
+            top = global.top.trim().replace(/\n    /g, "\n") + (global.top.trim()?"\n\n":"\n"),
+            header = global.header.trim().replace(/\n    /g, "\n") + (global.header.trim()?"\n\n":"\n");
         var ccCode = license+'\
 #include <v8-gearbox.h>\n\
 #include "'+baseName+'.h"\n\
@@ -253,7 +254,7 @@ using namespace Gearbox;\n\
         var hCode = license+'\
 #ifndef V8_GEARBOX_MODULES_'+baseName.toUpperCase()+'_H\n\
 #define V8_GEARBOX_MODULES_'+baseName.toUpperCase()+'_H\n\n\
-#include <v8.h>\n\n'+
+#include <v8-gearbox.h>\n\n'+header+
 //void Setup'+baseName+'(v8::Handle<v8::Object> global);\n\n\
 '#endif\n';
         Io.write(gear.h, hCode);

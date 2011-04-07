@@ -80,8 +80,6 @@ namespace Gearbox {
         return Value(that, Value::Internal);
     }
     
-    String ReadFile(String name);
-    
     typedef Value var;
     
 }

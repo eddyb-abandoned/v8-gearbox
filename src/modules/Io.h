@@ -17,6 +17,15 @@
 #ifndef V8_GEARBOX_MODULES_IO_H
 #define V8_GEARBOX_MODULES_IO_H
 
-#include <v8.h>
+#include <v8-gearbox.h>
+
+namespace Gearbox {
+    namespace Modules {
+        namespace Io {
+            var read(String filePath);
+            var write(String filePath, String contents);
+        }
+    }
+}
 
 #endif

@@ -15,10 +15,13 @@
  */
 
 #include <v8-gearbox.h>
+#include <modules/Io.h>
 
 #include <cstdlib>
 
 namespace Gearbox {
+    using namespace Modules;
+    
     Context *Context::m_pCurrentContext = 0;
     
     static v8::Handle<v8::Value> _exit(const v8::Arguments& args) {
@@ -28,13 +31,14 @@ namespace Gearbox {
     
     static v8::Handle<v8::Value> _load(const v8::Arguments& args) {
         if(args.Length() >= 1) {
-            String file = Value(args[0]);
-            if(file.empty())
-                return Throw(Error("Error loading file"));
+            Value file(args[0]);
             
-            String source = ReadFile(file);
-            if(source.empty())
-                return Throw(Error("Error loading file"));
+            TryCatch tryCatch;
+            String source = Io::read(file);
+            
+            // Report exceptions caught while reading the file
+            if(tryCatch.hasCaught())
+                return undefined;
             
             Context *pCurrentContext = Context::getCurrent();
             if(!pCurrentContext)

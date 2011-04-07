@@ -15,12 +15,14 @@
  */
 
 #include <v8-gearbox.h>
-#include <fstream>
-#include <cstdlib>
+#include <modules/Io.h>
 
 using namespace Gearbox;
+using namespace Modules;
 
 #ifndef GEARBOX_APACHE_MOD
+
+#include <cstdlib>
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -72,12 +74,11 @@ int main(int argc, char* argv[]) {
     
     // Create a new context
     Context context;
+    TryCatch tryCatch;
     
     // Set the arguments array
     var arguments = Array();
     context.global()["arguments"] = arguments;
-    
-    TryCatch tryCatch;
     
     bool runShell = (argc == 1);
     for(int i = 1; i < argc; i++) {
@@ -101,11 +102,11 @@ int main(int argc, char* argv[]) {
         // Treat the first argument that is not an option as a file to execute
         else {
             // Read the file
-            String source = ReadFile(*arg);
-            if(source.empty()) {
-                printf("Error reading '%s'" _STR_NEWLINE , *arg);
+            String source = Io::read(*arg);
+            
+            // Report exceptions caught while reading the file
+            if(tryCatch.hasCaught())
                 return 1;
-            }
             
             // Set the rest of the arguments into the arguments array
             for(int j = i; j < argc; j++)
@@ -178,23 +179,3 @@ bool RunScript(const char *sScript) {
 }
 */
 #endif
-
-// Reads a file into a String.
-// TODO Move this in the Io module
-String Gearbox::ReadFile(String path) {
-    std::ifstream file(path, std::ifstream::in | std::ifstream::binary);
-    if(!file.good())
-        return String();
-    
-    file.seekg(0, std::ios::end);
-    size_t length = file.tellg();
-    file.seekg(0, std::ios::beg);
-    
-    char *pBuffer = new char [length];
-    
-    file.read(pBuffer, length);
-    String contents(pBuffer, length);
-    
-    delete [] pBuffer;
-    return contents;
-}
