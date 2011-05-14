@@ -217,12 +217,14 @@ namespace Gearbox {
             void from(char *that) {
                 from(v8::String::New(that));
             }
+#ifdef __LP64__
             void from(unsigned long long int that) {
                 from(Primitive(Primitive::Integer, int64_t(that)));
             }
             void from(long long int that) {
                 from(Primitive(Primitive::Integer, int64_t(that)));
             }
+#endif
             void from(uint64_t that) {
                 from(Primitive(Primitive::Integer, int64_t(that)));
             }
@@ -270,12 +272,14 @@ namespace Gearbox {
             }
             String to(Type<String>);
             int64_t to(Type<int64_t>);
+#ifdef __LP64__
             int64_t to(Type<long long int>) {
                 return to<int64_t>();
             }
             uint64_t to(Type<unsigned long long int>) {
                 return to<int64_t>();
             }
+#endif
             uint64_t to(Type<uint64_t>) {
                 return to<int64_t>();
             }
