@@ -42,6 +42,9 @@ namespace Gearbox {
             
             static std::map<String, Module*> *m_pModules;
     };
+    inline Value require(String moduleName) {
+        return Module::require(moduleName);
+    }
 }
 
 #endif
