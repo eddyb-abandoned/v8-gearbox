@@ -56,6 +56,11 @@ namespace Gearbox {
                 return m_iLength;
             }
             
+            void clear() {
+                m_pString = 0;
+                m_iLength = 0;
+            }
+            
             /** Concatenate operators */
             String operator+(const String &that) {
                 return concat(*this, that);
