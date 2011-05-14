@@ -18,6 +18,7 @@
 #include <modules/Io.h>
 
 #include <cstdlib>
+#include <iostream>
 
 namespace Gearbox {
     using namespace Modules;
@@ -52,8 +53,8 @@ namespace Gearbox {
     static v8::Handle<v8::Value> _print(const v8::Arguments& args) {
         if(args.Length()) {
             for(int i = 0; i < args.Length(); i++)
-                printf(i ? " %s" : "%s", *Value(args[i]).to<String>());
-            printf(_STR_NEWLINE);
+                std::cout << (i ? " " : "") << Value(args[i]).to<String>();
+            std::cout << std::endl;
             return undefined;
         }
         return Throw(Error("Invalid call to print"));
