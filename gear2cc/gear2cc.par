@@ -2,13 +2,13 @@
 
 /* Gathering utilities */
 
-function createClass(name, childs) {
-    var out = {type:'class', name:name, classes:{}, vars:{}, staticVars:{}, functions:{}};
+function createClass(name, childs, line) {
+    var out = {type:'class', name:name, classes:{}, vars:{}, staticVars:{}, functions:{}, staticFunctions:{}, accessors:{}};
     for(c in childs) {
         var node = childs[c];
         switch(node.type) {
             case 'class':
-                out.classes[node.name] = {classes:node.classes, vars:node.vars, staticVars:node.staticVars, functions:node.functions};
+                out.classes[node.name] = {classes:node.classes, vars:node.vars, staticVars:node.staticVars, functions:node.functions, staticFunctions:node.staticFunctions, accessors:node.accessors};
                 break;
             case 'function':
                 if(!out.functions[node.name])
@@ -16,16 +16,35 @@ function createClass(name, childs) {
                 else
                     out.functions[node.name].push({args:node.args, code:node.code, line:node.line});
                 break;
+            case 'static-function':
+                if(!out.staticFunctions[node.name])
+                    out.staticFunctions[node.name] = [{args:node.args, code:node.code, line:node.line}];
+                else
+                    out.staticFunctions[node.name].push({args:node.args, code:node.code, line:node.line});
+                break;
             case 'var':
                 out.vars[node.name] = {val:node.val};
                 break;
             case 'static-var':
                 out.staticVars[node.name] = {val:node.val};
                 break;
+            case 'getter':
+                if(!out.accessors[node.name])
+                    out.accessors[node.name] = {};
+                out.accessors[node.name].getter = {args:node.args, code:node.code, line:node.line};
+                break;
+            case 'setter':
+                if(!out.accessors[node.name])
+                    out.accessors[node.name] = {};
+                out.accessors[node.name].setter = {args:node.args, code:node.code, line:node.line};
+                break;
             case 'native-block':
                 throw Error("TODO: Native blocks in classes");
         }
     }
+    
+    if(!out.functions.hasOwnProperty(name))
+        out.functions[name] = [{args:[], code:"", line:line}];
     
     return out;
 }
@@ -42,7 +61,7 @@ function createObject(name, childs, line, isModule) {
                 out.modules[node.name] = {objects:node.objects, classes:node.classes, vars:node.vars, functions:node.functions, header:node.header};
                 break;
             case 'class':
-                out.classes[node.name] = {classes:node.classes, vars:node.vars, staticVars:node.staticVars, functions:node.functions};
+                out.classes[node.name] = {classes:node.classes, vars:node.vars, staticVars:node.staticVars, functions:node.functions, staticFunctions:node.staticFunctions, accessors:node.accessors};
                 break;
             case 'function':
                 if(!out.functions.hasOwnProperty(node.name))
@@ -86,33 +105,37 @@ function makeLine(tbs, line) {
 }
 
 var lineNumber = 1;
-function generateFunctionCode(functions, name, parentPrefix, parentPath, code, class, ctor) {
+function generateFunctionCode(functions, name, parentPrefix, parentPath, code, class, ctor, dest) {
     var prefix = parentPrefix + "_" + name, path = parentPath + "[\"" + name + "\"]", replaces = [], funcCode = "", hasNoArgsVer = false;
     functions.sort(function(a, b) {return b.args.length - a.args.length;});
     for(f in functions) {
-        var func = functions[f], replaces = [], tbs = (func.args.length ? "\t\t" : "\t");
+        var func = functions[f], replaces = [], tbs = (!dest && func.args.length ? "\t\t" : "\t");
         var actualCode = "\n" + tbs + func.code.trim() + "\n";
         
         var argsLine = "";
-        for(var _arg in func.args)
-            argsLine += (argsLine ? ", " : "") + func.args[_arg].name + "(args[" + _arg + "])";
+        if(dest=="setter")
+            argsLine = func.args[0].name+"(_"+func.args[0].name+")";
+        else
+            for(var _arg in func.args)
+                argsLine += (argsLine ? ", " : "") + func.args[_arg].name + "(args[" + _arg + "])";
         if(argsLine)
             actualCode = makeLine(tbs, func.line) + "\n" + tbs + "Value " + argsLine + ";" + actualCode;
         else
             actualCode = makeLine(tbs, func.line + 1) + actualCode;
         
         replaces.push({regex:"\n" + makeTabs(prefix.split("_").length-1, "    "), replace:"\n" + tbs});
-        replaces.push({regex:"\\breturn\\b\\s*;", replace:"return undefined;"});
+        if(dest!="setter")
+            replaces.push({regex:"\\breturn\\b\\s*;", replace:"return undefined;"});
         replaces.push({regex:"\\bthis\\b", replace:"This"});
         
         for(r in replaces) {
             var replace = replaces[r];
             actualCode = actualCode.replace(new RegExp(replace.regex, "g"), replace.replace);
         }
-        if(!RegExp("\n"+tbs+"\\breturn\\b[^;]*;\\s*$").exec(actualCode))
+        if(dest!="setter" && !RegExp("\n"+tbs+"\\breturn\\b[^;]*;\\s*$").exec(actualCode))
             actualCode += tbs + "return undefined;\n";
         
-        if(func.args.length)
+        if(!dest && func.args.length)
             funcCode += "\n\tif(args.Length() >= " + func.args.length + ") {" + actualCode + "\t}\n";
         else {
             funcCode += actualCode;
@@ -125,8 +148,12 @@ function generateFunctionCode(functions, name, parentPrefix, parentPath, code, c
     
     if(!hasNoArgsVer)
         funcCode += "\treturn Throw(Error(\"Invalid call to " + parentPrefix.replace(/_/g, ".").replace(/^\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\"));\n";
-    
-    code.func += "static v8::Handle<v8::Value> " + prefix + "(const v8::Arguments& args) {" + funcCode + "}\n\n";
+    if(dest=="getter")
+        code.func += "static v8::Handle<v8::Value> " + prefix + "(v8::Local<v8::String>, const v8::AccessorInfo &args) {" + funcCode + "}\n\n";
+    else if(dest=="setter")
+        code.func += "static void " + prefix + "(v8::Local<v8::String>, v8::Local<v8::Value> _"+func.args[0].name+", const v8::AccessorInfo &args) {" + funcCode + "}\n\n";
+    else
+        code.func += "static v8::Handle<v8::Value> " + prefix + "(const v8::Arguments &args) {" + funcCode + "}\n\n";
 }
 
 function generateClassCode(class, name, parentPrefix, parentPath, code) {
@@ -134,13 +161,19 @@ function generateClassCode(class, name, parentPrefix, parentPath, code) {
     
     code.addClass(prefix, name);
     
-    for(className in class.classes)
-        generateClassCode(class.classes[className], className, prefix, prefix, code);
-    
     for(funcName in class.functions) {
         if(funcName != name)
             code.setPrototype(prefix, funcName, code.makeFunction(prefix + "_" + funcName, funcName));
         generateFunctionCode(class.functions[funcName], funcName, prefix, prefix, code, class, funcName == name);
+    }
+    
+    for(accName in class.accessors) {
+        if(!class.accessors[accName].getter)
+            throw new Error("No getter");
+        generateFunctionCode([class.accessors[accName].getter], accName, prefix, prefix, code, class, false, "getter");
+        if(class.accessors[accName].setter)
+            generateFunctionCode([class.accessors[accName].setter], accName, prefix, prefix, code, class, false, "setter");
+        code.setPrototypeAccessor(prefix, accName, prefix + "_" + accName, !!class.accessors[accName].setter);
     }
     
     for(varName in class.vars) {
@@ -149,9 +182,16 @@ function generateClassCode(class, name, parentPrefix, parentPath, code) {
     }
     
     code.setStatic(parentPath, name, prefix + "->GetFunction()");
+    
+    for(className in class.classes)
+        generateClassCode(class.classes[className], className, prefix, path, code);
     for(varName in class.staticVars) {
         var val = class.staticVars[varName].val;
         code.setStatic(path, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
+    }
+    for(funcName in class.staticFunctions) {
+        code.setStatic(path, funcName, code.makeFunction(prefix + "_" + funcName, funcName));
+        generateFunctionCode(class.staticFunctions[funcName], funcName, prefix, path, code);
     }
 }
 
@@ -208,6 +248,9 @@ function generateCode(global) {
         setPrototype: function(parentObjName, name, value) {
             this.init += "\t" + parentObjName + "->PrototypeTemplate()->Set(\"" + name + "\", " + value + ");\n";
         },
+        setPrototypeAccessor: function(parentObjName, name, getter, setter) {
+            this.init += "\t" + parentObjName + "->PrototypeTemplate()->SetAccessor(String(\"" + name + "\"), " + getter + (setter?", "+getter:"") + ");\n";
+        },
     };
     
     var modules = Object.keys(global.modules);
@@ -256,6 +299,8 @@ using namespace Gearbox;\n\
     'function'
     'static'
     'var'
+    'getter'
+    'setter'
     '\{'
     '\}'
     '\('
@@ -265,7 +310,7 @@ using namespace Gearbox;\n\
     ','
     '\*'
     '/'
-    '[A-Za-z_][A-Za-z0-9_]*'        Identifier
+    '~?[A-Za-z_][A-Za-z0-9_]*'        Identifier
     /~'\'([^\']|\\\')*\''             _String                          [* %match = %match.substr(1, %match.length - 2).replace(/\\\'/g, "'" ); *]
     '[0-9]+'                        _Integer
     '[0-9]+\.[0-9]*|[0-9]*\.[0-9]+' _Number~/
@@ -284,7 +329,7 @@ ObjectContents: ObjectContents W ObjectContent W [* %% = %1.concat([%3]); *] | W
 
 ObjectContent: Module | Object | Class | VariableDef | Function | NativeBlock;
 
-Class: 'class' W Identifier W '{' W ClassContents W '}'     [* %% = createClass(%3, %7); *];
+Class: 'class' W Identifier W '{' W ClassContents W '}'     [* %% = createClass(%3, %7, %2.line); *];
 
 ClassContents: ClassContents W ClassContent [* %% = %1.concat([%3]); *] | W [* %% = []; *] ;
                     
@@ -295,6 +340,10 @@ VariableDef: 'var' W Identifier W '=' W NativeCodeInline W ';' [* %% = {type:'va
           
 Function: 'function' W Identifier W '(' W ArgumentList W ')' W '{' NativeCode '}' [* %% = {type:'function', name:%3, args:%7, code:%12, line:%10.line}; *]
          |'function' W Identifier W '(' W ')' W '{' NativeCode '}'              [* %% = {type:'function', name:%3, args:[], code:%10, line:%8.line}; *]
+         |'static' W 'function' W Identifier W '(' W ArgumentList W ')' W '{' NativeCode '}' [* %% = {type:'static-function', name:%5, args:%9, code:%14, line:%12.line}; *]
+         |'static' W 'function' W Identifier W '(' W ')' W '{' NativeCode '}'              [* %% = {type:'static-function', name:%5, args:[], code:%12, line:%10.line}; *]
+         |'getter' W Identifier W '(' W ')' W '{' NativeCode '}'              [* %% = {type:'getter', name:%3, args:[], code:%10, line:%8.line}; *]
+         |'setter' W Identifier W '(' W ArgumentList W ')' W '{' NativeCode '}' [* %% = {type:'setter', name:%3, args:%7, code:%12, line:%10.line}; *]
          ;
 
 ArgumentList: ArgumentList W ',' W Identifier [* %% = (%1).concat([{name:%5}]); *]
@@ -331,6 +380,8 @@ PossibleJunk: Junk
 |'class'
 |'function'
 |'static'
+|'getter'
+|'setter'
 |'var'
 |'='
 |','
