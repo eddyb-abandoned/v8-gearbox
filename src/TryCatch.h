@@ -19,7 +19,7 @@
 
 #include <v8-gearbox.h>
 
-#define GEARBOX_TRY_CATCH_REPORT_STACKTRACE 0
+#define GEARBOX_TRY_CATCH_REPORT_STACKTRACE 1
 
 namespace Gearbox {
     class TryCatch {
