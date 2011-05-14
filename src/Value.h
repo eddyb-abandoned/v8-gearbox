@@ -217,14 +217,23 @@ namespace Gearbox {
             void from(char *that) {
                 from(v8::String::New(that));
             }
+            void from(unsigned long long int that) {
+                from(Primitive(Primitive::Integer, int64_t(that)));
+            }
+            void from(long long int that) {
+                from(Primitive(Primitive::Integer, int64_t(that)));
+            }
+            void from(uint64_t that) {
+                from(Primitive(Primitive::Integer, int64_t(that)));
+            }
             void from(int64_t that) {
                 from(Primitive(Primitive::Integer, that));
             }
             void from(int that) {
-                from(static_cast<int64_t>(that));
+                from(int64_t(that));
             }
             void from(unsigned int that) {
-                from(static_cast<int64_t>(that));
+                from(int64_t(that));
             }
             void from(double that) {
                 from(Primitive(Primitive::Number, that));
@@ -261,6 +270,12 @@ namespace Gearbox {
             }
             String to(Type<String>);
             int64_t to(Type<int64_t>);
+            int64_t to(Type<long long int>) {
+                return to<int64_t>();
+            }
+            uint64_t to(Type<unsigned long long int>) {
+                return to<int64_t>();
+            }
             uint64_t to(Type<uint64_t>) {
                 return to<int64_t>();
             }
@@ -268,6 +283,9 @@ namespace Gearbox {
                 return to<int64_t>();
             }
             uint16_t to(Type<uint16_t>) {
+                return to<int64_t>();
+            }
+            char to(Type<char>) {
                 return to<int64_t>();
             }
             int to(Type<int>) {
