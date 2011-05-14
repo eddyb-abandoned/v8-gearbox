@@ -128,7 +128,7 @@ Value GLError() {
         }
     }
     if(errorString.length())
-        return Throw(Error(String::concat("GL_ERROR: ", errorString)));
+        THROW_ERROR(String::concat("GL_ERROR: ", errorString));
     else
         return undefined;
 }
@@ -144,12 +144,12 @@ T *ArrayToVector(Value array) {
     return vector;
 }
 
-static v8::Handle<v8::Value> _GL_initWindow(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_initWindow(const v8::Arguments &args) {
     if(args.Length() >= 3) {
         #line 144 "src/modules/GL.gear"
         Value name(args[0]), w(args[1]), h(args[2]);
         if(bGLIsUsed)
-            return Throw(Error("GL is already being used"));
+            THROW_ERROR("GL is already being used");
         int argc = 0;
         glutInit(&argc, 0);
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -157,10 +157,10 @@ static v8::Handle<v8::Value> _GL_initWindow(const v8::Arguments& args) {
         glutCreateWindow(name.to<String>());
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.initWindow"));
+    THROW_ERROR("Invalid call to GL.initWindow");
 }
 
-static v8::Handle<v8::Value> _GL_mainLoop(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_mainLoop(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 154 "src/modules/GL.gear"
         Value handlers(args[0]);
@@ -197,10 +197,10 @@ static v8::Handle<v8::Value> _GL_mainLoop(const v8::Arguments& args) {
         glutMainLoop();
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.mainLoop"));
+    THROW_ERROR("Invalid call to GL.mainLoop");
 }
 
-static v8::Handle<v8::Value> _GL_addTimer(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_addTimer(const v8::Arguments &args) {
     if(args.Length() >= 2) {
         #line 188 "src/modules/GL.gear"
         Value ms(args[0]), func(args[1]);
@@ -208,10 +208,10 @@ static v8::Handle<v8::Value> _GL_addTimer(const v8::Arguments& args) {
         glutTimerFunc(ms, GLProxyTimerFunc, nLastTimer);
         return Integer(nLastTimer++);
     }
-    return Throw(Error("Invalid call to GL.addTimer"));
+    THROW_ERROR("Invalid call to GL.addTimer");
 }
 
-static v8::Handle<v8::Value> _GL_cancelTimer(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_cancelTimer(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 194 "src/modules/GL.gear"
         Value idx(args[0]);
@@ -222,52 +222,52 @@ static v8::Handle<v8::Value> _GL_cancelTimer(const v8::Arguments& args) {
         delete pTimer;
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.cancelTimer"));
+    THROW_ERROR("Invalid call to GL.cancelTimer");
 }
 
-static v8::Handle<v8::Value> _GL_ignoreKeyRepeat(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_ignoreKeyRepeat(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 202 "src/modules/GL.gear"
         Value ignore(args[0]);
         glutIgnoreKeyRepeat(ignore);
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.ignoreKeyRepeat"));
+    THROW_ERROR("Invalid call to GL.ignoreKeyRepeat");
 }
 
-static v8::Handle<v8::Value> _GL_warpPointer(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_warpPointer(const v8::Arguments &args) {
     if(args.Length() >= 2) {
         #line 206 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]);
         glutWarpPointer(x, y);
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.warpPointer"));
+    THROW_ERROR("Invalid call to GL.warpPointer");
 }
 
-static v8::Handle<v8::Value> _GL_setCursor(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_setCursor(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 210 "src/modules/GL.gear"
         Value cursor(args[0]);
         glutSetCursor(cursor);
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.setCursor"));
+    THROW_ERROR("Invalid call to GL.setCursor");
 }
 
-static v8::Handle<v8::Value> _GL_swapBuffers(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_swapBuffers(const v8::Arguments &args) {
     #line 215 "src/modules/GL.gear"
     glutSwapBuffers();
     return undefined;
 }
 
-static v8::Handle<v8::Value> _GL_postRedisplay(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_postRedisplay(const v8::Arguments &args) {
     #line 219 "src/modules/GL.gear"
     glutPostRedisplay();
     return undefined;
 }
 
-static v8::Handle<v8::Value> _GL_bitmapCharacter(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_bitmapCharacter(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 222 "src/modules/GL.gear"
         Value c(args[0]);
@@ -275,40 +275,40 @@ static v8::Handle<v8::Value> _GL_bitmapCharacter(const v8::Arguments& args) {
             glutBitmapCharacter(GLUT_BITMAP_9_BY_15, **c.to<String>());
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.bitmapCharacter"));
+    THROW_ERROR("Invalid call to GL.bitmapCharacter");
 }
 
-static v8::Handle<v8::Value> _GL_perspective(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_perspective(const v8::Arguments &args) {
     if(args.Length() >= 4) {
         #line 256 "src/modules/GL.gear"
         Value fovy(args[0]), aspect(args[1]), zNear(args[2]), zFar(args[3]);
         gluPerspective(fovy, aspect, zNear, zFar);
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.perspective"));
+    THROW_ERROR("Invalid call to GL.perspective");
 }
 
-static v8::Handle<v8::Value> _GL_ortho2D(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_ortho2D(const v8::Arguments &args) {
     if(args.Length() >= 4) {
         #line 260 "src/modules/GL.gear"
         Value left(args[0]), right(args[1]), bottom(args[2]), top(args[3]);
         gluOrtho2D(left, right, bottom, top);
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.ortho2D"));
+    THROW_ERROR("Invalid call to GL.ortho2D");
 }
 
-static v8::Handle<v8::Value> _GL_lookAt(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_lookAt(const v8::Arguments &args) {
     if(args.Length() >= 9) {
         #line 264 "src/modules/GL.gear"
         Value eyeX(args[0]), eyeY(args[1]), eyeZ(args[2]), centerX(args[3]), centerY(args[4]), centerZ(args[5]), upX(args[6]), upY(args[7]), upZ(args[8]);
         gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.lookAt"));
+    THROW_ERROR("Invalid call to GL.lookAt");
 }
 
-static v8::Handle<v8::Value> _GL_makeFloatArray(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_makeFloatArray(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 269 "src/modules/GL.gear"
         Value size(args[0]);
@@ -317,10 +317,10 @@ static v8::Handle<v8::Value> _GL_makeFloatArray(const v8::Arguments& args) {
         obj.to<v8::Handle<v8::Object>>()->SetIndexedPropertiesToExternalArrayData(array, v8::kExternalFloatArray, size);
         return obj;
     }
-    return Throw(Error("Invalid call to GL.makeFloatArray"));
+    THROW_ERROR("Invalid call to GL.makeFloatArray");
 }
 
-static v8::Handle<v8::Value> _GL_makeUInt32Array(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_makeUInt32Array(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 275 "src/modules/GL.gear"
         Value size(args[0]);
@@ -329,10 +329,10 @@ static v8::Handle<v8::Value> _GL_makeUInt32Array(const v8::Arguments& args) {
         obj.to<v8::Handle<v8::Object>>()->SetIndexedPropertiesToExternalArrayData(array, v8::kExternalUnsignedIntArray, size);
         return obj;
     }
-    return Throw(Error("Invalid call to GL.makeUInt32Array"));
+    THROW_ERROR("Invalid call to GL.makeUInt32Array");
 }
 
-static v8::Handle<v8::Value> _GL_drawElements(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_drawElements(const v8::Arguments &args) {
     if(args.Length() >= 3) {
         #line 281 "src/modules/GL.gear"
         Value mode(args[0]), count(args[1]), indices(args[2]);
@@ -360,184 +360,184 @@ static v8::Handle<v8::Value> _GL_drawElements(const v8::Arguments& args) {
         delete [] _normals;*/
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.drawElements"));
+    THROW_ERROR("Invalid call to GL.drawElements");
 }
 
-static v8::Handle<v8::Value> _GL_vertexPointer(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_vertexPointer(const v8::Arguments &args) {
     if(args.Length() >= 2) {
         #line 308 "src/modules/GL.gear"
         Value size(args[0]), vertices(args[1]);
         glVertexPointer(size, GL_FLOAT, 0, reinterpret_cast<float*>(vertices.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.vertexPointer"));
+    THROW_ERROR("Invalid call to GL.vertexPointer");
 }
 
-static v8::Handle<v8::Value> _GL_normalPointer(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_normalPointer(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 313 "src/modules/GL.gear"
         Value normals(args[0]);
         glNormalPointer(GL_FLOAT, 0, reinterpret_cast<float*>(normals.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.normalPointer"));
+    THROW_ERROR("Invalid call to GL.normalPointer");
 }
 
-static v8::Handle<v8::Value> _GL_texCoordPointer(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_texCoordPointer(const v8::Arguments &args) {
     if(args.Length() >= 2) {
         #line 318 "src/modules/GL.gear"
         Value size(args[0]), texCoords(args[1]);
         glTexCoordPointer(size, GL_FLOAT, 0, reinterpret_cast<float*>(texCoords.to<v8::Handle<v8::Object>>()->GetIndexedPropertiesExternalArrayData()));
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.texCoordPointer"));
+    THROW_ERROR("Invalid call to GL.texCoordPointer");
 }
 
-static v8::Handle<v8::Value> _GL_enableClientState(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_enableClientState(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 323 "src/modules/GL.gear"
         Value that(args[0]);
         glEnableClientState(that);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.enableClientState"));
+    THROW_ERROR("Invalid call to GL.enableClientState");
 }
 
-static v8::Handle<v8::Value> _GL_enable(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_enable(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 328 "src/modules/GL.gear"
         Value that(args[0]);
         glEnable(that);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.enable"));
+    THROW_ERROR("Invalid call to GL.enable");
 }
 
-static v8::Handle<v8::Value> _GL_disable(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_disable(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 333 "src/modules/GL.gear"
         Value that(args[0]);
         glDisable(that);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.disable"));
+    THROW_ERROR("Invalid call to GL.disable");
 }
 
-static v8::Handle<v8::Value> _GL_hint(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_hint(const v8::Arguments &args) {
     if(args.Length() >= 2) {
         #line 338 "src/modules/GL.gear"
         Value target(args[0]), mode(args[1]);
         glHint(target, mode);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.hint"));
+    THROW_ERROR("Invalid call to GL.hint");
 }
 
-static v8::Handle<v8::Value> _GL_shadeModel(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_shadeModel(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 343 "src/modules/GL.gear"
         Value mode(args[0]);
         glShadeModel(mode);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.shadeModel"));
+    THROW_ERROR("Invalid call to GL.shadeModel");
 }
 
-static v8::Handle<v8::Value> _GL_flush(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_flush(const v8::Arguments &args) {
     #line 349 "src/modules/GL.gear"
     glFlush();
     return GLError();
 }
 
-static v8::Handle<v8::Value> _GL_loadIdentity(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_loadIdentity(const v8::Arguments &args) {
     #line 354 "src/modules/GL.gear"
     glLoadIdentity();
     return GLError();
 }
 
-static v8::Handle<v8::Value> _GL_clearColor(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_clearColor(const v8::Arguments &args) {
     if(args.Length() >= 4) {
         #line 358 "src/modules/GL.gear"
         Value r(args[0]), g(args[1]), b(args[2]), a(args[3]);
         glClearColor(r, g, b, a);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.clearColor"));
+    THROW_ERROR("Invalid call to GL.clearColor");
 }
 
-static v8::Handle<v8::Value> _GL_clear(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_clear(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 363 "src/modules/GL.gear"
         Value bits(args[0]);
         glClear(bits);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.clear"));
+    THROW_ERROR("Invalid call to GL.clear");
 }
 
-static v8::Handle<v8::Value> _GL_viewport(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_viewport(const v8::Arguments &args) {
     if(args.Length() >= 4) {
         #line 368 "src/modules/GL.gear"
         Value x1(args[0]), y1(args[1]), x2(args[2]), y2(args[3]);
         glViewport(x1, y1, x2, y2);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.viewport"));
+    THROW_ERROR("Invalid call to GL.viewport");
 }
 
-static v8::Handle<v8::Value> _GL_matrixMode(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_matrixMode(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 373 "src/modules/GL.gear"
         Value mode(args[0]);
         glMatrixMode(mode);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.matrixMode"));
+    THROW_ERROR("Invalid call to GL.matrixMode");
 }
 
-static v8::Handle<v8::Value> _GL_pushMatrix(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_pushMatrix(const v8::Arguments &args) {
     #line 379 "src/modules/GL.gear"
     glPushMatrix();
     return GLError();
 }
 
-static v8::Handle<v8::Value> _GL_popMatrix(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_popMatrix(const v8::Arguments &args) {
     #line 384 "src/modules/GL.gear"
     glPopMatrix();
     return GLError();
 }
 
-static v8::Handle<v8::Value> _GL_translate(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_translate(const v8::Arguments &args) {
     if(args.Length() >= 3) {
         #line 388 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
         glTranslated(x, y, z);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.translate"));
+    THROW_ERROR("Invalid call to GL.translate");
 }
 
-static v8::Handle<v8::Value> _GL_scale(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_scale(const v8::Arguments &args) {
     if(args.Length() >= 3) {
         #line 393 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
         glScaled(x, y, z);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.scale"));
+    THROW_ERROR("Invalid call to GL.scale");
 }
 
-static v8::Handle<v8::Value> _GL_rotate(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_rotate(const v8::Arguments &args) {
     if(args.Length() >= 4) {
         #line 398 "src/modules/GL.gear"
         Value angle(args[0]), x(args[1]), y(args[2]), z(args[3]);
         glRotated(angle, x, y, z);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.rotate"));
+    THROW_ERROR("Invalid call to GL.rotate");
 }
 
-static v8::Handle<v8::Value> _GL_color(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_color(const v8::Arguments &args) {
     if(args.Length() >= 4) {
         #line 408 "src/modules/GL.gear"
         Value r(args[0]), g(args[1]), b(args[2]), a(args[3]);
@@ -553,10 +553,10 @@ static v8::Handle<v8::Value> _GL_color(const v8::Arguments& args) {
         //return GLError();
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.color"));
+    THROW_ERROR("Invalid call to GL.color");
 }
 
-static v8::Handle<v8::Value> _GL_fog(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_fog(const v8::Arguments &args) {
     if(args.Length() >= 2) {
         #line 413 "src/modules/GL.gear"
         Value what(args[0]), val(args[1]);
@@ -576,10 +576,10 @@ static v8::Handle<v8::Value> _GL_fog(const v8::Arguments& args) {
             glFogf(what, val);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.fog"));
+    THROW_ERROR("Invalid call to GL.fog");
 }
 
-static v8::Handle<v8::Value> _GL_light(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_light(const v8::Arguments &args) {
     if(args.Length() >= 6) {
         #line 431 "src/modules/GL.gear"
         Value which(args[0]), type(args[1]), a(args[2]), b(args[3]), c(args[4]), d(args[5]);
@@ -587,10 +587,10 @@ static v8::Handle<v8::Value> _GL_light(const v8::Arguments& args) {
         glLightfv(which, type, light);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.light"));
+    THROW_ERROR("Invalid call to GL.light");
 }
 
-static v8::Handle<v8::Value> _GL_material(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_material(const v8::Arguments &args) {
     if(args.Length() >= 6) {
         #line 437 "src/modules/GL.gear"
         Value which(args[0]), type(args[1]), r(args[2]), g(args[3]), b(args[4]), a(args[5]);
@@ -613,10 +613,10 @@ static v8::Handle<v8::Value> _GL_material(const v8::Arguments& args) {
         glMaterialfv(which, type, material);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.material"));
+    THROW_ERROR("Invalid call to GL.material");
 }
 
-static v8::Handle<v8::Value> _GL_begin(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_begin(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 458 "src/modules/GL.gear"
         Value what(args[0]);
@@ -624,16 +624,16 @@ static v8::Handle<v8::Value> _GL_begin(const v8::Arguments& args) {
         //return GLError();
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.begin"));
+    THROW_ERROR("Invalid call to GL.begin");
 }
 
-static v8::Handle<v8::Value> _GL_end(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_end(const v8::Arguments &args) {
     #line 464 "src/modules/GL.gear"
     glEnd();
     return GLError();
 }
 
-static v8::Handle<v8::Value> _GL_vertex(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_vertex(const v8::Arguments &args) {
     if(args.Length() >= 3) {
         #line 468 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
@@ -641,10 +641,10 @@ static v8::Handle<v8::Value> _GL_vertex(const v8::Arguments& args) {
         //return GLError();
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.vertex"));
+    THROW_ERROR("Invalid call to GL.vertex");
 }
 
-static v8::Handle<v8::Value> _GL_normal(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_normal(const v8::Arguments &args) {
     if(args.Length() >= 3) {
         #line 473 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
@@ -652,20 +652,20 @@ static v8::Handle<v8::Value> _GL_normal(const v8::Arguments& args) {
         //return GLError();
         return undefined;
     }
-    return Throw(Error("Invalid call to GL.normal"));
+    THROW_ERROR("Invalid call to GL.normal");
 }
 
-static v8::Handle<v8::Value> _GL_rasterPos(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_rasterPos(const v8::Arguments &args) {
     if(args.Length() >= 2) {
         #line 478 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]);
         glRasterPos2d(x, y);
         return GLError();
     }
-    return Throw(Error("Invalid call to GL.rasterPos"));
+    THROW_ERROR("Invalid call to GL.rasterPos");
 }
 
-static v8::Handle<v8::Value> _GL_toString(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _GL_toString(const v8::Arguments &args) {
     #line 144 "src/modules/GL.gear"
     return String("[module GL]");
 }

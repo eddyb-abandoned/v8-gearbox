@@ -33,13 +33,14 @@ top {
     using namespace Modules;
     
     static var CError(String prefix = "") {
-        return Throw(Error(prefix + strerror(errno)));
+        return Error(prefix + strerror(errno));
     }
+    #define THROW_CERROR(...) THROW(CError(__VA_ARGS__))
     
     var Io::read(String filePath) {
         std::ifstream file(filePath, std::ifstream::in | std::ifstream::binary);
         if(!file.good())
-            return CError(filePath + ": ");
+            THROW_CERROR(filePath + ": ");
         
         file.seekg(0, std::ios::end);
         size_t length = file.tellg();
@@ -57,7 +58,7 @@ top {
     var Io::write(String filePath, String contents) {
         std::ofstream file(filePath);
         if(!file.good())
-            return CError(filePath + ": ");
+            THROW_CERROR(filePath + ": ");
         
         file.write(contents, contents.length());
         return undefined;
@@ -104,7 +105,8 @@ module Io {
                 }
             }
             this["fstream"] = new std::fstream(path.to<String>(), openMode);
-            //printf("Error while openning %s: %s %i\n", *(path.to<String>()), strerror(errno), openMode);
+            if(!_THIS_FSTREAM->good())
+                THROW_CERROR(path.to<String>() + ": ");
         }
         
         function tellg() {
@@ -113,35 +115,32 @@ module Io {
         
         function seekg(pos) {
             _THIS_FSTREAM->seekg(pos.to<int>());
-            //printf("Error while seeking to %i: %s\n", pos.to<int>(), strerror(errno));
         }
         
         function seekg(off, dir) {
             _THIS_FSTREAM->seekg(off, static_cast<std::ios_base::seekdir>(dir.to<int>()));
         }
         
-        function readInt(len) {
-            if(len == 1)
-                _FSTREAM_READ(uint8_t, i, return Integer(i));
-            if(len == 2)
-                _FSTREAM_READ(uint16_t, i, return Integer(i));
-            if(len == 4)
-                _FSTREAM_READ(uint32_t, i, return Integer(i));
-            if(len == 8)
-                _FSTREAM_READ(uint64_t, i, return Integer(i));
-        }
-        
-        function readFloat() {
-            _FSTREAM_READ(float, f, return Number(f));
-        }
-        
-        function readFloat(prec) {
-            if(prec == 1)
-                _FSTREAM_READ(float, f, return Number(f));
-            if(prec == 2)
-                _FSTREAM_READ(double, f, return Number(f));
-            if(prec == 4)
-                _FSTREAM_READ(long double, f, return Number(f));
+        function readBinary(_f) {
+            String f = _f;
+            
+            #define _HANDLE_FMT(fmt, type, retType)if(f == #fmt)_FSTREAM_READ(type, x, return retType(x))
+            #define _HANDLE_INT_FMT(n) _HANDLE_FMT(u##n, uint##n##_t, Integer);_HANDLE_FMT(i##n, int##n##_t, Integer);_HANDLE_FMT(s##n, int##n##_t, Integer)
+            
+            _HANDLE_INT_FMT(8);
+            _HANDLE_INT_FMT(16);
+            _HANDLE_INT_FMT(32);
+            _HANDLE_INT_FMT(64);
+            
+            _HANDLE_FMT(f, float, Number);
+            _HANDLE_FMT(f32, float, Number);
+            _HANDLE_FMT(d, double, Number);
+            _HANDLE_FMT(f64, double, Number);
+            _HANDLE_FMT(ld, long double, Number);
+            _HANDLE_FMT(f128, long double, Number);
+            
+            #undef _HANDLE_INT_FMT
+            #undef _HANDLE_FMT
         }
         
         function tellp() {
@@ -161,9 +160,8 @@ module Io {
         }
     }
     
-    var SEEK_BEG = std::ios_base::beg;
-    var SEEK_CUR = std::ios_base::cur;
-    var SEEK_END = std::ios_base::end;
+    var SeekBeg = std::ios_base::beg;
+    var SeekEnd = std::ios_base::end;
     
     function read(filePath) {
         return Io::read(filePath);

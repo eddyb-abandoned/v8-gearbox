@@ -110,4 +110,11 @@ namespace Gearbox {
     }
 }
 
+#define THROW(x) return Throw(x)
+#define THROW_ERROR(x) THROW(Error(x))
+#define THROW_RANGE_ERROR(x) THROW(RangeError(x))
+#define THROW_REFERENCE_ERROR(x) THROW(ReferenceError(x))
+#define THROW_SYNTAX_ERROR(x) THROW(SyntaxError(x))
+#define THROW_TYPE_ERROR(x) THROW(TypeError(x))
+
 #endif

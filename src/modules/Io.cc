@@ -27,13 +27,14 @@ using namespace Gearbox;
 using namespace Modules;
 
 static var CError(String prefix = "") {
-    return Throw(Error(prefix + strerror(errno)));
+    return Error(prefix + strerror(errno));
 }
+#define THROW_CERROR(...) THROW(CError(__VA_ARGS__))
 
 var Io::read(String filePath) {
     std::ifstream file(filePath, std::ifstream::in | std::ifstream::binary);
     if(!file.good())
-        return CError(filePath + ": ");
+        THROW_CERROR(filePath + ": ");
     
     file.seekg(0, std::ios::end);
     size_t length = file.tellg();
@@ -51,7 +52,7 @@ var Io::read(String filePath) {
 var Io::write(String filePath, String contents) {
     std::ofstream file(filePath);
     if(!file.good())
-        return CError(filePath + ": ");
+        THROW_CERROR(filePath + ": ");
     
     file.write(contents, contents.length());
     return undefined;
@@ -62,10 +63,10 @@ var Io::write(String filePath, String contents) {
 #define _FSTREAM_READ(x, i, dw) do {x i;_THIS_FSTREAM->read(reinterpret_cast<char*>(&i), sizeof(x));dw;} while(0)
 //printf("Error while reading an %s: %s\n", #x, strerror(errno));
 
-static v8::Handle<v8::Value> _Io_Stream_Stream(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_Stream(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 2) {
-        #line 80 "src/modules/Io.gear"
+        #line 81 "src/modules/Io.gear"
         Value path(args[0]), mode(args[1]);
         std::ios_base::openmode openMode = static_cast<std::ios_base::openmode>(0);
         if(mode.is<Object>()) {
@@ -93,144 +94,135 @@ static v8::Handle<v8::Value> _Io_Stream_Stream(const v8::Arguments& args) {
             }
         }
         This["fstream"] = new std::fstream(path.to<String>(), openMode);
-        //printf("Error while openning %s: %s %i\n", *(path.to<String>()), strerror(errno), openMode);
+        if(!_THIS_FSTREAM->good())
+            THROW_CERROR(path.to<String>() + ": ");
         return undefined;
     }
 
     if(args.Length() >= 1) {
-        #line 76 "src/modules/Io.gear"
+        #line 77 "src/modules/Io.gear"
         Value path(args[0]);
         This["fstream"] = new std::fstream(path.to<String>());
         return undefined;
     }
-    return Throw(Error("Invalid call to Io.Stream"));
+    THROW_ERROR("Invalid call to Io.Stream");
 }
 
-static v8::Handle<v8::Value> _Io_Stream_tellg(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_tellg(const v8::Arguments &args) {
     Value This(args.This());
-    #line 111 "src/modules/Io.gear"
+    #line 113 "src/modules/Io.gear"
     return Integer(_THIS_FSTREAM->tellg());
 }
 
-static v8::Handle<v8::Value> _Io_Stream_seekg(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_seekg(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 2) {
-        #line 119 "src/modules/Io.gear"
+        #line 120 "src/modules/Io.gear"
         Value off(args[0]), dir(args[1]);
         _THIS_FSTREAM->seekg(off, static_cast<std::ios_base::seekdir>(dir.to<int>()));
         return undefined;
     }
 
     if(args.Length() >= 1) {
-        #line 114 "src/modules/Io.gear"
+        #line 116 "src/modules/Io.gear"
         Value pos(args[0]);
         _THIS_FSTREAM->seekg(pos.to<int>());
-        //printf("Error while seeking to %i: %s\n", pos.to<int>(), strerror(errno));
         return undefined;
     }
-    return Throw(Error("Invalid call to Io.Stream.prototype.seekg"));
+    THROW_ERROR("Invalid call to Io.Stream.prototype.seekg");
 }
 
-static v8::Handle<v8::Value> _Io_Stream_readInt(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_readBinary(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 123 "src/modules/Io.gear"
-        Value len(args[0]);
-        if(len == 1)
-            _FSTREAM_READ(uint8_t, i, return Integer(i));
-        if(len == 2)
-            _FSTREAM_READ(uint16_t, i, return Integer(i));
-        if(len == 4)
-            _FSTREAM_READ(uint32_t, i, return Integer(i));
-        if(len == 8)
-            _FSTREAM_READ(uint64_t, i, return Integer(i));
+        #line 124 "src/modules/Io.gear"
+        Value _f(args[0]);
+        String f = _f;
+        
+        #define _HANDLE_FMT(fmt, type, retType)if(f == #fmt)_FSTREAM_READ(type, x, return retType(x))
+        #define _HANDLE_INT_FMT(n) _HANDLE_FMT(u##n, uint##n##_t, Integer);_HANDLE_FMT(i##n, int##n##_t, Integer);_HANDLE_FMT(s##n, int##n##_t, Integer)
+        
+        _HANDLE_INT_FMT(8);
+        _HANDLE_INT_FMT(16);
+        _HANDLE_INT_FMT(32);
+        _HANDLE_INT_FMT(64);
+        
+        _HANDLE_FMT(f, float, Number);
+        _HANDLE_FMT(f32, float, Number);
+        _HANDLE_FMT(d, double, Number);
+        _HANDLE_FMT(f64, double, Number);
+        _HANDLE_FMT(ld, long double, Number);
+        _HANDLE_FMT(f128, long double, Number);
+        
+        #undef _HANDLE_INT_FMT
+        #undef _HANDLE_FMT
         return undefined;
     }
-    return Throw(Error("Invalid call to Io.Stream.prototype.readInt"));
+    THROW_ERROR("Invalid call to Io.Stream.prototype.readBinary");
 }
 
-static v8::Handle<v8::Value> _Io_Stream_readFloat(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_tellp(const v8::Arguments &args) {
     Value This(args.This());
-    if(args.Length() >= 1) {
-        #line 138 "src/modules/Io.gear"
-        Value prec(args[0]);
-        if(prec == 1)
-            _FSTREAM_READ(float, f, return Number(f));
-        if(prec == 2)
-            _FSTREAM_READ(double, f, return Number(f));
-        if(prec == 4)
-            _FSTREAM_READ(long double, f, return Number(f));
-        return undefined;
-    }
-
-    #line 135 "src/modules/Io.gear"
-    _FSTREAM_READ(float, f, return Number(f));
-    return undefined;
-}
-
-static v8::Handle<v8::Value> _Io_Stream_tellp(const v8::Arguments& args) {
-    Value This(args.This());
-    #line 148 "src/modules/Io.gear"
+    #line 147 "src/modules/Io.gear"
     return Integer(_THIS_FSTREAM->tellp());
 }
 
-static v8::Handle<v8::Value> _Io_Stream_seekp(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_seekp(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 2) {
-        #line 155 "src/modules/Io.gear"
+        #line 154 "src/modules/Io.gear"
         Value off(args[0]), dir(args[1]);
         _THIS_FSTREAM->seekp(off, static_cast<std::ios_base::seekdir>(dir.to<int>()));
         return undefined;
     }
 
     if(args.Length() >= 1) {
-        #line 151 "src/modules/Io.gear"
+        #line 150 "src/modules/Io.gear"
         Value pos(args[0]);
         _THIS_FSTREAM->seekp(pos.to<int>());
         return undefined;
     }
-    return Throw(Error("Invalid call to Io.Stream.prototype.seekp"));
+    THROW_ERROR("Invalid call to Io.Stream.prototype.seekp");
 }
 
-static v8::Handle<v8::Value> _Io_Stream_close(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_Stream_close(const v8::Arguments &args) {
     Value This(args.This());
-    #line 160 "src/modules/Io.gear"
+    #line 159 "src/modules/Io.gear"
     _THIS_FSTREAM->close();
     return undefined;
 }
 
-static v8::Handle<v8::Value> _Io_read(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_read(const v8::Arguments &args) {
     if(args.Length() >= 1) {
-        #line 168 "src/modules/Io.gear"
+        #line 166 "src/modules/Io.gear"
         Value filePath(args[0]);
         return Io::read(filePath);
     }
-    return Throw(Error("Invalid call to Io.read"));
+    THROW_ERROR("Invalid call to Io.read");
 }
 
-static v8::Handle<v8::Value> _Io_write(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Io_write(const v8::Arguments &args) {
     if(args.Length() >= 2) {
-        #line 172 "src/modules/Io.gear"
+        #line 170 "src/modules/Io.gear"
         Value filePath(args[0]), contents(args[1]);
         return Io::write(filePath, contents);
     }
-    return Throw(Error("Invalid call to Io.write"));
+    THROW_ERROR("Invalid call to Io.write");
 }
 
-static v8::Handle<v8::Value> _Io_toString(const v8::Arguments& args) {
-    #line 73 "src/modules/Io.gear"
+static v8::Handle<v8::Value> _Io_toString(const v8::Arguments &args) {
+    #line 74 "src/modules/Io.gear"
     return String("[module Io]");
 }
 
 
-#line 226 "src/modules/Io.cc"
+#line 219 "src/modules/Io.cc"
 static void _setup_Io(Value _exports) {
     v8::Handle<v8::FunctionTemplate> _Io_Stream = v8::FunctionTemplate::New(_Io_Stream_Stream);
     _Io_Stream->SetClassName(String("Stream"));
     _Io_Stream->PrototypeTemplate()->Set("tellg", Function(_Io_Stream_tellg, "tellg"));
     _Io_Stream->PrototypeTemplate()->Set("seekg", Function(_Io_Stream_seekg, "seekg"));
-    _Io_Stream->PrototypeTemplate()->Set("readInt", Function(_Io_Stream_readInt, "readInt"));
-    _Io_Stream->PrototypeTemplate()->Set("readFloat", Function(_Io_Stream_readFloat, "readFloat"));
+    _Io_Stream->PrototypeTemplate()->Set("readBinary", Function(_Io_Stream_readBinary, "readBinary"));
     _Io_Stream->PrototypeTemplate()->Set("tellp", Function(_Io_Stream_tellp, "tellp"));
     _Io_Stream->PrototypeTemplate()->Set("seekp", Function(_Io_Stream_seekp, "seekp"));
     _Io_Stream->PrototypeTemplate()->Set("close", Function(_Io_Stream_close, "close"));
@@ -239,8 +231,7 @@ static void _setup_Io(Value _exports) {
     _exports["read"] = Function(_Io_read, "read");
     _exports["write"] = Function(_Io_write, "write");
     _exports["toString"] = Function(_Io_toString, "toString");
-    _exports["SEEK_BEG"] = Value(std::ios_base::beg);
-    _exports["SEEK_CUR"] = Value(std::ios_base::cur);
-    _exports["SEEK_END"] = Value(std::ios_base::end);
+    _exports["SeekBeg"] = Value(std::ios_base::beg);
+    _exports["SeekEnd"] = Value(std::ios_base::end);
 }
 static Module _module_Io("Io", _setup_Io);

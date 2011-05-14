@@ -24,7 +24,7 @@ using namespace Gearbox;
 #line 1 "src/modules/Ncurses.gear"
 #include <curses.h>
 
-static v8::Handle<v8::Value> _Ncurses_Window_Window(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_Window(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 4) {
         #line 28 "src/modules/Ncurses.gear"
@@ -34,10 +34,10 @@ static v8::Handle<v8::Value> _Ncurses_Window_Window(const v8::Arguments& args) {
         wtimeout(This["win"], 0);
         return undefined;
     }
-    return Throw(Error("Invalid call to Ncurses.Window"));
+    THROW_ERROR("Invalid call to Ncurses.Window");
 }
 
-static v8::Handle<v8::Value> _Ncurses_Window_bold(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_bold(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
         #line 34 "src/modules/Ncurses.gear"
@@ -48,10 +48,10 @@ static v8::Handle<v8::Value> _Ncurses_Window_bold(const v8::Arguments& args) {
             wattroff(This["win"], A_BOLD);
         return undefined;
     }
-    return Throw(Error("Invalid call to Ncurses.Window.prototype.bold"));
+    THROW_ERROR("Invalid call to Ncurses.Window.prototype.bold");
 }
 
-static v8::Handle<v8::Value> _Ncurses_Window_border(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_border(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
         #line 47 "src/modules/Ncurses.gear"
@@ -69,7 +69,7 @@ static v8::Handle<v8::Value> _Ncurses_Window_border(const v8::Arguments& args) {
     return undefined;
 }
 
-static v8::Handle<v8::Value> _Ncurses_Window_setBackground(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_setBackground(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
         #line 53 "src/modules/Ncurses.gear"
@@ -79,10 +79,10 @@ static v8::Handle<v8::Value> _Ncurses_Window_setBackground(const v8::Arguments& 
             wrefresh(This["win"]);
         return undefined;
     }
-    return Throw(Error("Invalid call to Ncurses.Window.prototype.setBackground"));
+    THROW_ERROR("Invalid call to Ncurses.Window.prototype.setBackground");
 }
 
-static v8::Handle<v8::Value> _Ncurses_Window_print(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_print(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
         #line 59 "src/modules/Ncurses.gear"
@@ -92,10 +92,10 @@ static v8::Handle<v8::Value> _Ncurses_Window_print(const v8::Arguments& args) {
             wrefresh(This["win"]);
         return undefined;
     }
-    return Throw(Error("Invalid call to Ncurses.Window.prototype.print"));
+    THROW_ERROR("Invalid call to Ncurses.Window.prototype.print");
 }
 
-static v8::Handle<v8::Value> _Ncurses_Window_clear(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_clear(const v8::Arguments &args) {
     Value This(args.This());
     #line 66 "src/modules/Ncurses.gear"
     werase(This["win"]);
@@ -104,7 +104,7 @@ static v8::Handle<v8::Value> _Ncurses_Window_clear(const v8::Arguments& args) {
     return undefined;
 }
 
-static v8::Handle<v8::Value> _Ncurses_Window_touch(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_touch(const v8::Arguments &args) {
     Value This(args.This());
     #line 72 "src/modules/Ncurses.gear"
     touchwin(This["win"].to<WINDOW*>());
@@ -113,7 +113,7 @@ static v8::Handle<v8::Value> _Ncurses_Window_touch(const v8::Arguments& args) {
     return undefined;
 }
 
-static v8::Handle<v8::Value> _Ncurses_Window_move(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_move(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 2) {
         #line 77 "src/modules/Ncurses.gear"
@@ -123,10 +123,10 @@ static v8::Handle<v8::Value> _Ncurses_Window_move(const v8::Arguments& args) {
             wrefresh(This["win"]);
         return undefined;
     }
-    return Throw(Error("Invalid call to Ncurses.Window.prototype.move"));
+    THROW_ERROR("Invalid call to Ncurses.Window.prototype.move");
 }
 
-static v8::Handle<v8::Value> _Ncurses_Window_getChar(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_Window_getChar(const v8::Arguments &args) {
     Value This(args.This());
     #line 84 "src/modules/Ncurses.gear"
     int c = wgetch(This["win"]);
@@ -135,7 +135,7 @@ static v8::Handle<v8::Value> _Ncurses_Window_getChar(const v8::Arguments& args) 
     return undefined;
 }
 
-static v8::Handle<v8::Value> _Ncurses_enter(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_enter(const v8::Arguments &args) {
     #line 91 "src/modules/Ncurses.gear"
     initscr();
     scrollok(stdscr, true);
@@ -145,23 +145,23 @@ static v8::Handle<v8::Value> _Ncurses_enter(const v8::Arguments& args) {
     return undefined;
 }
 
-static v8::Handle<v8::Value> _Ncurses_exit(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_exit(const v8::Arguments &args) {
     #line 99 "src/modules/Ncurses.gear"
     endwin();
     return undefined;
 }
 
-static v8::Handle<v8::Value> _Ncurses_cols(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_cols(const v8::Arguments &args) {
     #line 103 "src/modules/Ncurses.gear"
     return Integer(getmaxx(stdscr));
 }
 
-static v8::Handle<v8::Value> _Ncurses_rows(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_rows(const v8::Arguments &args) {
     #line 107 "src/modules/Ncurses.gear"
     return Integer(getmaxy(stdscr));
 }
 
-static v8::Handle<v8::Value> _Ncurses_toString(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _Ncurses_toString(const v8::Arguments &args) {
     #line 24 "src/modules/Ncurses.gear"
     return String("[module Ncurses]");
 }

@@ -38,7 +38,7 @@ module Network {
         function Socket(family, type) {
             int sock = socket(family, type, 0);
             if(sock == -1)
-                return Throw(Error("Unable to create socket"));
+                THROW_ERROR("Unable to create socket");
             
             this["socket"] = Internal(sock);
             this["family"] = Internal(family);
@@ -48,7 +48,7 @@ module Network {
         function connect(host, port) {
             struct hostent *host_s = gethostbyname(host.to<String>());
             if(!host_s)
-                return Throw(Error("Unable to resolve host"));
+                THROW_ERROR("Unable to resolve host");
                 
             struct sockaddr_in server_addr;
             server_addr.sin_family = this["family"].to<uint32_t>();
@@ -57,7 +57,7 @@ module Network {
             
             int result = connect(this["socket"], (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
             if(result == -1)
-                return Throw(Error("Unable to connect"));
+                THROW_ERROR("Unable to connect");
             
             this["isConnected"] = Internal(true);
         }
@@ -103,12 +103,12 @@ module Network {
         /** Constants */
         
         /** Socket families */
-        static var INET = AF_INET;
+        static var INet = AF_INET;
         /*static var INET6 = AF_INET6;*/
-        static var UNIX = AF_UNIX;
+        static var Unix = AF_UNIX;
         
         /** Socket types */
-        static var TCP = SOCK_STREAM;
-        static var UDP = SOCK_DGRAM;
+        static var Tcp = SOCK_STREAM;
+        static var Udp = SOCK_DGRAM;
     }
 }

@@ -162,7 +162,7 @@ function generateFunctionCode(functions, name, parentPrefix, parentPath, code, c
         funcCode = "\n\tValue This(args.This());"+funcCode;
     
     if(!hasNoArgsVer)
-        funcCode += "\treturn Throw(Error(\"Invalid call to " + parentPrefix.replace(/_/g, ".").replace(/^\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\"));\n";
+        funcCode += "\tTHROW_ERROR(\"Invalid call to " + parentPrefix.replace(/_/g, ".").replace(/^\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\");\n";
     if(dest=="getter")
         code.func += "static v8::Handle<v8::Value> " + prefix + "(v8::Local<v8::String>, const v8::AccessorInfo &args) {" + funcCode + "}\n\n";
     else if(dest=="setter")

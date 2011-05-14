@@ -92,7 +92,7 @@ module SDL {
         
         function Window(name, w, h) {
             if(bSDLIsUsed)
-                return Throw(Error("SDL is already being used"));
+                THROW_ERROR("SDL is already being used");
             SDL_Init(SDL_INIT_EVERYTHING);
             this["surface"] = SDL_SetVideoMode(w.to<int>(), h.to<int>(), 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
             SDL_WM_SetCaption(name.to<String>(), NULL);

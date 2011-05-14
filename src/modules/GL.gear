@@ -123,7 +123,7 @@ top {
             }
         }
         if(errorString.length())
-            return Throw(Error(String::concat("GL_ERROR: ", errorString)));
+            THROW_ERROR(String::concat("GL_ERROR: ", errorString));
         else
             return undefined;
     }
@@ -143,7 +143,7 @@ top {
 module GL {
     function initWindow(name, w, h) {
         if(bGLIsUsed)
-            return Throw(Error("GL is already being used"));
+            THROW_ERROR("GL is already being used");
         int argc = 0;
         glutInit(&argc, 0);
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);

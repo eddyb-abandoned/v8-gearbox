@@ -90,23 +90,23 @@ void setPixel(SDL_Surface *surface, Uint32 x, Uint32 y, Uint32 pixel) {
     }
 }
 
-static v8::Handle<v8::Value> _SDL_Window_Window(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _SDL_Window_Window(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 3) {
         #line 93 "src/modules/SDL.gear"
         Value name(args[0]), w(args[1]), h(args[2]);
         if(bSDLIsUsed)
-            return Throw(Error("SDL is already being used"));
+            THROW_ERROR("SDL is already being used");
         SDL_Init(SDL_INIT_EVERYTHING);
         This["surface"] = SDL_SetVideoMode(w.to<int>(), h.to<int>(), 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
         SDL_WM_SetCaption(name.to<String>(), NULL);
         bSDLIsUsed = true;
         return undefined;
     }
-    return Throw(Error("Invalid call to SDL.Window"));
+    THROW_ERROR("Invalid call to SDL.Window");
 }
 
-static v8::Handle<v8::Value> _SDL_Window_color(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _SDL_Window_color(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 3) {
         #line 123 "src/modules/SDL.gear"
@@ -136,10 +136,10 @@ static v8::Handle<v8::Value> _SDL_Window_color(const v8::Arguments& args) {
         }
         return Integer(SDL_MapRGB(This["surface"].to<SDL_Surface*>()->format, r, g, b));
     }
-    return Throw(Error("Invalid call to SDL.Window.prototype.color"));
+    THROW_ERROR("Invalid call to SDL.Window.prototype.color");
 }
 
-static v8::Handle<v8::Value> _SDL_Window_pixel(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _SDL_Window_pixel(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 3) {
         #line 127 "src/modules/SDL.gear"
@@ -153,10 +153,10 @@ static v8::Handle<v8::Value> _SDL_Window_pixel(const v8::Arguments& args) {
         Value x(args[0]), y(args[1]);
         return Integer(getPixel(This["surface"], CLIP(x.to<int>(), 0, This["surface"].to<SDL_Surface*>()->w - 1), CLIP(y.to<int>(), 0, This["surface"].to<SDL_Surface*>()->h - 1)));
     }
-    return Throw(Error("Invalid call to SDL.Window.prototype.pixel"));
+    THROW_ERROR("Invalid call to SDL.Window.prototype.pixel");
 }
 
-static v8::Handle<v8::Value> _SDL_Window_update(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _SDL_Window_update(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 4) {
         #line 136 "src/modules/SDL.gear"
@@ -171,7 +171,7 @@ static v8::Handle<v8::Value> _SDL_Window_update(const v8::Arguments& args) {
     return This;
 }
 
-static v8::Handle<v8::Value> _SDL_Window_checkEvent(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _SDL_Window_checkEvent(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
         #line 147 "src/modules/SDL.gear"
@@ -186,10 +186,10 @@ static v8::Handle<v8::Value> _SDL_Window_checkEvent(const v8::Arguments& args) {
         }
         return undefined;
     }
-    return Throw(Error("Invalid call to SDL.Window.prototype.checkEvent"));
+    THROW_ERROR("Invalid call to SDL.Window.prototype.checkEvent");
 }
 
-static v8::Handle<v8::Value> _SDL_Window_awaitEvent(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _SDL_Window_awaitEvent(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
         #line 158 "src/modules/SDL.gear"
@@ -204,10 +204,10 @@ static v8::Handle<v8::Value> _SDL_Window_awaitEvent(const v8::Arguments& args) {
         }
         return undefined;
     }
-    return Throw(Error("Invalid call to SDL.Window.prototype.awaitEvent"));
+    THROW_ERROR("Invalid call to SDL.Window.prototype.awaitEvent");
 }
 
-static v8::Handle<v8::Value> _SDL_Image_Image(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _SDL_Image_Image(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
         #line 173 "src/modules/SDL.gear"
@@ -215,10 +215,10 @@ static v8::Handle<v8::Value> _SDL_Image_Image(const v8::Arguments& args) {
         This["surface"] = SDL_LoadBMP(path.to<String>());
         return undefined;
     }
-    return Throw(Error("Invalid call to SDL.Image"));
+    THROW_ERROR("Invalid call to SDL.Image");
 }
 
-static v8::Handle<v8::Value> _SDL_toString(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _SDL_toString(const v8::Arguments &args) {
     #line 90 "src/modules/SDL.gear"
     return String("[module SDL]");
 }

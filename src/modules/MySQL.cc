@@ -29,7 +29,7 @@ using namespace Gearbox;
 #include <my_global.h>
 #include <mysql.h>
 
-static v8::Handle<v8::Value> _MySQL_Connection_Connection(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _MySQL_Connection_Connection(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 4) {
         #line 32 "src/modules/MySQL.gear"
@@ -39,10 +39,10 @@ static v8::Handle<v8::Value> _MySQL_Connection_Connection(const v8::Arguments& a
         This["pMYSQL"] = pMYSQL;
         return undefined;
     }
-    return Throw(Error("Invalid call to MySQL.Connection"));
+    THROW_ERROR("Invalid call to MySQL.Connection");
 }
 
-static v8::Handle<v8::Value> _MySQL_Connection_query(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _MySQL_Connection_query(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
         #line 38 "src/modules/MySQL.gear"
@@ -85,10 +85,10 @@ static v8::Handle<v8::Value> _MySQL_Connection_query(const v8::Arguments& args) 
         mysql_free_result(pResult);
         return resultArray;
     }
-    return Throw(Error("Invalid call to MySQL.Connection.prototype.query"));
+    THROW_ERROR("Invalid call to MySQL.Connection.prototype.query");
 }
 
-static v8::Handle<v8::Value> _MySQL_toString(const v8::Arguments& args) {
+static v8::Handle<v8::Value> _MySQL_toString(const v8::Arguments &args) {
     #line 29 "src/modules/MySQL.gear"
     return String("[module MySQL]");
 }
