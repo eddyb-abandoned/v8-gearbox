@@ -391,7 +391,7 @@ bool operator OP(Primitive that) { \
                 ValueList args;
                 args.add(_args...);
                 
-                return v8::Handle<v8::Function>::Cast(m_hValue)->Call(v8::Object::New(), args.numValues(), args.values());
+                return v8::Handle<v8::Function>::Cast(m_hValue)->Call(v8::Context::GetCurrent()->Global(), args.numValues(), args.values());
             }
             
         private:
