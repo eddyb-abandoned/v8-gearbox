@@ -1,4 +1,4 @@
-
+var SDL = require("SDL");
 var w = 640, h = 480, title = "Stars", colors = [], stars = [], starsr = [], old = [], angle = 0, running = true;
 var halfW = w / 2, halfH = h / 2;
 

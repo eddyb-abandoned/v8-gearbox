@@ -1,3 +1,4 @@
+var SDL = require("SDL");
 var w = 1200, title = "Mandelbrot", colors = [], running = true;
 
 var square = {min:{x:-2,y:-1}, max:{x:1,y:1}}, zoom = 1, pan = {x:0,y:0};//zoom = 3/.00073801, pan = {x:-.74364990, y:-.13188204};

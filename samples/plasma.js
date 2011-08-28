@@ -1,4 +1,4 @@
-
+var SDL = require("SDL");
 var w = 320, h = 200, title = "Plasma", colors = [], r = [], R = [], t = [], running = true;
 var tableW = w * 2, tableH = h * 2;
 

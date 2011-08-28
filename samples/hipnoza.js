@@ -1,4 +1,4 @@
-
+var SDL = require("SDL");
 var w = 320, h = 240, title = "Hipnoza", colors = [], diagTable = [], offset = 0, running = true, mijto = true;
 var halfW = w / 2, halfH = h / 2;
 

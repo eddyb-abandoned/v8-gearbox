@@ -1,0 +1,334 @@
+license {
+    /*
+     * Copyright (c) 2011 Eduard Burtescu
+     *
+     * Permission to use, copy, modify, and distribute this software for any
+     * purpose with or without fee is hereby granted, provided that the above
+     * copyright notice and this permission notice appear in all copies.
+     *
+     * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+     * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+     * MERCHANTABILITY AND FITRTLSS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+     * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+     * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+     * ACTION OF CONTRACT, RTLGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+     * OR IN CONRTLCTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+     */
+}
+
+top {
+    #include <Elementary.h>
+    void close(void *data, Evas_Object *obj, void *event) {
+        elm_exit();
+    }
+    int init() {
+        eina_init();
+        ecore_init();
+        elm_init(0, NULL);
+    }
+    void mainLoop() {
+        ecore_main_loop_begin();
+    }
+}
+
+module elm {
+
+    class Evas_Object {
+
+        getter x() {
+            return this["x"];
+        }
+
+        setter x(arg) {
+            this["x"] = arg;
+        }
+
+        getter y() {
+            return this["y"];
+        }
+
+        setter y(arg) {
+            this["y"] = arg;
+        }
+
+        getter visible() {
+            return this["visible"];
+        }
+
+        setter visible(arg) {
+            this["visible"] = arg;
+        }
+
+        getter style() {
+            return this["style"];
+        }
+
+        setter style(arg) {
+            this["style"] = arg;
+        }
+
+        getter image() {
+            return this["image"];
+        }
+
+        setter image(arg) {
+            this["image"] = arg;
+        }
+
+        getter type() {
+            return this["type"];
+        }
+
+        setter type(arg) {
+            this["type"] = arg;
+        }
+
+        getter text() {
+            return this["text"];
+        }
+
+        setter text(arg) {
+            this["text"] = arg;
+        }
+
+        getter width() {
+            return this["width"];
+        }
+
+        setter width(arg) {
+            this["width"] = arg;
+        }
+
+        getter height() {
+            return this["height"];
+        }
+
+        setter height(arg) {
+            this["height"] = arg;
+        }
+
+        getter align() {
+            return this["align"];
+        }
+
+        setter align(arg) {
+            this["align"] = arg;
+        }
+
+        getter weight() {
+            return this["weight"];
+        }
+
+        setter weight(arg) {
+            this["weight"] = arg;
+        }
+
+        getter scale() {
+            return this["scale"];
+        }
+
+        setter scale(arg) {
+            this["scale"] = arg;
+        }
+
+        getter pointer() {
+            return this["pointer"];
+        }
+
+        setter pointer(arg) {
+            this["pointer"] = arg;
+        }
+
+        getter resize() {
+            return this["resize"];
+        }
+
+        setter resize(arg) {
+            this["resize"] = arg;
+        }
+
+    }
+
+    class Win {
+
+        function Win(parent, title) {
+            this["eo"] = elm_win_add(NULL, title.to<String>(), ELM_WIN_BASIC);
+            evas_object_smart_callback_add(this["eo"], "delete,request", close, NULL);
+            evas_object_show(this["eo"]);
+        }
+
+        function resize(width, height) {
+            evas_object_resize(this["eo"], width.to<int>(), height.to<int>());
+        }
+
+        getter obj() {
+            return this["eo"];
+        }
+
+        setter obj(arg) {
+            this["eo"] = arg;
+        }
+
+        getter title() {
+            const char *title = elm_win_title_get(this["eo"]);
+            String str(title);
+            return str;
+        }
+
+        setter title(arg) {
+            elm_win_title_set(this["eo"], arg.to<String>());
+        }
+
+        getter autodel() {
+            bool autodel = elm_win_autodel_get(this["eo"]);
+            return v8::Boolean::New(autodel);
+        }
+
+        setter autodel(arg) {
+            elm_win_autodel_set(this["eo"], arg.to<bool>());
+        }
+
+    }
+
+    class Bg {
+
+        function Bg(parent, file, group) {
+            this["eo"] = elm_bg_add(parent);
+            elm_bg_file_set(this["eo"], file.to<String>(), group.to<String>());
+            evas_object_size_hint_weight_set(this["eo"], EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+            elm_win_resize_object_add(parent, this["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter red() {
+            int val;
+            elm_bg_color_get(this["eo"], &val, NULL, NULL);
+            return v8::Integer::New(val);
+        }
+
+        setter red(arg) {
+            int r, g, b;
+            elm_bg_color_get(this["eo"], &r, &g, &b);
+            r = arg.to<int>();
+            elm_bg_color_set(this["eo"], r,g,b);
+            evas_object_show(this["eo"]);
+        }
+
+
+        getter blue() {
+            int val;
+            elm_bg_color_get(this["eo"], NULL, &val, NULL);
+            return v8::Integer::New(val);
+        }
+
+        setter blue(arg) {
+            int r, g, b;
+            elm_bg_color_get(this["eo"], &r, &g, &b);
+            b = arg.to<int>();
+            elm_bg_color_set(this["eo"], r,g,b);
+            evas_object_show(this["eo"]);
+        }
+
+
+        getter green() {
+            int val;
+            elm_bg_color_get(this["eo"], NULL, NULL, &val);
+            return v8::Integer::New(val);
+        }
+
+        setter green(arg) {
+            int r, g, b;
+            elm_bg_color_get(this["eo"], &r, &g, &b);
+            g = arg.to<int>();
+            elm_bg_color_set(this["eo"], r,g,b);
+            evas_object_show(this["eo"]);
+        }
+
+        getter file() {
+            const char *file, *group;
+            elm_bg_file_get(this["eo"], &file, &group);
+            return v8::String::New(file);
+        }
+
+        setter file(arg) {
+            elm_bg_file_set(this["eo"], arg.to<String>(), NULL );
+            evas_object_show(this["eo"]);
+        }
+
+    }
+
+    class Box {
+        function Box(parent) {
+            this["eo"] = elm_box_add(parent);
+            evas_object_size_hint_weight_set(this["eo"],EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+            evas_object_show(this["eo"]);
+        }
+
+        function add(child) {
+            elm_box_pack_end(this["eo"], child);
+        }
+    }
+
+    class Image {
+        function Image(parent, file) {
+            Evas *evas = evas_object_evas_get(parent);
+            this["eo"] = evas_object_image_filled_add(evas);
+            evas_object_size_hint_weight_set(this["eo"],EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+            evas_object_show(this["eo"]);
+        }
+
+        getter file() {
+            const char *file, *key;
+            evas_object_image_file_get(this["eo"], &file, &key);
+            return v8::String::New(file);
+        }
+
+        setter file(arg) {
+            evas_object_image_file_set(this["eo"], arg.to<String>(), NULL );
+            evas_object_show(this["eo"]);
+        }
+
+    }
+
+    class Icon {
+        function icon(parent) {
+            this["eo"] = elm_icon_add(parent);
+            evas_object_show(this["eo"]);
+        }
+
+        getter file() {
+            const char *file, *group;
+            elm_icon_file_get(this["eo"], &file, &group);
+            return v8::String::New(file);
+        }
+
+        setter file(arg) {
+            elm_icon_file_set(this["eo"], arg.to<String>(), NULL);
+        }
+
+    }
+
+    class Button {
+
+        function Button(parent) {
+            this["eo"] = elm_button_add(parent);
+            evas_object_show(this["eo"]);
+        }
+
+        getter label() {
+            return v8::String::New(elm_object_text_get(this["eo"]));
+        }
+
+        setter label(arg) {
+            elm_object_text_set(this["eo"], arg.to<String>());
+        }
+
+        getter obj() {
+            return this["eo"];
+        }
+
+        setter obj(arg) {
+            this["eo"] = arg;
+        }
+    }
+}

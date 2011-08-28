@@ -1,3 +1,4 @@
+var SDL = require("SDL");
 var w = 640, h = 480, title = "<3", colors = [], running = true;
 var halfW = w/2, halfH = h/2;
 

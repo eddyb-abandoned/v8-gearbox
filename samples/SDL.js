@@ -1,4 +1,4 @@
-
+var SDL = require("SDL");
 var w = 640, h = 480, title = "Test", colors = [], running = true;
 
 var win = new SDL.Window(title, w, h);

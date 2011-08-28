@@ -1,3 +1,4 @@
+var Ncurses = require("Ncurses");
 Ncurses.A_ALTCHARSET = 1 << 22;
 function NCURSES_ACS(c){return c.charCodeAt() | Ncurses.A_ALTCHARSET;}
 Ncurses.ACS_ULCORNER = NCURSES_ACS('l') /* upper left corner */
