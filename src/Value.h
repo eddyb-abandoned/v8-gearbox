@@ -125,6 +125,11 @@ namespace Gearbox {
                 m_Parent.set(m_Index, that, that.m_Flags);
                 return *this;
             }
+            template <class... Args>
+            Node operator()(Args... _args) {
+                call(*this, _args...);
+            }
+            
         private:
             Node m_Parent;
             Index m_Index;
@@ -389,13 +394,18 @@ bool operator OP(Primitive that) { \
             /** Call operator for Functions */
             template <class... Args>
             Value operator()(Args... _args) {
+                return call(v8::Context::GetCurrent()->Global(), _args...);
+            }
+            
+            template <class... Args>
+            Value call(Value _this, Args... _args) {
                 if(m_hValue.IsEmpty() || !m_hValue->IsFunction())
                     return undefined;
                 
                 ValueList args;
                 args.add(_args...);
                 
-                return v8::Handle<v8::Function>::Cast(m_hValue)->Call(v8::Context::GetCurrent()->Global(), args.numValues(), args.values());
+                return v8::Handle<v8::Function>::Cast(m_hValue)->Call(_this, args.numValues(), args.values());
             }
             
         private:
