@@ -30,7 +30,7 @@ top {
 
 module elm {
 
-    postSetup() {
+    postSetup {
         printf("Invoked init\n");
         eina_init();
         ecore_init();

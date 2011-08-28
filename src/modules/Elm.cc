@@ -23,203 +23,200 @@ using namespace Gearbox;
 
 #line 1 "src/modules/Elm.gear"
 #include <Elementary.h>
+
 void close(void *data, Evas_Object *obj, void *event) {
     elm_exit();
 }
-int init() {
-    eina_init();
-    ecore_init();
-    elm_init(0, NULL);
-}
+
 void mainLoop() {
     ecore_main_loop_begin();
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_Evas_Object(const v8::Arguments &args) {
     Value This(args.This());
-    #line 37 "src/modules/Elm.gear"
-
+    #line 41 "src/modules/Elm.gear"
+    
     return undefined;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_x(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 39 "src/modules/Elm.gear"
+    #line 43 "src/modules/Elm.gear"
     return This["x"];
 }
 
 static void _elm_Evas_Object_x(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 42 "src/modules/Elm.gear"
+    #line 46 "src/modules/Elm.gear"
     Value arg(_arg);
     This["x"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_y(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 47 "src/modules/Elm.gear"
+    #line 51 "src/modules/Elm.gear"
     return This["y"];
 }
 
 static void _elm_Evas_Object_y(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 50 "src/modules/Elm.gear"
+    #line 54 "src/modules/Elm.gear"
     Value arg(_arg);
     This["y"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_visible(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 55 "src/modules/Elm.gear"
+    #line 59 "src/modules/Elm.gear"
     return This["visible"];
 }
 
 static void _elm_Evas_Object_visible(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 58 "src/modules/Elm.gear"
+    #line 62 "src/modules/Elm.gear"
     Value arg(_arg);
     This["visible"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_style(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 63 "src/modules/Elm.gear"
+    #line 67 "src/modules/Elm.gear"
     return This["style"];
 }
 
 static void _elm_Evas_Object_style(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 66 "src/modules/Elm.gear"
+    #line 70 "src/modules/Elm.gear"
     Value arg(_arg);
     This["style"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_image(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 71 "src/modules/Elm.gear"
+    #line 75 "src/modules/Elm.gear"
     return This["image"];
 }
 
 static void _elm_Evas_Object_image(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 74 "src/modules/Elm.gear"
+    #line 78 "src/modules/Elm.gear"
     Value arg(_arg);
     This["image"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_type(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 79 "src/modules/Elm.gear"
+    #line 83 "src/modules/Elm.gear"
     return This["type"];
 }
 
 static void _elm_Evas_Object_type(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 82 "src/modules/Elm.gear"
+    #line 86 "src/modules/Elm.gear"
     Value arg(_arg);
     This["type"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_text(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 87 "src/modules/Elm.gear"
+    #line 91 "src/modules/Elm.gear"
     return This["text"];
 }
 
 static void _elm_Evas_Object_text(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 90 "src/modules/Elm.gear"
+    #line 94 "src/modules/Elm.gear"
     Value arg(_arg);
     This["text"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_width(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 95 "src/modules/Elm.gear"
+    #line 99 "src/modules/Elm.gear"
     return This["width"];
 }
 
 static void _elm_Evas_Object_width(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 98 "src/modules/Elm.gear"
+    #line 102 "src/modules/Elm.gear"
     Value arg(_arg);
     This["width"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_height(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 103 "src/modules/Elm.gear"
+    #line 107 "src/modules/Elm.gear"
     return This["height"];
 }
 
 static void _elm_Evas_Object_height(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 106 "src/modules/Elm.gear"
+    #line 110 "src/modules/Elm.gear"
     Value arg(_arg);
     This["height"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_align(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 111 "src/modules/Elm.gear"
+    #line 115 "src/modules/Elm.gear"
     return This["align"];
 }
 
 static void _elm_Evas_Object_align(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 114 "src/modules/Elm.gear"
+    #line 118 "src/modules/Elm.gear"
     Value arg(_arg);
     This["align"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_weight(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 119 "src/modules/Elm.gear"
+    #line 123 "src/modules/Elm.gear"
     return This["weight"];
 }
 
 static void _elm_Evas_Object_weight(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 122 "src/modules/Elm.gear"
+    #line 126 "src/modules/Elm.gear"
     Value arg(_arg);
     This["weight"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_scale(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 127 "src/modules/Elm.gear"
+    #line 131 "src/modules/Elm.gear"
     return This["scale"];
 }
 
 static void _elm_Evas_Object_scale(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 130 "src/modules/Elm.gear"
+    #line 134 "src/modules/Elm.gear"
     Value arg(_arg);
     This["scale"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_pointer(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 135 "src/modules/Elm.gear"
+    #line 139 "src/modules/Elm.gear"
     return This["pointer"];
 }
 
 static void _elm_Evas_Object_pointer(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 138 "src/modules/Elm.gear"
+    #line 142 "src/modules/Elm.gear"
     Value arg(_arg);
     This["pointer"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Evas_Object_resize(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 143 "src/modules/Elm.gear"
+    #line 147 "src/modules/Elm.gear"
     return This["resize"];
 }
 
 static void _elm_Evas_Object_resize(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 146 "src/modules/Elm.gear"
+    #line 150 "src/modules/Elm.gear"
     Value arg(_arg);
     This["resize"] = arg;
 }
@@ -227,7 +224,7 @@ static void _elm_Evas_Object_resize(v8::Local<v8::String>, v8::Local<v8::Value> 
 static v8::Handle<v8::Value> _elm_Win_Win(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 2) {
-        #line 154 "src/modules/Elm.gear"
+        #line 158 "src/modules/Elm.gear"
         Value parent(args[0]), title(args[1]);
         This["eo"] = elm_win_add(NULL, title.to<String>(), ELM_WIN_BASIC);
         evas_object_smart_callback_add(This["eo"], "delete,request", close, NULL);
@@ -240,7 +237,7 @@ static v8::Handle<v8::Value> _elm_Win_Win(const v8::Arguments &args) {
 static v8::Handle<v8::Value> _elm_Win_resize(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 2) {
-        #line 160 "src/modules/Elm.gear"
+        #line 164 "src/modules/Elm.gear"
         Value width(args[0]), height(args[1]);
         evas_object_resize(This["eo"], width.to<int>(), height.to<int>());
         return undefined;
@@ -250,20 +247,20 @@ static v8::Handle<v8::Value> _elm_Win_resize(const v8::Arguments &args) {
 
 static v8::Handle<v8::Value> _elm_Win_obj(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 165 "src/modules/Elm.gear"
+    #line 169 "src/modules/Elm.gear"
     return This["eo"];
 }
 
 static void _elm_Win_obj(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 168 "src/modules/Elm.gear"
+    #line 172 "src/modules/Elm.gear"
     Value arg(_arg);
     This["eo"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_Win_title(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 173 "src/modules/Elm.gear"
+    #line 177 "src/modules/Elm.gear"
     const char *title = elm_win_title_get(This["eo"]);
     String str(title);
     return str;
@@ -271,21 +268,21 @@ static v8::Handle<v8::Value> _elm_Win_title(v8::Local<v8::String>, const v8::Acc
 
 static void _elm_Win_title(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 178 "src/modules/Elm.gear"
+    #line 182 "src/modules/Elm.gear"
     Value arg(_arg);
     elm_win_title_set(This["eo"], arg.to<String>());
 }
 
 static v8::Handle<v8::Value> _elm_Win_autodel(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 183 "src/modules/Elm.gear"
+    #line 187 "src/modules/Elm.gear"
     bool autodel = elm_win_autodel_get(This["eo"]);
     return v8::Boolean::New(autodel);
 }
 
 static void _elm_Win_autodel(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 187 "src/modules/Elm.gear"
+    #line 191 "src/modules/Elm.gear"
     Value arg(_arg);
     elm_win_autodel_set(This["eo"], arg.to<bool>());
 }
@@ -293,7 +290,7 @@ static void _elm_Win_autodel(v8::Local<v8::String>, v8::Local<v8::Value> _arg, c
 static v8::Handle<v8::Value> _elm_Bg_Bg(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 3) {
-        #line 195 "src/modules/Elm.gear"
+        #line 199 "src/modules/Elm.gear"
         Value parent(args[0]), file(args[1]), group(args[2]);
         This["eo"] = elm_bg_add(parent);
         elm_bg_file_set(This["eo"], file.to<String>(), group.to<String>());
@@ -307,7 +304,7 @@ static v8::Handle<v8::Value> _elm_Bg_Bg(const v8::Arguments &args) {
 
 static v8::Handle<v8::Value> _elm_Bg_red(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 204 "src/modules/Elm.gear"
+    #line 208 "src/modules/Elm.gear"
     int val;
     elm_bg_color_get(This["eo"], &val, NULL, NULL);
     return v8::Integer::New(val);
@@ -315,7 +312,7 @@ static v8::Handle<v8::Value> _elm_Bg_red(v8::Local<v8::String>, const v8::Access
 
 static void _elm_Bg_red(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 209 "src/modules/Elm.gear"
+    #line 213 "src/modules/Elm.gear"
     Value arg(_arg);
     int r, g, b;
     elm_bg_color_get(This["eo"], &r, &g, &b);
@@ -326,7 +323,7 @@ static void _elm_Bg_red(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const 
 
 static v8::Handle<v8::Value> _elm_Bg_blue(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 219 "src/modules/Elm.gear"
+    #line 223 "src/modules/Elm.gear"
     int val;
     elm_bg_color_get(This["eo"], NULL, &val, NULL);
     return v8::Integer::New(val);
@@ -334,7 +331,7 @@ static v8::Handle<v8::Value> _elm_Bg_blue(v8::Local<v8::String>, const v8::Acces
 
 static void _elm_Bg_blue(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 224 "src/modules/Elm.gear"
+    #line 228 "src/modules/Elm.gear"
     Value arg(_arg);
     int r, g, b;
     elm_bg_color_get(This["eo"], &r, &g, &b);
@@ -345,7 +342,7 @@ static void _elm_Bg_blue(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const
 
 static v8::Handle<v8::Value> _elm_Bg_green(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 234 "src/modules/Elm.gear"
+    #line 238 "src/modules/Elm.gear"
     int val;
     elm_bg_color_get(This["eo"], NULL, NULL, &val);
     return v8::Integer::New(val);
@@ -353,7 +350,7 @@ static v8::Handle<v8::Value> _elm_Bg_green(v8::Local<v8::String>, const v8::Acce
 
 static void _elm_Bg_green(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 239 "src/modules/Elm.gear"
+    #line 243 "src/modules/Elm.gear"
     Value arg(_arg);
     int r, g, b;
     elm_bg_color_get(This["eo"], &r, &g, &b);
@@ -364,7 +361,7 @@ static void _elm_Bg_green(v8::Local<v8::String>, v8::Local<v8::Value> _arg, cons
 
 static v8::Handle<v8::Value> _elm_Bg_file(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 248 "src/modules/Elm.gear"
+    #line 252 "src/modules/Elm.gear"
     const char *file, *group;
     elm_bg_file_get(This["eo"], &file, &group);
     return v8::String::New(file);
@@ -372,7 +369,7 @@ static v8::Handle<v8::Value> _elm_Bg_file(v8::Local<v8::String>, const v8::Acces
 
 static void _elm_Bg_file(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 253 "src/modules/Elm.gear"
+    #line 257 "src/modules/Elm.gear"
     Value arg(_arg);
     elm_bg_file_set(This["eo"], arg.to<String>(), NULL );
     evas_object_show(This["eo"]);
@@ -381,7 +378,7 @@ static void _elm_Bg_file(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const
 static v8::Handle<v8::Value> _elm_Box_Box(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 261 "src/modules/Elm.gear"
+        #line 265 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_box_add(parent);
         evas_object_size_hint_weight_set(This["eo"],EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -394,7 +391,7 @@ static v8::Handle<v8::Value> _elm_Box_Box(const v8::Arguments &args) {
 static v8::Handle<v8::Value> _elm_Box_add(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 267 "src/modules/Elm.gear"
+        #line 271 "src/modules/Elm.gear"
         Value child(args[0]);
         elm_box_pack_end(This["eo"], child);
         return undefined;
@@ -405,7 +402,7 @@ static v8::Handle<v8::Value> _elm_Box_add(const v8::Arguments &args) {
 static v8::Handle<v8::Value> _elm_Image_Image(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 2) {
-        #line 273 "src/modules/Elm.gear"
+        #line 277 "src/modules/Elm.gear"
         Value parent(args[0]), file(args[1]);
         Evas *evas = evas_object_evas_get(parent);
         This["eo"] = evas_object_image_filled_add(evas);
@@ -418,7 +415,7 @@ static v8::Handle<v8::Value> _elm_Image_Image(const v8::Arguments &args) {
 
 static v8::Handle<v8::Value> _elm_Image_file(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 281 "src/modules/Elm.gear"
+    #line 285 "src/modules/Elm.gear"
     const char *file, *key;
     evas_object_image_file_get(This["eo"], &file, &key);
     return v8::String::New(file);
@@ -426,7 +423,7 @@ static v8::Handle<v8::Value> _elm_Image_file(v8::Local<v8::String>, const v8::Ac
 
 static void _elm_Image_file(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 286 "src/modules/Elm.gear"
+    #line 290 "src/modules/Elm.gear"
     Value arg(_arg);
     evas_object_image_file_set(This["eo"], arg.to<String>(), NULL );
     evas_object_show(This["eo"]);
@@ -435,7 +432,7 @@ static void _elm_Image_file(v8::Local<v8::String>, v8::Local<v8::Value> _arg, co
 static v8::Handle<v8::Value> _elm_Icon_icon(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 294 "src/modules/Elm.gear"
+        #line 298 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_icon_add(parent);
         evas_object_show(This["eo"]);
@@ -446,14 +443,14 @@ static v8::Handle<v8::Value> _elm_Icon_icon(const v8::Arguments &args) {
 
 static v8::Handle<v8::Value> _elm_Icon_Icon(const v8::Arguments &args) {
     Value This(args.This());
-    #line 294 "src/modules/Elm.gear"
-
+    #line 298 "src/modules/Elm.gear"
+    
     return undefined;
 }
 
 static v8::Handle<v8::Value> _elm_Icon_file(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 300 "src/modules/Elm.gear"
+    #line 304 "src/modules/Elm.gear"
     const char *file, *group;
     elm_icon_file_get(This["eo"], &file, &group);
     return v8::String::New(file);
@@ -461,7 +458,7 @@ static v8::Handle<v8::Value> _elm_Icon_file(v8::Local<v8::String>, const v8::Acc
 
 static void _elm_Icon_file(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 305 "src/modules/Elm.gear"
+    #line 309 "src/modules/Elm.gear"
     Value arg(_arg);
     elm_icon_file_set(This["eo"], arg.to<String>(), NULL);
 }
@@ -469,7 +466,7 @@ static void _elm_Icon_file(v8::Local<v8::String>, v8::Local<v8::Value> _arg, con
 static v8::Handle<v8::Value> _elm_Button_Button(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 313 "src/modules/Elm.gear"
+        #line 317 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_button_add(parent);
         evas_object_show(This["eo"]);
@@ -480,37 +477,37 @@ static v8::Handle<v8::Value> _elm_Button_Button(const v8::Arguments &args) {
 
 static v8::Handle<v8::Value> _elm_Button_label(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 319 "src/modules/Elm.gear"
+    #line 323 "src/modules/Elm.gear"
     return v8::String::New(elm_object_text_get(This["eo"]));
 }
 
 static void _elm_Button_label(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 322 "src/modules/Elm.gear"
+    #line 326 "src/modules/Elm.gear"
     Value arg(_arg);
     elm_object_text_set(This["eo"], arg.to<String>());
 }
 
 static v8::Handle<v8::Value> _elm_Button_obj(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 327 "src/modules/Elm.gear"
+    #line 331 "src/modules/Elm.gear"
     return This["eo"];
 }
 
 static void _elm_Button_obj(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 330 "src/modules/Elm.gear"
+    #line 334 "src/modules/Elm.gear"
     Value arg(_arg);
     This["eo"] = arg;
 }
 
 static v8::Handle<v8::Value> _elm_toString(const v8::Arguments &args) {
-    #line 35 "src/modules/Elm.gear"
+    #line 32 "src/modules/Elm.gear"
     return String("[module elm]");
 }
 
 
-#line 513 "src/modules/Elm.cc"
+#line 510 "src/modules/Elm.cc"
 static void _setup_elm(Value _exports) {
     v8::Handle<v8::FunctionTemplate> _elm_Evas_Object = v8::FunctionTemplate::New(_elm_Evas_Object_Evas_Object);
     _elm_Evas_Object->SetClassName(String("Evas_Object"));
@@ -562,5 +559,11 @@ static void _setup_elm(Value _exports) {
     _elm_Button->PrototypeTemplate()->SetAccessor(String("obj"), _elm_Button_obj, _elm_Button_obj);
     _exports["Button"] = _elm_Button->GetFunction();
     _exports["toString"] = Function(_elm_toString, "toString");
+
+        printf("Invoked init\n");
+        eina_init();
+        ecore_init();
+        elm_init(0, NULL);
+    
 }
 static Module _module_elm("elm", _setup_elm);
