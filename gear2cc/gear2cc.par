@@ -2,8 +2,8 @@
 
 /* Gathering utilities */
 
-function createClass(name, childs, line) {
-    var out = {type:'class', name:name, classes:{}, vars:{}, staticVars:{}, functions:{}, staticFunctions:{}, accessors:{}};
+function createClass(name, childs, line, inheritList) {
+    var out = {type:'class', name:name, inheritList:inheritList, classes:{}, vars:{}, staticVars:{}, functions:{}, staticFunctions:{}, accessors:{}};
     for(c in childs) {
         var node = childs[c];
         switch(node.type) {
@@ -61,7 +61,22 @@ function createObject(name, childs, line, isModule) {
                 out.modules[node.name] = {objects:node.objects, classes:node.classes, vars:node.vars, functions:node.functions, header:node.header};
                 break;
             case 'class':
-                out.classes[node.name] = {classes:node.classes, vars:node.vars, staticVars:node.staticVars, functions:node.functions, staticFunctions:node.staticFunctions, accessors:node.accessors};
+                if(node.inheritList) {
+                    var baseNode = {classes:{}, vars:{}, staticVars:{}, functions:{}, staticFunctions:{}, accessors:{}};
+                    function extend(x, nn) {
+                        for(var j in x)
+                            if(j in baseNode)
+                                for(var k in x[j])
+                                    if(!(j == "functions" && k == nn))
+                                        baseNode[j][k] = x[j][k];
+                    }
+                    for(var i = 0; i < node.inheritList; i++)
+                        extend(out.classes[node.inheritList[i]], node.inheritList[i]);
+                    extend(node);
+                    out.classes[node.name] = baseNode;
+                }
+                else
+                    out.classes[node.name] = {classes:node.classes, vars:node.vars, staticVars:node.staticVars, functions:node.functions, staticFunctions:node.staticFunctions, accessors:node.accessors};
                 break;
             case 'function':
                 if(!out.functions.hasOwnProperty(node.name))
@@ -306,6 +321,7 @@ using namespace Gearbox;\n\
     '\('
     '\)'
     '='
+    ':'
     ';'
     ','
     '\*'
@@ -314,7 +330,7 @@ using namespace Gearbox;\n\
     /~'\'([^\']|\\\')*\''             _String                          [* %match = %match.substr(1, %match.length - 2).replace(/\\\'/g, "'" ); *]
     '[0-9]+'                        _Integer
     '[0-9]+\.[0-9]*|[0-9]*\.[0-9]+' _Number~/
-    '[^\{\}\(\) \r\n\t=;,\*]+'      Junk
+    '[^\{\}\(\) \r\n\t=:;,\*]+'      Junk
     ;
 
 ##
@@ -329,7 +345,8 @@ ObjectContents: ObjectContents W ObjectContent W [* %% = %1.concat([%3]); *] | W
 
 ObjectContent: Module | Object | Class | VariableDef | Function | NativeBlock;
 
-Class: 'class' W Identifier W '{' W ClassContents W '}'     [* %% = createClass(%3, %7, %2.line); *];
+Class: 'class' W Identifier W '{' W ClassContents W '}'     [* %% = createClass(%3, %7, %2.line); *]
+      |'class' W Identifier W ':' ArgumentList W '{' W ClassContents W '}'     [* %% = createClass(%3, %10, %2.line, %6); *];
 
 ClassContents: ClassContents W ClassContent [* %% = %1.concat([%3]); *] | W [* %% = []; *] ;
                     
@@ -385,6 +402,7 @@ PossibleJunk: Junk
 |'var'
 |'='
 |','
+|':'
 |'*'
 |'/'
 |Identifier
