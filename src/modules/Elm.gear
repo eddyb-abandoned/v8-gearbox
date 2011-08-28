@@ -18,9 +18,11 @@ license {
 
 top {
     #include <Elementary.h>
+
     void close(void *data, Evas_Object *obj, void *event) {
         elm_exit();
     }
+
     void mainLoop() {
         ecore_main_loop_begin();
     }
@@ -29,6 +31,7 @@ top {
 module elm {
 
     postSetup() {
+        printf("Invoked init\n");
         eina_init();
         ecore_init();
         elm_init(0, NULL);
