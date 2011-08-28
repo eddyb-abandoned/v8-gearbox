@@ -58,7 +58,7 @@ function createObject(name, childs, line, isModule) {
                 out.objects[node.name] = {objects:node.objects, classes:node.classes, vars:node.vars, functions:node.functions, header:node.header};
                 break;
             case 'module':
-                out.modules[node.name] = {objects:node.objects, classes:node.classes, vars:node.vars, functions:node.functions, header:node.header};
+                out.modules[node.name] = {objects:node.objects, classes:node.classes, vars:node.vars, functions:node.functions, header:node.header, postSetup:node.postSetup};
                 break;
             case 'class':
                 if(node.inheritList) {
