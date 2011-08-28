@@ -70,7 +70,7 @@ function createObject(name, childs, line, isModule) {
                                     if(!(j == "functions" && k == nn))
                                         baseNode[j][k] = x[j][k];
                     }
-                    for(var i = 0; i < node.inheritList; i++)
+                    for(var i = 0; i < node.inheritList.length; i++)
                         extend(out.classes[node.inheritList[i]], node.inheritList[i]);
                     extend(node);
                     out.classes[node.name] = baseNode;
@@ -346,7 +346,7 @@ ObjectContents: ObjectContents W ObjectContent W [* %% = %1.concat([%3]); *] | W
 ObjectContent: Module | Object | Class | VariableDef | Function | NativeBlock;
 
 Class: 'class' W Identifier W '{' W ClassContents W '}'     [* %% = createClass(%3, %7, %2.line); *]
-      |'class' W Identifier W ':' ArgumentList W '{' W ClassContents W '}'     [* %% = createClass(%3, %10, %2.line, %6); *];
+      |'class' W Identifier W ':' W ArgumentList W '{' W ClassContents W '}'     [* %% = createClass(%3, %11, %2.line, %7); *];
 
 ClassContents: ClassContents W ClassContent [* %% = %1.concat([%3]); *] | W [* %% = []; *] ;
                     
