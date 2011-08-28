@@ -23,12 +23,13 @@ top {
         elm_exit();
     }
 
-    void mainLoop() {
-        ecore_main_loop_begin();
-    }
 }
 
 module elm {
+
+    function mainLoop() {
+        ecore_main_loop_begin();
+    }
 
     postSetup {
         printf("Invoked init\n");
@@ -197,10 +198,10 @@ module elm {
     class Bg {
 
         function Bg(parent, file, group) {
-            this["eo"] = elm_bg_add(parent);
+            this["eo"] = elm_bg_add(parent["eo"]);
             elm_bg_file_set(this["eo"], file.to<String>(), group.to<String>());
             evas_object_size_hint_weight_set(this["eo"], EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-            elm_win_resize_object_add(parent, this["eo"]);
+            elm_win_resize_object_add(parent["eo"], this["eo"]);
             evas_object_show(this["eo"]);
         }
 
@@ -263,19 +264,19 @@ module elm {
 
     class Box {
         function Box(parent) {
-            this["eo"] = elm_box_add(parent);
+            this["eo"] = elm_box_add(parent["eo"]);
             evas_object_size_hint_weight_set(this["eo"],EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
             evas_object_show(this["eo"]);
         }
 
         function add(child) {
-            elm_box_pack_end(this["eo"], child);
+            elm_box_pack_end(this["eo"], child["eo"]);
         }
     }
 
     class Image {
         function Image(parent, file) {
-            Evas *evas = evas_object_evas_get(parent);
+            Evas *evas = evas_object_evas_get(parent["eo"]);
             this["eo"] = evas_object_image_filled_add(evas);
             evas_object_size_hint_weight_set(this["eo"],EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
             evas_object_show(this["eo"]);
@@ -296,7 +297,7 @@ module elm {
 
     class Icon {
         function icon(parent) {
-            this["eo"] = elm_icon_add(parent);
+            this["eo"] = elm_icon_add(parent["eo"]);
             evas_object_show(this["eo"]);
         }
 
@@ -315,7 +316,7 @@ module elm {
     class Button {
 
         function Button(parent) {
-            this["eo"] = elm_button_add(parent);
+            this["eo"] = elm_button_add(parent["eo"]);
             evas_object_show(this["eo"]);
         }
 
@@ -327,12 +328,5 @@ module elm {
             elm_object_text_set(this["eo"], arg.to<String>());
         }
 
-        getter obj() {
-            return this["eo"];
-        }
-
-        setter obj(arg) {
-            this["eo"] = arg;
-        }
     }
 }
