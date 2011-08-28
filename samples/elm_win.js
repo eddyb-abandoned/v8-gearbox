@@ -1,4 +1,4 @@
-var elm = require("Elm");
+var elm = require("elm");
 var win = new elm.Win(null, "Hello World");
 win.resize(320,480);
 var bg = new elm.Bg(win["obj"], "/home/sanjeev/Pictures/computer.png");
