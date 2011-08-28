@@ -120,7 +120,7 @@ function makeLine(tbs, line) {
 }
 
 var lineNumber = 1;
-function generateFunctionCode(functions, name, parentPrefix, parentPath, code, class, ctor, dest) {
+function generateFunctionCode(functions, name, parentPrefix, parentPath, code, _class, ctor, dest) {
     var prefix = parentPrefix + "_" + name, path = parentPath + "[\"" + name + "\"]", replaces = [], funcCode = "", hasNoArgsVer = false;
     functions.sort(function(a, b) {return b.args.length - a.args.length;});
     for(f in functions) {
@@ -158,11 +158,11 @@ function generateFunctionCode(functions, name, parentPrefix, parentPath, code, c
         }
     }
     
-    if(class)
+    if(_class)
         funcCode = "\n\tValue This(args.This());"+funcCode;
     
     if(!hasNoArgsVer)
-        funcCode += "\tTHROW_ERROR(\"Invalid call to " + parentPrefix.replace(/_/g, ".").replace(/^\./, "") + (ctor ? "" : (class?".prototype":"") + "." + name) + "\");\n";
+        funcCode += "\tTHROW_ERROR(\"Invalid call to " + parentPrefix.replace(/_/g, ".").replace(/^\./, "") + (ctor ? "" : (_class?".prototype":"") + "." + name) + "\");\n";
     if(dest=="getter")
         code.func += "static v8::Handle<v8::Value> " + prefix + "(v8::Local<v8::String>, const v8::AccessorInfo &args) {" + funcCode + "}\n\n";
     else if(dest=="setter")
@@ -171,42 +171,42 @@ function generateFunctionCode(functions, name, parentPrefix, parentPath, code, c
         code.func += "static v8::Handle<v8::Value> " + prefix + "(const v8::Arguments &args) {" + funcCode + "}\n\n";
 }
 
-function generateClassCode(class, name, parentPrefix, parentPath, code) {
+function generateClassCode(_class, name, parentPrefix, parentPath, code) {
     var prefix = parentPrefix + "_" + name, path = parentPath + "[\"" + name + "\"]";
     
     code.addClass(prefix, name);
     
-    for(funcName in class.functions) {
+    for(funcName in _class.functions) {
         if(funcName != name)
             code.setPrototype(prefix, funcName, code.makeFunction(prefix + "_" + funcName, funcName));
-        generateFunctionCode(class.functions[funcName], funcName, prefix, prefix, code, class, funcName == name);
+        generateFunctionCode(_class.functions[funcName], funcName, prefix, prefix, code, _class, funcName == name);
     }
     
-    for(accName in class.accessors) {
-        if(!class.accessors[accName].getter)
+    for(accName in _class.accessors) {
+        if(!_class.accessors[accName].getter)
             throw new Error("No getter");
-        generateFunctionCode([class.accessors[accName].getter], accName, prefix, prefix, code, class, false, "getter");
-        if(class.accessors[accName].setter)
-            generateFunctionCode([class.accessors[accName].setter], accName, prefix, prefix, code, class, false, "setter");
-        code.setPrototypeAccessor(prefix, accName, prefix + "_" + accName, !!class.accessors[accName].setter);
+        generateFunctionCode([_class.accessors[accName].getter], accName, prefix, prefix, code, _class, false, "getter");
+        if(_class.accessors[accName].setter)
+            generateFunctionCode([_class.accessors[accName].setter], accName, prefix, prefix, code, _class, false, "setter");
+        code.setPrototypeAccessor(prefix, accName, prefix + "_" + accName, !!_class.accessors[accName].setter);
     }
     
-    for(varName in class.vars) {
-        var val = class.vars[varName].val;
+    for(varName in _class.vars) {
+        var val = _class.vars[varName].val;
         code.setPrototype(prefix, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
     }
     
     code.setStatic(parentPath, name, prefix + "->GetFunction()");
     
-    for(className in class.classes)
-        generateClassCode(class.classes[className], className, prefix, path, code);
-    for(varName in class.staticVars) {
-        var val = class.staticVars[varName].val;
+    for(className in _class.classes)
+        generateClassCode(_class.classes[className], className, prefix, path, code);
+    for(varName in _class.staticVars) {
+        var val = _class.staticVars[varName].val;
         code.setStatic(path, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
     }
-    for(funcName in class.staticFunctions) {
+    for(funcName in _class.staticFunctions) {
         code.setStatic(path, funcName, code.makeFunction(prefix + "_" + funcName, funcName));
-        generateFunctionCode(class.staticFunctions[funcName], funcName, prefix, path, code);
+        generateFunctionCode(_class.staticFunctions[funcName], funcName, prefix, path, code);
     }
 }
 
