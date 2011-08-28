@@ -50,7 +50,7 @@ function createClass(name, childs, line, inheritList) {
 }
 
 function createObject(name, childs, line, isModule) {
-    var out = {type:isModule?'module':'object', name:name, objects:{}, modules:{}, classes:{}, vars:{}, functions:{}, header:"", top:"", license:""};
+    var out = {type:isModule?'module':'object', name:name, objects:{}, modules:{}, classes:{}, vars:{}, functions:{}, header:'', top:'', license:'', postSetup:''};
     for(c in childs) {
         var node = childs[c];
         switch(node.type) {
@@ -94,6 +94,8 @@ function createObject(name, childs, line, isModule) {
                     out.top += node.code + "\n";
                 else if(node.which == 'license')
                     out.license += node.code + "\n";
+                else if(isModule && node.which == 'postSetup')
+                    out.postSetup += node.code + "\n";
                 else
                     throw Error("TODO: Native block `" + node.which + "`");
         }
@@ -242,6 +244,9 @@ function generateModuleCode(object, name, parentPrefix, parentPath, code) {
         var val = object.vars[varName].val;
         code.setStatic(path, varName, /^\s*\b[A-Z]\w+\b\(.+\)$/.test(val) ? val : "Value(" + val + ")");
     }
+
+    if(object.postSetup)
+        code.init += object.postSetup;
 }
 
 function generateCode(global) {
