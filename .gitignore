@@ -1,2 +1,7 @@
 build
+.sconsign.dblite
 contrib
+tools/*.pyc
+.kdev*
+.directory
+*/.directory
