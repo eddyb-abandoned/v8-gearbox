@@ -325,4 +325,23 @@ module Elm {
 
     }
 
+    class Entry : EvasObject {
+
+        function Entry(parent) {
+            this["eo"] = elm_entry_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        setter entry(text) {
+            this["entry"] = text;
+            elm_entry_entry_set(this["eo"], text);
+        }
+
+        getter entry() {
+            const char *entry;
+            entry = elm_entry_entry_get(this["eo"]);
+            return String(entry);
+        }
+
+    }
 }
