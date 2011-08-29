@@ -294,7 +294,16 @@ namespace Gearbox {
             uint16_t to(Type<uint16_t>) {
                 return to<int64_t>();
             }
+            int16_t to(Type<int16_t>) {
+                return to<int64_t>();
+            }
             char to(Type<char>) {
+                return to<int64_t>();
+            }
+            uint8_t to(Type<uint8_t>) {
+                return to<int64_t>();
+            }
+            int8_t to(Type<int8_t>) {
                 return to<int64_t>();
             }
             int to(Type<int>) {
@@ -302,6 +311,9 @@ namespace Gearbox {
             }
             double to(Type<double>);
             float to(Type<float>) {
+                return to<double>();
+            }
+            long double to(Type<long double>) {
                 return to<double>();
             }
             bool to(Type<bool>);
