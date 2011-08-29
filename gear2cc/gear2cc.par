@@ -355,7 +355,7 @@ Class: 'class' W Identifier W '{' W ClassContents W '}'     [* %% = createClass(
 
 ClassContents: ClassContents W ClassContent [* %% = %1.concat([%3]); *] | W [* %% = []; *] ;
                     
-ClassContent: Class | VariableDef | Function | NativeBlock;
+ClassContent: Object | Class | VariableDef | Function | NativeBlock;
 
 VariableDef: 'var' W Identifier W '=' W NativeCodeInline W ';' [* %% = {type:'var', name:%3, val:%7}; *]
             |'static' W 'var' W Identifier W '=' W NativeCodeInline W ';' [* %% = {type:'static-var', name:%5, val:%9}; *];
@@ -427,15 +427,20 @@ var baseDir = arguments[1].substr(0, lastSlash), baseName = arguments[1].substr(
 var gear = {gear:baseDir+baseName+".gear", cc:baseDir+baseName+".cc", h:baseDir+baseName+".h"};
 if(arguments.length == 2) {
     var str         = Io.read(gear.gear);
-    var error_cnt   = 0;
-    var error_off   = [];
-    var error_la    = [];
+    var error_cnt   = 0, error_off   = [], error_la    = [], err;
     
-    if((error_cnt = __##PREFIX##parse(str, error_off, error_la)) > 0)
-        for(var i = 0; i < error_cnt; i++) {
-            var bf = str.substr(0, error_off[i]);
-            print(gear.gear+":"+(nLines(bf)+1)+":"+(nCols(bf)+1)+": Error near >" + str.substr(error_off[i], 30) + "<, expecting \"" + error_la[i].join() + "\"" );
-        }
+    try {
+        error_cnt = __##PREFIX##parse(str, error_off, error_la);
+    } catch(e) {
+        err = e;
+    }
+    
+    for(var i = 0; i < error_cnt; i++) {
+        var bf = str.substr(0, error_off[i]);
+        print(gear.gear+":"+(nLines(bf)+1)+":"+(nCols(bf)+1)+": Error near >" + str.substr(error_off[i], 30) + "<, expecting \"" + error_la[i].join() + "\"" );
+    }
+    if(err)
+        throw err;
 }
 else
     print("usage: " + arguments[0] + " <file>");
