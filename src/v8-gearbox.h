@@ -71,9 +71,13 @@ namespace Gearbox {
         return function;
     }
     
-    static Value Error(String message) {
-        return v8::Exception::Error(message);
-    }
+#define _DEF_ERROR(x) static Value x(String message) {return v8::Exception:: x(message);}
+    _DEF_ERROR(Error)
+    _DEF_ERROR(RangeError)
+    _DEF_ERROR(ReferenceError)
+    _DEF_ERROR(SyntaxError)
+    _DEF_ERROR(TypeError)
+#undef _DEF_ERROR
     
     template <class T>
     static Value Internal(T that) {
