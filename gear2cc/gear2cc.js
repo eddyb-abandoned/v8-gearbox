@@ -86,7 +86,7 @@ function createObject(name, childs, line, isModule) {
                                         baseNode[j][k] = x[j][k];
                     }
                     for(var i = 0; i < node.inheritList.length; i++)
-                        extend(out.classes[node.inheritList[i]], node.inheritList[i]);
+                        extend(out.classes[node.inheritList[i].name], node.inheritList[i].name);
                     extend(node);
                     out.classes[node.name] = baseNode;
                 }
