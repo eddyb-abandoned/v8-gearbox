@@ -408,6 +408,18 @@ bool operator OP(Primitive that) { \
                 return v8::Handle<v8::Function>::Cast(m_hValue)->Call(_this, args.numValues(), args.values());
             }
             
+            /** New Instance for Functions */
+            template <class... Args>
+            Value newInstance(Args... _args) {
+                if(m_hValue.IsEmpty() || !m_hValue->IsFunction())
+                    return undefined;
+                
+                ValueList args;
+                args.add(_args...);
+                
+                return v8::Handle<v8::Function>::Cast(m_hValue)->NewInstance(args.numValues(), args.values());
+            }
+            
         private:
             
             static void weakCallback(v8::Persistent<v8::Value>, void*);
