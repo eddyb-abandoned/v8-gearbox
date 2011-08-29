@@ -1,7 +1,7 @@
-var elm = require("elm");
+var elm = require("Elm");
 var win = new elm.Win(null, "Hello World");
 win.resize(320,480);
-var bg = new elm.Bg(win, "./samples/images/v8.png", null);
+var bg = new elm.Background(win, "./samples/images/v8.png", null);
 print("Label test = " + win.title);
 win.title = "Changing world";
 win.autodel = true;

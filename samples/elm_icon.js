@@ -1,7 +1,7 @@
-var elm = require("elm");
+var elm = require("Elm");
 var win = new elm.Win(null, "Hello World");
 win.resize(320,480);
-var bg = new elm.Bg(win, null, null);
+var bg = new elm.Background(win, null, null);
 bg.red=200;
 bg.green=125;
 win.title = "Changing world";

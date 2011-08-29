@@ -23,175 +23,144 @@ top {
         elm_exit();
     }
     
-    void elmOnClicked (void *data, Evas_Object *eo, void *event_info) {
-        Value *ptr = reinterpret_cast<Value *>(data);
-        (*ptr)["clicked"]();
+    void elmOnClick(void *_this, Evas_Object *eo, void *event_info) {
+        (*reinterpret_cast<Value*>(_this))["_onClick"]();
     }
 }
 
-module elm {
+module Elm {
 
     function mainLoop() {
         ecore_main_loop_begin();
     }
 
     postSetup {
-        printf("Invoked init\n");
         eina_init();
         ecore_init();
         elm_init(0, NULL);
     }
 
 
-    class Evas_Object {
+    class EvasObject {
 
         getter x() {
-            var eo = this["eo"];
             Evas_Coord x, y, width, height;
-            evas_object_geometry_get(eo, &x, &y, &width, &height);
-            return v8::Number::New(x);
+            evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
+            return Number(x);
         }
 
-        setter x(arg) {
-            var eo = this["eo"];
+        setter x(_x) {
             Evas_Coord x, y, width, height;
-            evas_object_geometry_get(eo, &x, &y, &width, &height);
-            x = arg.to<int>();
-            evas_object_move(eo, x, y);
+            evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
+            evas_object_move(this["eo"], _x, y);
         }
 
         getter y() {
-            var eo = this["eo"];
             Evas_Coord x, y, width, height;
-            evas_object_geometry_get(eo, &x, &y, &width, &height);
-            return v8::Number::New(y);
+            evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
+            return Number(y);
         }
 
-        setter y(arg) {
-            var eo = this["eo"];
+        setter y(_y) {
             Evas_Coord x, y, width, height;
-            evas_object_geometry_get(eo, &x, &y, &width, &height);
-            y = arg.to<int>();
-            evas_object_move(eo, x, y);
+            evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
+            evas_object_move(this["eo"], x, _y);
         }
 
         getter height() {
-            var eo = this["eo"];
             Evas_Coord x, y, width, height;
-            evas_object_geometry_get(eo, &x, &y, &width, &height);
-            return v8::Number::New(height);
+            evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
+            return Number(height);
         }
 
-        setter height(arg) {
-            var eo = this["eo"];
+        setter height(_height) {
             Evas_Coord x, y, width, height;
-            evas_object_geometry_get(eo, &x, &y, &width, &height);
-            height = arg;
-            evas_object_resize(eo, width, height);
+            evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
+            evas_object_resize(this["eo"], width, _height);
         }
 
         getter width() {
-            var eo = this["eo"];
             Evas_Coord x, y, width, height;
-            evas_object_geometry_get(eo, &x, &y, &width, &height);
-            return v8::Number::New(width);
+            evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
+            return Number(width);
         }
 
-        setter width(arg) {
-            var eo = this["eo"];
+        setter width(_width) {
             Evas_Coord x, y, width, height;
-            evas_object_geometry_get(eo, &x, &y, &width, &height);
-            width = arg;
-            evas_object_resize(eo, width, height);
+            evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
+            evas_object_resize(this["eo"], _width, height);
         }
 
         getter label() {
-            var eo = this["eo"];
-            return v8::String::New(elm_object_text_get(eo));
+            return String(elm_object_text_get(this["eo"]));
         }
 
-        setter label(arg) {
-            var eo = this["eo"];
-            printf("Setting labels %s\n", *(arg.to<String>()));
-            elm_object_text_set(eo, arg.to<String>());
+        setter label(label) {
+            elm_object_text_set(this["eo"], label.to<String>());
         }
 
         getter text() {
-            var eo = this["eo"];
-            return v8::String::New(elm_object_text_get(eo));
+            return String(elm_object_text_get(this["eo"]));
         }
 
-        setter text(arg) {
-            var eo = this["eo"];
-            elm_object_text_set(eo, arg.to<String>());
+        setter text(text) {
+            elm_object_text_set(this["eo"], text.to<String>());
         }
 
         getter scale() {
-            var eo = this["eo"];
-            return v8::Number::New(elm_object_scale_get(eo));
+            return Number(elm_object_scale_get(this["eo"]));
         }
 
-        setter scale(arg) {
-            var eo = this["eo"];
-            elm_object_scale_set(eo, arg.to<int>());
+        setter scale(scale) {
+            elm_object_scale_set(this["eo"], scale);
         }
 
         getter xalign() {
-            var eo = this["eo"];
             double x, y;
-            evas_object_size_hint_align_get(eo, &x, &y);
-            return v8::Number::New(x);
+            evas_object_size_hint_align_get(this["eo"], &x, &y);
+            return Number(x);
         }
 
-        setter xalign(arg) {
-            var eo = this["eo"];
+        setter xalign(_x) {
             double x, y;
-            evas_object_size_hint_align_get(eo, &x, &y);
-            x=arg;
-            evas_object_size_hint_align_set(eo, x, y);
+            evas_object_size_hint_align_get(this["eo"], &x, &y);
+            evas_object_size_hint_align_set(this["eo"], _x, y);
         }
 
         getter yalign() {
-            var eo = this["eo"];
             double x, y;
-            evas_object_size_hint_align_get(eo, &x, &y);
-            return v8::Number::New(y);
+            evas_object_size_hint_align_get(this["eo"], &x, &y);
+            return Number(y);
         }
 
-        setter yalign(arg) {
-            var eo = this["eo"];
+        setter yalign(_y) {
             double x, y;
-            evas_object_size_hint_align_get(eo, &x, &y);
-            y=arg;
-            evas_object_size_hint_align_set(eo, x, y);
+            evas_object_size_hint_align_get(this["eo"], &x, &y);
+            evas_object_size_hint_align_set(this["eo"], x, _y);
         }
 
         getter style() {
-            var eo = this["eo"];
-            return v8::String::New(elm_object_style_get(eo));
+            return String(elm_object_style_get(this["eo"]));
         }
 
-        setter style(arg) {
-            var eo = this["eo"];
-            elm_object_style_set(eo, arg.to<String>());
+        setter style(style) {
+            elm_object_style_set(this["eo"], style.to<String>());
         }
 
         getter visible() {
-            var eo = this["eo"];
-             return v8::Boolean::New(evas_object_visible_get(eo));
+             return Value(evas_object_visible_get(this["eo"]));
         }
 
-        setter visible(arg) {
-            var eo = this["eo"];
-            if (arg.to<bool>())
-                evas_object_show(eo);
+        setter visible(visible) {
+            if(visible)
+                evas_object_show(this["eo"]);
             else
-                evas_object_hide(eo);
+                evas_object_hide(this["eo"]);
         }
 
     }
 
-    class Win : Evas_Object {
+    class Win : EvasObject {
 
         function Win(parent, title) {
             this["eo"] = elm_win_add(NULL, title.to<String>(), ELM_WIN_BASIC);
@@ -200,33 +169,31 @@ module elm {
         }
 
         function resize(width, height) {
-            evas_object_resize(this["eo"], width.to<int>(), height.to<int>());
+            evas_object_resize(this["eo"], width, height);
         }
 
         getter title() {
-            const char *title = elm_win_title_get(this["eo"]);
-            String str(title);
-            return str;
+            return String(elm_win_title_get(this["eo"]));
         }
 
-        setter title(arg) {
-            elm_win_title_set(this["eo"], arg.to<String>());
+        setter title(title) {
+            elm_win_title_set(this["eo"], title.to<String>());
         }
 
         getter autodel() {
             bool autodel = elm_win_autodel_get(this["eo"]);
-            return v8::Boolean::New(autodel);
+            return Value(autodel);
         }
 
-        setter autodel(arg) {
-            elm_win_autodel_set(this["eo"], arg.to<bool>());
+        setter autodel(autodel) {
+            elm_win_autodel_set(this["eo"], autodel);
         }
 
     }
 
-    class Bg : Evas_Object {
+    class Background : EvasObject {
 
-        function Bg(parent, file, group) {
+        function Background(parent, file, group) {
             this["eo"] = elm_bg_add(parent["eo"]);
             elm_bg_file_set(this["eo"], file.to<String>(), group.to<String>());
             evas_object_size_hint_weight_set(this["eo"], EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -235,66 +202,67 @@ module elm {
         }
 
         getter red() {
-            int val;
-            elm_bg_color_get(this["eo"], &val, NULL, NULL);
-            return v8::Integer::New(val);
+            int r;
+            elm_bg_color_get(this["eo"], &r, NULL, NULL);
+            return Integer(r);
         }
 
-        setter red(arg) {
+        setter red(_r) {
             int r, g, b;
             elm_bg_color_get(this["eo"], &r, &g, &b);
-            r = arg.to<int>();
-            elm_bg_color_set(this["eo"], r,g,b);
-            evas_object_show(this["eo"]);
+            elm_bg_color_set(this["eo"], _r, g, b);
         }
-
-
-        getter blue() {
-            int val;
-            elm_bg_color_get(this["eo"], NULL, &val, NULL);
-            return v8::Integer::New(val);
-        }
-
-        setter blue(arg) {
-            int r, g, b;
-            elm_bg_color_get(this["eo"], &r, &g, &b);
-            b = arg.to<int>();
-            elm_bg_color_set(this["eo"], r,g,b);
-            evas_object_show(this["eo"]);
-        }
-
 
         getter green() {
-            int val;
-            elm_bg_color_get(this["eo"], NULL, NULL, &val);
-            return v8::Integer::New(val);
+            int g;
+            elm_bg_color_get(this["eo"], NULL, NULL, &g);
+            return Integer(g);
         }
 
-        setter green(arg) {
+        setter green(_g) {
             int r, g, b;
             elm_bg_color_get(this["eo"], &r, &g, &b);
-            g = arg.to<int>();
-            elm_bg_color_set(this["eo"], r,g,b);
-            evas_object_show(this["eo"]);
+            elm_bg_color_set(this["eo"], r, _g, b);
+        }
+
+        getter blue() {
+            int b;
+            elm_bg_color_get(this["eo"], NULL, &b, NULL);
+            return Integer(b);
+        }
+
+        setter blue(_b) {
+            int r, g, b;
+            elm_bg_color_get(this["eo"], &r, &g, &b);
+            elm_bg_color_set(this["eo"], r, g, _b);
         }
 
         getter file() {
             const char *file, *group;
             elm_bg_file_get(this["eo"], &file, &group);
-            return v8::String::New(file);
+            return String(file);
         }
 
-        setter file(arg) {
-            elm_bg_file_set(this["eo"], arg.to<String>(), NULL );
-            evas_object_show(this["eo"]);
+        setter file(file) {
+            elm_bg_file_set(this["eo"], file.to<String>(), NULL);
+        }
+        
+        getter group() {
+            const char *file, *group;
+            elm_bg_file_get(this["eo"], &file, &group);
+            return String(group);
+        }
+        
+        setter group(group) {
+            elm_bg_file_set(this["eo"], NULL, group.to<String>());
         }
 
     }
 
-    class Box : Evas_Object {
+    class Box : EvasObject {
         function Box(parent) {
             this["eo"] = elm_box_add(parent["eo"]);
-            evas_object_size_hint_weight_set(this["eo"],EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+            evas_object_size_hint_weight_set(this["eo"], EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
             evas_object_show(this["eo"]);
         }
 
@@ -303,49 +271,43 @@ module elm {
         }
 
         getter homogenous() {
-            var eo = this["eo"];
-            return v8::Boolean::New(elm_box_homogeneous_get(eo));
+            return Value(elm_box_homogeneous_get(this["eo"]));
         }
 
-        setter homogenous(arg) {
-            var eo = this["eo"];
-            elm_box_homogeneous_set(eo, arg.to<bool>());
+        setter homogenous(homogenous) {
+            elm_box_homogeneous_set(this["eo"], homogenous);
         }
 
         getter horizontal() {
-            var eo = this["eo"];
-            return v8::Boolean::New(elm_box_horizontal_get(eo));
+            return Value(elm_box_horizontal_get(this["eo"]));
         }
 
-        setter horizontal(arg) {
-            var eo = this["eo"];
-            elm_box_horizontal_set(eo, arg.to<bool>());
-            printf("Horizontal is set\n");
+        setter horizontal(horizontal) {
+            elm_box_horizontal_set(this["eo"], horizontal);
         }
 
     }
 
-    class Icon : Evas_Object {
+    class Icon : EvasObject {
         function Icon(parent, file) {
-            printf("Created and showing icon %s\n", *(file.to<String>()));
             this["eo"] = elm_icon_add(parent["eo"]);
             elm_icon_file_set(this["eo"], file.to<String>(), NULL);
             evas_object_show(this["eo"]);
         }
 
-        getter image() {
+        getter file() {
             const char *file, *group;
             elm_icon_file_get(this["eo"], &file, &group);
-            return v8::String::New(file);
+            return String(file);
         }
 
-        setter image(arg) {
-            elm_icon_file_set(this["eo"], arg.to<String>(), NULL);
+        setter file(file) {
+            elm_icon_file_set(this["eo"], file.to<String>(), NULL);
         }
 
     }
 
-    class Button : Evas_Object {
+    class Button : EvasObject {
 
         function Button(parent) {
             this["eo"] = elm_button_add(parent["eo"]);
@@ -353,14 +315,12 @@ module elm {
         }
 
         setter onClick(arg) {
-            printf("Setting callback function\n");
-            this["clicked"] = arg;
-            printf("Setting callback function\n");
-            evas_object_smart_callback_add(this["eo"], "clicked", elmOnClicked, new Value(this));
+            this["_onClick"] = arg;
+            evas_object_smart_callback_add(this["eo"], "clicked", elmOnClick, new Value(this));
         }
 
         getter onClick() {
-            return this["clicked"];
+            return this["_onClick"];
         }
 
     }

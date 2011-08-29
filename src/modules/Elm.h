@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Eduard Burtescu
+ * Copyright (c) 2011 Sanjeev B.A.
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
