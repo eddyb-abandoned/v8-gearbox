@@ -683,7 +683,6 @@ module Elm {
     class Slider : EvasObject {
 
         function Slider(parent) {
-        // This is a huge one, will take some time to implement.
             this["eo"] = elm_slider_add(parent["eo"]);
             evas_object_show(this["eo"]);
         }
@@ -693,7 +692,6 @@ module Elm {
     class List : EvasObject {
 
         function List(parent) {
-        // This is a huge one, will take some time to implement.
             this["eo"] = elm_list_add(parent["eo"]);
             evas_object_show(this["eo"]);
         }
@@ -714,6 +712,92 @@ module Elm {
         setter state(_state) {
             elm_check_state_set(this["eo"], (Eina_Bool)(_state.to<int>()));
         }
+    }
+
+    class Clock : EvasObject {
+
+        function Clock(parent) {
+            this["eo"] = elm_clock_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter hour() {
+            int h,m,s;
+            elm_clock_time_get(this["eo"], &h, &m, &s);
+            return Integer(h);
+        }
+
+        setter hour(_h) {
+            int h,m,s;
+            elm_clock_time_get(this["eo"], &h, &m, &s);
+            elm_clock_time_set(this["eo"], _h.to<int>(), m, s); 
+        }
+
+        getter minute() {
+            int h,m,s;
+            elm_clock_time_get(this["eo"], &h, &m, &s);
+            return Integer(m);
+        }
+
+        setter minute(_m) {
+            int h,m,s;
+            elm_clock_time_get(this["eo"], &h, &m, &s);
+            elm_clock_time_set(this["eo"], h, _m.to<int>(), s); 
+        }
+
+        getter second() {
+            int h,m,s;
+            elm_clock_time_get(this["eo"], &h, &m, &s);
+            return Integer(s);
+        }
+
+        setter second(_s) {
+            int h,m,s;
+            elm_clock_time_get(this["eo"], &h, &m, &s);
+            elm_clock_time_set(this["eo"], h, m, _s.to<int>());
+        }
+
+        getter edit() {
+            Eina_Bool ed;
+            return Integer(elm_clock_edit_get(this["eo"]));
+        }
+
+        setter edit(_ed) {
+            elm_clock_edit_set(this["eo"], (Eina_Bool)_ed.to<int>());
+        }
+
+        getter digitEdit() {
+            return Integer(elm_clock_digit_edit_get(this["eo"]));
+        }
+
+        setter digitEdit(_de) {
+            elm_clock_digit_edit_set(this["eo"], (Elm_Clock_Digedit)(_de.to<int>()));
+        }
+
+        getter showAMPM() {
+            return Integer(elm_clock_show_am_pm_get(this["eo"]));
+        }
+
+        setter showAMPM(_ampm) {
+            elm_clock_show_am_pm_set(this["eo"], (Elm_Clock_Digedit)(_ampm.to<int>()));
+        }
+
+        getter showSeconds() {
+            return Integer(elm_clock_show_seconds_get(this["eo"]));
+        }
+
+        setter showSeconds(_secs) {
+            elm_clock_show_seconds_set(this["eo"], (Eina_Bool)(_secs.to<int>()));
+        }
+
+        getter interval() {
+            return Number(elm_clock_interval_get(this["eo"]));
+        }
+
+        setter interval(_intvl) {
+            elm_clock_interval_set(this["eo"], (double)(_intvl.to<int>()));
+        }
+
     }
 
     class Entry : EvasObject {

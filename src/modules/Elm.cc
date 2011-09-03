@@ -2709,7 +2709,6 @@ static v8::Handle<v8::Value> _Elm_Slider_Slider(const v8::Arguments &args) {
     if(args.Length() >= 1) {
         #line 685 "src/modules/Elm.gear"
         Value parent(args[0]);
-        // This is a huge one, will take some time to implement.
         This["eo"] = elm_slider_add(parent["eo"]);
         evas_object_show(This["eo"]);
         return undefined;
@@ -2890,9 +2889,8 @@ static void _Elm_Slider_visible(v8::Local<v8::String>, v8::Local<v8::Value> _vis
 static v8::Handle<v8::Value> _Elm_List_List(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 695 "src/modules/Elm.gear"
+        #line 694 "src/modules/Elm.gear"
         Value parent(args[0]);
-        // This is a huge one, will take some time to implement.
         This["eo"] = elm_list_add(parent["eo"]);
         evas_object_show(This["eo"]);
         return undefined;
@@ -3073,7 +3071,7 @@ static void _Elm_List_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visib
 static v8::Handle<v8::Value> _Elm_Check_Check(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 705 "src/modules/Elm.gear"
+        #line 703 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_check_add(parent["eo"]);
         evas_object_show(This["eo"]);
@@ -3254,21 +3252,320 @@ static void _Elm_Check_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visi
 
 static v8::Handle<v8::Value> _Elm_Check_state(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 711 "src/modules/Elm.gear"
+    #line 709 "src/modules/Elm.gear"
     return Integer(elm_check_state_get(This["eo"]));
 }
 
 static void _Elm_Check_state(v8::Local<v8::String>, v8::Local<v8::Value> __state, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 714 "src/modules/Elm.gear"
+    #line 712 "src/modules/Elm.gear"
     Value _state(__state);
     elm_check_state_set(This["eo"], (Eina_Bool)(_state.to<int>()));
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_Clock(const v8::Arguments &args) {
+    Value This(args.This());
+    if(args.Length() >= 1) {
+        #line 719 "src/modules/Elm.gear"
+        Value parent(args[0]);
+        This["eo"] = elm_clock_add(parent["eo"]);
+        evas_object_show(This["eo"]);
+        return undefined;
+    }
+    THROW_ERROR("Invalid call to Elm.Clock");
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_x(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 47 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(x);
+}
+
+static void _Elm_Clock_x(v8::Local<v8::String>, v8::Local<v8::Value> __x, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 52 "src/modules/Elm.gear"
+    Value _x(__x);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_move(This["eo"], _x, y);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_y(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 59 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(y);
+}
+
+static void _Elm_Clock_y(v8::Local<v8::String>, v8::Local<v8::Value> __y, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 64 "src/modules/Elm.gear"
+    Value _y(__y);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_move(This["eo"], x, _y);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_height(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 71 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(height);
+}
+
+static void _Elm_Clock_height(v8::Local<v8::String>, v8::Local<v8::Value> __height, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 76 "src/modules/Elm.gear"
+    Value _height(__height);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_resize(This["eo"], width, _height);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_width(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 83 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(width);
+}
+
+static void _Elm_Clock_width(v8::Local<v8::String>, v8::Local<v8::Value> __width, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 88 "src/modules/Elm.gear"
+    Value _width(__width);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_resize(This["eo"], _width, height);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_label(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 95 "src/modules/Elm.gear"
+    return String(elm_object_text_get(This["eo"]));
+}
+
+static void _Elm_Clock_label(v8::Local<v8::String>, v8::Local<v8::Value> _label, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 98 "src/modules/Elm.gear"
+    Value label(_label);
+    elm_object_text_set(This["eo"], label.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_text(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 103 "src/modules/Elm.gear"
+    return String(elm_object_text_get(This["eo"]));
+}
+
+static void _Elm_Clock_text(v8::Local<v8::String>, v8::Local<v8::Value> _text, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 106 "src/modules/Elm.gear"
+    Value text(_text);
+    elm_object_text_set(This["eo"], text.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_scale(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 111 "src/modules/Elm.gear"
+    return Number(elm_object_scale_get(This["eo"]));
+}
+
+static void _Elm_Clock_scale(v8::Local<v8::String>, v8::Local<v8::Value> _scale, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 114 "src/modules/Elm.gear"
+    Value scale(_scale);
+    elm_object_scale_set(This["eo"], scale);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_xalign(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 119 "src/modules/Elm.gear"
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    return Number(x);
+}
+
+static void _Elm_Clock_xalign(v8::Local<v8::String>, v8::Local<v8::Value> __x, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 124 "src/modules/Elm.gear"
+    Value _x(__x);
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    evas_object_size_hint_align_set(This["eo"], _x, y);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_yalign(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 131 "src/modules/Elm.gear"
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    return Number(y);
+}
+
+static void _Elm_Clock_yalign(v8::Local<v8::String>, v8::Local<v8::Value> __y, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 136 "src/modules/Elm.gear"
+    Value _y(__y);
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    evas_object_size_hint_align_set(This["eo"], x, _y);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_style(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 143 "src/modules/Elm.gear"
+    return String(elm_object_style_get(This["eo"]));
+}
+
+static void _Elm_Clock_style(v8::Local<v8::String>, v8::Local<v8::Value> _style, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 146 "src/modules/Elm.gear"
+    Value style(_style);
+    elm_object_style_set(This["eo"], style.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_visible(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 151 "src/modules/Elm.gear"
+    return Value(evas_object_visible_get(This["eo"]));
+}
+
+static void _Elm_Clock_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visible, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 154 "src/modules/Elm.gear"
+    Value visible(_visible);
+    if(visible)
+        evas_object_show(This["eo"]);
+    else
+        evas_object_hide(This["eo"]);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_hour(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 725 "src/modules/Elm.gear"
+    int h,m,s;
+    elm_clock_time_get(This["eo"], &h, &m, &s);
+    return Integer(h);
+}
+
+static void _Elm_Clock_hour(v8::Local<v8::String>, v8::Local<v8::Value> __h, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 730 "src/modules/Elm.gear"
+    Value _h(__h);
+    int h,m,s;
+    elm_clock_time_get(This["eo"], &h, &m, &s);
+    elm_clock_time_set(This["eo"], _h.to<int>(), m, s);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_minute(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 737 "src/modules/Elm.gear"
+    int h,m,s;
+    elm_clock_time_get(This["eo"], &h, &m, &s);
+    return Integer(m);
+}
+
+static void _Elm_Clock_minute(v8::Local<v8::String>, v8::Local<v8::Value> __m, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 742 "src/modules/Elm.gear"
+    Value _m(__m);
+    int h,m,s;
+    elm_clock_time_get(This["eo"], &h, &m, &s);
+    elm_clock_time_set(This["eo"], h, _m.to<int>(), s);
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_second(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 749 "src/modules/Elm.gear"
+    int h,m,s;
+    elm_clock_time_get(This["eo"], &h, &m, &s);
+    return Integer(s);
+}
+
+static void _Elm_Clock_second(v8::Local<v8::String>, v8::Local<v8::Value> __s, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 754 "src/modules/Elm.gear"
+    Value _s(__s);
+    int h,m,s;
+    elm_clock_time_get(This["eo"], &h, &m, &s);
+    elm_clock_time_set(This["eo"], h, m, _s.to<int>());
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_edit(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 761 "src/modules/Elm.gear"
+    Eina_Bool ed;
+    return Integer(elm_clock_edit_get(This["eo"]));
+}
+
+static void _Elm_Clock_edit(v8::Local<v8::String>, v8::Local<v8::Value> __ed, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 765 "src/modules/Elm.gear"
+    Value _ed(__ed);
+    elm_clock_edit_set(This["eo"], (Eina_Bool)_ed.to<int>());
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_digitEdit(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 770 "src/modules/Elm.gear"
+    return Integer(elm_clock_digit_edit_get(This["eo"]));
+}
+
+static void _Elm_Clock_digitEdit(v8::Local<v8::String>, v8::Local<v8::Value> __de, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 773 "src/modules/Elm.gear"
+    Value _de(__de);
+    elm_clock_digit_edit_set(This["eo"], (Elm_Clock_Digedit)(_de.to<int>()));
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_showAMPM(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 778 "src/modules/Elm.gear"
+    return Integer(elm_clock_show_am_pm_get(This["eo"]));
+}
+
+static void _Elm_Clock_showAMPM(v8::Local<v8::String>, v8::Local<v8::Value> __ampm, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 781 "src/modules/Elm.gear"
+    Value _ampm(__ampm);
+    elm_clock_show_am_pm_set(This["eo"], (Elm_Clock_Digedit)(_ampm.to<int>()));
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_showSeconds(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 786 "src/modules/Elm.gear"
+    return Integer(elm_clock_show_seconds_get(This["eo"]));
+}
+
+static void _Elm_Clock_showSeconds(v8::Local<v8::String>, v8::Local<v8::Value> __secs, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 789 "src/modules/Elm.gear"
+    Value _secs(__secs);
+    elm_clock_show_seconds_set(This["eo"], (Eina_Bool)(_secs.to<int>()));
+}
+
+static v8::Handle<v8::Value> _Elm_Clock_interval(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 794 "src/modules/Elm.gear"
+    return Number(elm_clock_interval_get(This["eo"]));
+}
+
+static void _Elm_Clock_interval(v8::Local<v8::String>, v8::Local<v8::Value> __intvl, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 797 "src/modules/Elm.gear"
+    Value _intvl(__intvl);
+    elm_clock_interval_set(This["eo"], (double)(_intvl.to<int>()));
 }
 
 static v8::Handle<v8::Value> _Elm_Entry_Entry(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 721 "src/modules/Elm.gear"
+        #line 805 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_entry_add(parent["eo"]);
         evas_object_show(This["eo"]);
@@ -3449,7 +3746,7 @@ static void _Elm_Entry_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visi
 
 static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 732 "src/modules/Elm.gear"
+    #line 816 "src/modules/Elm.gear"
     const char *entry;
     entry = elm_entry_entry_get(This["eo"]);
     return String(entry);
@@ -3457,7 +3754,7 @@ static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::A
 
 static void _Elm_Entry_entry(v8::Local<v8::String>, v8::Local<v8::Value> _text, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 726 "src/modules/Elm.gear"
+    #line 810 "src/modules/Elm.gear"
     Value text(_text);
     This["entry"] = text;
     elm_entry_entry_set(This["eo"], text);
@@ -3475,7 +3772,7 @@ static v8::Handle<v8::Value> _Elm_toString(const v8::Arguments &args) {
 }
 
 
-#line 3478 "src/modules/Elm.cc"
+#line 3775 "src/modules/Elm.cc"
 static void _setup_Elm(Value _exports) {
     v8::Handle<v8::FunctionTemplate> _Elm_EvasObject = v8::FunctionTemplate::New(_Elm_EvasObject_EvasObject);
     _Elm_EvasObject->SetClassName(String("EvasObject"));
@@ -3721,6 +4018,28 @@ static void _setup_Elm(Value _exports) {
     _Elm_Check->PrototypeTemplate()->SetAccessor(String("visible"), _Elm_Check_visible, _Elm_Check_visible);
     _Elm_Check->PrototypeTemplate()->SetAccessor(String("state"), _Elm_Check_state, _Elm_Check_state);
     _exports["Check"] = _Elm_Check->GetFunction();
+    v8::Handle<v8::FunctionTemplate> _Elm_Clock = v8::FunctionTemplate::New(_Elm_Clock_Clock);
+    _Elm_Clock->SetClassName(String("Clock"));
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("x"), _Elm_Clock_x, _Elm_Clock_x);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("y"), _Elm_Clock_y, _Elm_Clock_y);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("height"), _Elm_Clock_height, _Elm_Clock_height);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("width"), _Elm_Clock_width, _Elm_Clock_width);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("label"), _Elm_Clock_label, _Elm_Clock_label);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("text"), _Elm_Clock_text, _Elm_Clock_text);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("scale"), _Elm_Clock_scale, _Elm_Clock_scale);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("xalign"), _Elm_Clock_xalign, _Elm_Clock_xalign);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("yalign"), _Elm_Clock_yalign, _Elm_Clock_yalign);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("style"), _Elm_Clock_style, _Elm_Clock_style);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("visible"), _Elm_Clock_visible, _Elm_Clock_visible);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("hour"), _Elm_Clock_hour, _Elm_Clock_hour);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("minute"), _Elm_Clock_minute, _Elm_Clock_minute);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("second"), _Elm_Clock_second, _Elm_Clock_second);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("edit"), _Elm_Clock_edit, _Elm_Clock_edit);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("digitEdit"), _Elm_Clock_digitEdit, _Elm_Clock_digitEdit);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("showAMPM"), _Elm_Clock_showAMPM, _Elm_Clock_showAMPM);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("showSeconds"), _Elm_Clock_showSeconds, _Elm_Clock_showSeconds);
+    _Elm_Clock->PrototypeTemplate()->SetAccessor(String("interval"), _Elm_Clock_interval, _Elm_Clock_interval);
+    _exports["Clock"] = _Elm_Clock->GetFunction();
     v8::Handle<v8::FunctionTemplate> _Elm_Entry = v8::FunctionTemplate::New(_Elm_Entry_Entry);
     _Elm_Entry->SetClassName(String("Entry"));
     _Elm_Entry->PrototypeTemplate()->SetAccessor(String("x"), _Elm_Entry_x, _Elm_Entry_x);
