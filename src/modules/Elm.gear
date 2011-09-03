@@ -901,6 +901,87 @@ module Elm {
 
     }
 
+    class Spinner : EvasObject {
+
+        function Spinner(parent) {
+            this["eo"] = elm_spinner_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter labelFormat() {
+            return String(elm_spinner_label_format_get(this["eo"]));
+        }
+
+        setter labelFormat(_value) {
+            elm_spinner_label_format_set(this["eo"], _value);
+        }
+
+        getter min() {
+            double min, max;
+            elm_spinner_min_max_get(this["eo"], &min, &max);
+            return Number(min);
+        }
+
+        setter min(_min) {
+            double min, max;
+            elm_spinner_min_max_get(this["eo"], &min, &max);
+            elm_spinner_min_max_set(this["eo"], _min, max);
+        }
+
+        getter max() {
+            double min, max;
+            elm_spinner_min_max_get(this["eo"], &min, &max);
+            return Number(max);
+        }
+
+        setter max(_max) {
+            double min, max;
+            elm_spinner_min_max_get(this["eo"], &min, &max);
+            elm_spinner_min_max_set(this["eo"], min, _max);
+        }
+
+        getter step() {
+            return Number(elm_spinner_step_get(this["eo"]));
+        }
+
+        setter step(_step) {
+            elm_spinner_step_set(this["eo"], (double)(_step.to<int>()));
+        }
+
+        getter value() {
+            return Number(elm_spinner_value_get(this["eo"]));
+        }
+
+        setter value(_value) {
+            elm_spinner_value_set(this["eo"], (double)(_value.to<int>()));
+        }
+
+        getter wrap() {
+            return Integer(elm_spinner_wrap_get(this["eo"]));
+        }
+
+        setter wrap(_wrap) {
+            elm_spinner_wrap_set(this["eo"], (Eina_Bool)(_wrap.to<int>()));
+        }
+
+        getter editable() {
+            return Integer(elm_spinner_editable_get(this["eo"]));
+        }
+
+        setter editable(_editable) {
+            elm_spinner_editable_set(this["eo"], (Eina_Bool)(_editable.to<int>()));
+        }
+
+        getter interval() {
+            return Number(elm_spinner_interval_get(this["eo"]));
+        }
+
+        setter interval(_interval) {
+            elm_spinner_interval_set(this["eo"], (double)(_interval.to<int>()));
+        }
+
+    }
+
     class Entry : EvasObject {
 
         function Entry(parent) {
