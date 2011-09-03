@@ -463,7 +463,42 @@ module Elm {
             elm_label_ellipsis_set(this["eo"], _ellipsis);
         }
 
+    }
 
+    class Flip : EvasObject {
+
+        function Flip(parent) {
+            this["eo"] = elm_flip_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter front() {
+            return Value(elm_flip_content_front_get(this["eo"]));
+        }
+
+        setter front(_front) {
+            elm_flip_content_front_set(this["eo"], _front);
+        }
+
+        getter back() {
+            return Value(elm_flip_content_back_get(this["eo"]));
+        }
+
+        setter back(_back) {
+            elm_flip_content_back_set(this["eo"], _back);
+        }
+
+        function go(mode) {
+            elm_flip_go(this["eo"], (Elm_Flip_Mode)(mode.to<int>()));
+        }
+
+        getter interaction() {
+            return Integer(elm_flip_interaction_get(this["eo"]));
+        }
+        
+        setter interaction(_interact) {
+            elm_flip_interaction_set (this["eo"], (Elm_Flip_Interaction)(_interact.to<int>()));
+        }
 
     }
 

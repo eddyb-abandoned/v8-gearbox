@@ -4,4 +4,5 @@ Bg: overlay, load_size
 Button: Multiple inheritance for Icon.
 Radio: Multiple inheritance for Icon.
 Label: Text Colour how to pass 3 params.
+Flip : interaction_direction, hitsize, perspective and front_get
 
