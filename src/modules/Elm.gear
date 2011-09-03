@@ -800,6 +800,62 @@ module Elm {
 
     }
 
+    class ProgressBar : EvasObject {
+
+        function ProgressBar(parent) {
+            this["eo"] = elm_progressbar_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter pulse() {
+            return Integer(elm_progressbar_pulse_get(this["eo"]));
+        }
+
+        setter pulse(_pulse) {
+            elm_progressbar_pulse_set(this["eo"], (Eina_Bool)(_pulse.to<int>()));
+        }
+
+        getter value() {
+            return Integer(elm_progressbar_value_get(this["eo"]));
+        }
+
+        setter value(_value) {
+            elm_progressbar_value_set(this["eo"], (double)(_value.to<int>()));
+        }
+
+        getter spanSize() {
+            return Integer(elm_progressbar_span_size_get(this["eo"]));
+        }
+
+        setter spanSize(_ss) {
+            elm_progressbar_span_size_set(this["eo"], (Evas_Coord)(_ss.to<int>()));
+        }
+
+        getter unitFormat() {
+            return String(elm_progressbar_unit_format_get(this["eo"]));
+        }
+
+        setter unitFormat(_value) {
+            elm_progressbar_unit_format_set(this["eo"], _value);
+        }
+
+        getter horizontal() {
+            return Integer(elm_progressbar_horizontal_get(this["eo"]));
+        }
+
+        setter horizontal(_value) {
+            elm_progressbar_horizontal_set(this["eo"], (Eina_Bool)(_value.to<int>()));
+        }
+
+        getter inverted() {
+            return Integer(elm_progressbar_inverted_get(this["eo"]));
+        }
+
+        setter inverted(_value) {
+            elm_progressbar_inverted_set(this["eo"], (Eina_Bool)(_value.to<int>()));
+        }
+    }
+
     class Entry : EvasObject {
 
         function Entry(parent) {
