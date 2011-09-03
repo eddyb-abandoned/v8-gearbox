@@ -347,6 +347,47 @@ module Elm {
             elm_icon_prescale_set(this["eo"], _arit);
         }
 
+        getter animated() {
+            return Integer(elm_icon_animated_get(this["eo"]));
+        }
+
+        setter animated(_anim) {
+            elm_icon_animated_set(this["eo"], _anim);
+        }
+
+        getter animPlay() {
+            return Integer(elm_icon_animated_play_get(this["eo"]));
+        }
+
+        setter animPlay(_ap) {
+            elm_icon_animated_play_set(this["eo"], _ap);
+        }
+
+        getter smooth() {
+            return Integer(elm_icon_smooth_get(this["eo"]));
+        }
+
+        setter smooth(_smooth) {
+            elm_icon_smooth_set(this["eo"], _smooth);
+        }
+
+        getter standard() {
+            return String(elm_icon_standard_get(this["eo"]));
+        }
+
+        setter standard(_std) {
+            elm_icon_standard_set(this["eo"],_std);
+        }
+
+        getter fillOutside() {
+            return Integer(elm_icon_fill_outside_get(this["eo"]));
+        }
+
+        setter fillOutside(_fo) {
+            elm_icon_fill_outside_set(this["eo"], _fo);
+        }
+
+
 
 
     }
@@ -532,6 +573,15 @@ module Elm {
         
         setter interaction(_interact) {
             elm_flip_interaction_set (this["eo"], (Elm_Flip_Interaction)(_interact.to<int>()));
+        }
+
+    }
+
+    class ActionSlider : EvasObject {
+
+        function ActionSlider(parent) {
+            this["eo"] = elm_actionslider_add(parent["eo"]);
+            evas_object_show(this["eo"]);
         }
 
     }
