@@ -856,6 +856,51 @@ module Elm {
         }
     }
 
+    class Photo : EvasObject {
+
+        function Photo(parent) {
+            this["eo"] = elm_photo_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter image() {
+            // TODO : Not implemented in EFL
+            return String("");
+        }
+
+        setter image(_image) {
+            elm_photo_file_set(this["eo"], _image);
+        }
+
+        getter size() {
+            // TODO : Not implemented in EFL
+            return Integer(0);
+        }
+
+        setter size(_value) {
+            elm_photo_size_set(this["eo"], (_value.to<int>()));
+        }
+
+        getter fill() {
+            // TODO : Not implemented in EFL
+            return Integer(0);
+        }
+
+        setter fill(_value) {
+            elm_photo_fill_inside_set(this["eo"], (Eina_Bool)(_value.to<int>()));
+        }
+
+        getter editable() {
+            // TODO : Not implemented in EFL
+            return Integer(0);
+        }
+
+        setter editable(_value) {
+            elm_photo_editable_set(this["eo"], (Eina_Bool)(_value.to<int>()));
+        }
+
+    }
+
     class Entry : EvasObject {
 
         function Entry(parent) {
