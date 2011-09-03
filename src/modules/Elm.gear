@@ -315,6 +315,40 @@ module Elm {
             elm_icon_file_set(this["eo"], file.to<String>(), NULL);
         }
 
+        getter scaleDown() {
+            Eina_Bool sd, su;
+            elm_icon_scale_get(this["eo"], &su, &sd);
+            return Integer(sd);
+        }
+
+        setter scaleDown(_sd) {
+            Eina_Bool sd, su;
+            elm_icon_scale_get(this["eo"], &su, &sd);
+            elm_icon_scale_set(this["eo"], su, _sd);
+        }
+
+        getter scaleUp() {
+            Eina_Bool sd, su;
+            elm_icon_scale_get(this["eo"], &su, &sd);
+            return Integer(su);
+        }
+
+        setter scaleUp(_su) {
+            Eina_Bool sd, su;
+            elm_icon_scale_get(this["eo"], &su, &sd);
+            elm_icon_scale_set(this["eo"], _su, sd);
+        }
+
+        getter prescale() {
+            return Integer(elm_icon_prescale_get(this["eo"]));
+        }
+
+        setter prescale(_arit) {
+            elm_icon_prescale_set(this["eo"], _arit);
+        }
+
+
+
     }
 
     class Button : EvasObject {
@@ -326,28 +360,28 @@ module Elm {
 
         getter autorepeat() {
             bool autorepeat = elm_button_autorepeat_get(this["eo"]);
-            return Value(autorepeat);
+            return Integer(autorepeat);
         }
 
         setter autorepeat(autorepeat) {
             elm_button_autorepeat_set(this["eo"], autorepeat);
         }
 
-        getter autorepeat_init_timeout() {
+        getter autorepeatInitTimeout() {
             double arit = elm_button_autorepeat_initial_timeout_get(this["eo"]);
             return Number(arit);
         }
 
-        setter autorepeat_init_timeout(_arit) {
+        setter autorepeatInitTimeout(_arit) {
             elm_button_autorepeat_initial_timeout_set(this["eo"], _arit);
         }
 
-        getter autorepeat_gap_timeout() {
+        getter autorepeatGapTimeout() {
             double argt = elm_button_autorepeat_gap_timeout_get(this["eo"]);
             return Number(argt);
         }
 
-        setter autorepeat_gap_timeout(_argt) {
+        setter autorepeatGapTimeout(_argt) {
             elm_button_autorepeat_gap_timeout_set(this["eo"], _argt);
         }
 
