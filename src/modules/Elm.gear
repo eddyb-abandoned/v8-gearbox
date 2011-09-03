@@ -265,7 +265,7 @@ module Elm {
         
         setter option(_option) {
             Elm_Bg_Option opt = (Elm_Bg_Option)(_option.to<int>());
-            //elm_bg_option_set(this["eo"], opt);
+            elm_bg_option_set(this["eo"], opt);
         }
     }
 

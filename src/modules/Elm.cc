@@ -709,7 +709,7 @@ static void _Elm_Background_option(v8::Local<v8::String>, v8::Local<v8::Value> _
     #line 266 "src/modules/Elm.gear"
     Value _option(__option);
     Elm_Bg_Option opt = (Elm_Bg_Option)(_option.to<int>());
-    //elm_bg_option_set(This["eo"], opt);
+    elm_bg_option_set(This["eo"], opt);
 }
 
 static v8::Handle<v8::Value> _Elm_Box_Box(const v8::Arguments &args) {
