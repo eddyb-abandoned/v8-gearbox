@@ -615,6 +615,71 @@ module Elm {
 
     }
 
+    class Scroller : EvasObject {
+
+        function Scroller(parent) {
+            this["eo"] = elm_scroller_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter content() {
+            return Value(elm_scroller_content_get(this["eo"]));
+        }
+
+        setter content(_content) {
+            elm_scroller_content_set(this["eo"], _content["eo"]);
+        }
+
+        getter hBounce() {
+            Eina_Bool hb, vb;
+            elm_scroller_bounce_get(this["eo"], &hb, &vb);
+            return Integer(hb);
+        }
+
+        setter hBounce(_hb) {
+            Eina_Bool hb, vb;
+            elm_scroller_bounce_get(this["eo"], &hb, &vb);
+            elm_scroller_bounce_set(this["eo"], _hb.to<int>(), vb);
+        }
+
+        getter vBounce() {
+            Eina_Bool hb, vb;
+            elm_scroller_bounce_get(this["eo"], &hb, &vb);
+            return Integer(vb);
+        }
+
+        setter vBounce(_vb) {
+            Eina_Bool hb, vb;
+            elm_scroller_bounce_get(this["eo"], &hb, &vb);
+            elm_scroller_bounce_set(this["eo"], hb, _vb.to<int>());
+        }
+
+        getter xPolicy() {
+            Elm_Scroller_Policy xp, yp;
+            elm_scroller_policy_get(this["eo"], &xp, &yp);
+            return Integer(xp);
+        }
+
+        setter xPolicy(_xp) {
+            Elm_Scroller_Policy xp, yp;
+            elm_scroller_policy_get(this["eo"], &xp, &yp);
+            elm_scroller_policy_set(this["eo"], (Elm_Scroller_Policy)(_xp.to<int>()), yp);
+        }
+
+        getter yPolicy() {
+            Elm_Scroller_Policy xp, yp;
+            elm_scroller_policy_get(this["eo"], &xp, &yp);
+            return Integer(yp);
+        }
+
+        setter yPolicy(_yp) {
+            Elm_Scroller_Policy xp, yp;
+            elm_scroller_policy_get(this["eo"], &xp, &yp);
+            elm_scroller_policy_set(this["eo"], xp, (Elm_Scroller_Policy)(_yp.to<int>()));
+        }
+
+    }
+
     class Entry : EvasObject {
 
         function Entry(parent) {
