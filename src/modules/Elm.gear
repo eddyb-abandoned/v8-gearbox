@@ -256,7 +256,17 @@ module Elm {
         setter group(group) {
             elm_bg_file_set(this["eo"], NULL, group.to<String>());
         }
-
+        
+        getter option() {
+            int option;
+            option = elm_bg_option_get(this["eo"]);
+            return Integer(option); 
+        }
+        
+        setter option(_option) {
+            Elm_Bg_Option opt = (Elm_Bg_Option)(_option.to<int>());
+            //elm_bg_option_set(this["eo"], opt);
+        }
     }
 
     class Box : EvasObject {

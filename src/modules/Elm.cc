@@ -696,10 +696,26 @@ static void _Elm_Background_group(v8::Local<v8::String>, v8::Local<v8::Value> _g
     elm_bg_file_set(This["eo"], NULL, group.to<String>());
 }
 
+static v8::Handle<v8::Value> _Elm_Background_option(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 261 "src/modules/Elm.gear"
+    int option;
+    option = elm_bg_option_get(This["eo"]);
+    return Integer(option);
+}
+
+static void _Elm_Background_option(v8::Local<v8::String>, v8::Local<v8::Value> __option, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 266 "src/modules/Elm.gear"
+    Value _option(__option);
+    Elm_Bg_Option opt = (Elm_Bg_Option)(_option.to<int>());
+    //elm_bg_option_set(This["eo"], opt);
+}
+
 static v8::Handle<v8::Value> _Elm_Box_Box(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 263 "src/modules/Elm.gear"
+        #line 273 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_box_add(parent["eo"]);
         evas_object_size_hint_weight_set(This["eo"], EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -712,7 +728,7 @@ static v8::Handle<v8::Value> _Elm_Box_Box(const v8::Arguments &args) {
 static v8::Handle<v8::Value> _Elm_Box_add(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 269 "src/modules/Elm.gear"
+        #line 279 "src/modules/Elm.gear"
         Value child(args[0]);
         elm_box_pack_end(This["eo"], child["eo"]);
         return undefined;
@@ -892,26 +908,26 @@ static void _Elm_Box_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visibl
 
 static v8::Handle<v8::Value> _Elm_Box_homogenous(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 274 "src/modules/Elm.gear"
+    #line 284 "src/modules/Elm.gear"
     return Value(elm_box_homogeneous_get(This["eo"]));
 }
 
 static void _Elm_Box_homogenous(v8::Local<v8::String>, v8::Local<v8::Value> _homogenous, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 277 "src/modules/Elm.gear"
+    #line 287 "src/modules/Elm.gear"
     Value homogenous(_homogenous);
     elm_box_homogeneous_set(This["eo"], homogenous);
 }
 
 static v8::Handle<v8::Value> _Elm_Box_horizontal(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 282 "src/modules/Elm.gear"
+    #line 292 "src/modules/Elm.gear"
     return Value(elm_box_horizontal_get(This["eo"]));
 }
 
 static void _Elm_Box_horizontal(v8::Local<v8::String>, v8::Local<v8::Value> _horizontal, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 285 "src/modules/Elm.gear"
+    #line 295 "src/modules/Elm.gear"
     Value horizontal(_horizontal);
     elm_box_horizontal_set(This["eo"], horizontal);
 }
@@ -919,7 +935,7 @@ static void _Elm_Box_horizontal(v8::Local<v8::String>, v8::Local<v8::Value> _hor
 static v8::Handle<v8::Value> _Elm_Icon_Icon(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 2) {
-        #line 292 "src/modules/Elm.gear"
+        #line 302 "src/modules/Elm.gear"
         Value parent(args[0]), file(args[1]);
         This["eo"] = elm_icon_add(parent["eo"]);
         elm_icon_file_set(This["eo"], file.to<String>(), NULL);
@@ -1101,7 +1117,7 @@ static void _Elm_Icon_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visib
 
 static v8::Handle<v8::Value> _Elm_Icon_file(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 299 "src/modules/Elm.gear"
+    #line 309 "src/modules/Elm.gear"
     const char *file, *group;
     elm_icon_file_get(This["eo"], &file, &group);
     return String(file);
@@ -1109,7 +1125,7 @@ static v8::Handle<v8::Value> _Elm_Icon_file(v8::Local<v8::String>, const v8::Acc
 
 static void _Elm_Icon_file(v8::Local<v8::String>, v8::Local<v8::Value> _file, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 304 "src/modules/Elm.gear"
+    #line 314 "src/modules/Elm.gear"
     Value file(_file);
     elm_icon_file_set(This["eo"], file.to<String>(), NULL);
 }
@@ -1117,7 +1133,7 @@ static void _Elm_Icon_file(v8::Local<v8::String>, v8::Local<v8::Value> _file, co
 static v8::Handle<v8::Value> _Elm_Button_Button(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 312 "src/modules/Elm.gear"
+        #line 322 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_button_add(parent["eo"]);
         evas_object_show(This["eo"]);
@@ -1298,13 +1314,13 @@ static void _Elm_Button_visible(v8::Local<v8::String>, v8::Local<v8::Value> _vis
 
 static v8::Handle<v8::Value> _Elm_Button_onClick(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 323 "src/modules/Elm.gear"
+    #line 333 "src/modules/Elm.gear"
     return This["_onClick"];
 }
 
 static void _Elm_Button_onClick(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 317 "src/modules/Elm.gear"
+    #line 327 "src/modules/Elm.gear"
     Value arg(_arg);
     This["_onClick"] = arg;
     evas_object_smart_callback_add(This["eo"], "clicked", elmOnClick, new Value(This));
@@ -1313,7 +1329,7 @@ static void _Elm_Button_onClick(v8::Local<v8::String>, v8::Local<v8::Value> _arg
 static v8::Handle<v8::Value> _Elm_Entry_Entry(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 330 "src/modules/Elm.gear"
+        #line 340 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_entry_add(parent["eo"]);
         evas_object_show(This["eo"]);
@@ -1494,7 +1510,7 @@ static void _Elm_Entry_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visi
 
 static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 341 "src/modules/Elm.gear"
+    #line 351 "src/modules/Elm.gear"
     const char *entry;
     entry = elm_entry_entry_get(This["eo"]);
     return String(entry);
@@ -1502,7 +1518,7 @@ static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::A
 
 static void _Elm_Entry_entry(v8::Local<v8::String>, v8::Local<v8::Value> _text, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 335 "src/modules/Elm.gear"
+    #line 345 "src/modules/Elm.gear"
     Value text(_text);
     This["entry"] = text;
     elm_entry_entry_set(This["eo"], text);
@@ -1520,7 +1536,7 @@ static v8::Handle<v8::Value> _Elm_toString(const v8::Arguments &args) {
 }
 
 
-#line 1523 "src/modules/Elm.cc"
+#line 1539 "src/modules/Elm.cc"
 static void _setup_Elm(Value _exports) {
     v8::Handle<v8::FunctionTemplate> _Elm_EvasObject = v8::FunctionTemplate::New(_Elm_EvasObject_EvasObject);
     _Elm_EvasObject->SetClassName(String("EvasObject"));
@@ -1571,6 +1587,7 @@ static void _setup_Elm(Value _exports) {
     _Elm_Background->PrototypeTemplate()->SetAccessor(String("blue"), _Elm_Background_blue, _Elm_Background_blue);
     _Elm_Background->PrototypeTemplate()->SetAccessor(String("file"), _Elm_Background_file, _Elm_Background_file);
     _Elm_Background->PrototypeTemplate()->SetAccessor(String("group"), _Elm_Background_group, _Elm_Background_group);
+    _Elm_Background->PrototypeTemplate()->SetAccessor(String("option"), _Elm_Background_option, _Elm_Background_option);
     _exports["Background"] = _Elm_Background->GetFunction();
     v8::Handle<v8::FunctionTemplate> _Elm_Box = v8::FunctionTemplate::New(_Elm_Box_Box);
     _Elm_Box->SetClassName(String("Box"));
