@@ -680,6 +680,42 @@ module Elm {
 
     }
 
+    class Slider : EvasObject {
+
+        function Slider(parent) {
+        // This is a huge one, will take some time to implement.
+            this["eo"] = elm_slider_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+    }
+
+    class List : EvasObject {
+
+        function List(parent) {
+        // This is a huge one, will take some time to implement.
+            this["eo"] = elm_list_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+    }
+
+    class Check : EvasObject {
+
+        function Check(parent) {
+            this["eo"] = elm_check_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter state() {
+            return Integer(elm_check_state_get(this["eo"]));
+        }
+
+        setter state(_state) {
+            elm_check_state_set(this["eo"], (Eina_Bool)(_state.to<int>()));
+        }
+    }
+
     class Entry : EvasObject {
 
         function Entry(parent) {
