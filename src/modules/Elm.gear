@@ -387,9 +387,6 @@ module Elm {
             elm_icon_fill_outside_set(this["eo"], _fo);
         }
 
-
-
-
     }
 
     class Button : EvasObject {
@@ -582,6 +579,38 @@ module Elm {
         function ActionSlider(parent) {
             this["eo"] = elm_actionslider_add(parent["eo"]);
             evas_object_show(this["eo"]);
+        }
+
+        getter selectedLabel() {
+            return String(elm_actionslider_selected_label_get(this["eo"]));
+        }
+
+        setter selectedLabel(_sl) {
+            // TODO : Not implemented in EFL
+        }
+
+        getter indicatorPos() {
+            return Integer(elm_actionslider_indicator_pos_get(this["eo"]));
+        }
+
+        setter indicatorPos(_ip) {
+            elm_actionslider_indicator_pos_set(this["eo"], (Elm_Actionslider_Pos)(_ip.to<int>()));
+        }
+
+        getter enabledPos() {
+            return Integer(elm_actionslider_enabled_pos_get(this["eo"]));
+        }
+
+        setter enabledPos(_ip) {
+            elm_actionslider_enabled_pos_set(this["eo"], (Elm_Actionslider_Pos)(_ip.to<int>()));
+        }
+
+        getter magnetPos() {
+            return Integer(elm_actionslider_magnet_pos_get(this["eo"]));
+        }
+
+        setter magnetPos(_ip) {
+            elm_actionslider_magnet_pos_set(this["eo"], (Elm_Actionslider_Pos)(_ip.to<int>()));
         }
 
     }
