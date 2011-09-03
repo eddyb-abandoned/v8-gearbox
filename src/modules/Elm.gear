@@ -359,7 +359,36 @@ module Elm {
         getter onClick() {
             return this["_onClick"];
         }
+    }
 
+    class Radio : EvasObject {
+        
+        getter group() {
+            return this["eo"];
+        }
+        
+        setter group(group) {
+            elm_radio_group_add(this["eo"], group["eo"]);
+        }
+
+        getter state() {
+            int state = elm_radio_state_value_get(this["eo"]);
+            return Integer(state);
+        }
+
+        setter state(_state) {
+            elm_radio_state_value_set(this["eo"], _state);
+        }
+
+        getter value() {
+            int value = elm_radio_value_get(this["eo"]);
+            return Integer(value);
+        }
+
+        setter value(_value) {
+            elm_radio_value_set(this["eo"], _value);
+        }
+        
     }
 
     class Entry : EvasObject {
