@@ -324,6 +324,15 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
+        getter autorepeat() {
+            bool autorepeat = elm_button_autorepeat_get(this["eo"]);
+            return Value(autorepeat);
+        }
+
+        setter autorepeat(autorepeat) {
+            elm_button_autorepeat_set(this["eo"], autorepeat);
+        }
+
         setter onClick(arg) {
             this["_onClick"] = arg;
             evas_object_smart_callback_add(this["eo"], "clicked", elmOnClick, new Value(this));

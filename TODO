@@ -1,3 +1,5 @@
 TODO for widgets
 ----------------
 Bg: overlay, load_size
+Button: Multiple inheritance for Icon.
+
