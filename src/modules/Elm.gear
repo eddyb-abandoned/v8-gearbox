@@ -181,12 +181,12 @@ module Elm {
         }
 
         getter autodel() {
-            bool autodel = elm_win_autodel_get(this["eo"]);
-            return Value(autodel);
+            bool _autodel = elm_win_autodel_get(this["eo"]);
+            return Value(_autodel);
         }
 
-        setter autodel(autodel) {
-            elm_win_autodel_set(this["eo"], autodel);
+        setter autodel(_autodel) {
+            elm_win_autodel_set(this["eo"], _autodel);
         }
 
     }
@@ -257,15 +257,15 @@ module Elm {
             elm_bg_file_set(this["eo"], NULL, group.to<String>());
         }
         
-        getter option() {
+        getter bgOption() {
             int option;
             option = elm_bg_option_get(this["eo"]);
             return Integer(option); 
         }
         
-        setter option(_option) {
-            Elm_Bg_Option opt = (Elm_Bg_Option)(_option.to<int>());
-            elm_bg_option_set(this["eo"], opt);
+        setter bgOption(_option) {
+            Elm_Bg_Option _opt = (Elm_Bg_Option)(_option.to<int>());
+            elm_bg_option_set(this["eo"], _opt);
         }
     }
 
@@ -363,7 +363,14 @@ module Elm {
 
     class Radio : EvasObject {
         
+        function Radio(parent) {
+            this["eo"] = elm_radio_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
         getter group() {
+            // TODO : Not implemented in EFL
+            //elm_radio_group_get(this["eo"]);
             return this["eo"];
         }
         
@@ -389,6 +396,75 @@ module Elm {
             elm_radio_value_set(this["eo"], _value);
         }
         
+    }
+    
+    class Label : EvasObject {
+
+        function Label(parent) {
+            this["eo"] = elm_label_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter wrap() {
+            int wrap = elm_label_line_wrap_get (this["eo"]);
+            return Integer(wrap);
+        }
+
+        setter wrap(_wrap) {
+            Elm_Wrap_Type _wt = (Elm_Wrap_Type)(_wrap.to<int>());
+            elm_label_line_wrap_set(this["eo"], _wt);
+        }
+
+        getter wrapWidth() {
+            Evas_Coord w = elm_label_wrap_width_get (this["eo"]);
+            return Integer(w);
+        }
+
+        setter wrapWidth(_wrap) {
+            elm_label_wrap_width_set(this["eo"], (Evas_Coord)(_wrap));
+        }
+
+        getter wrapHeight() {
+            Evas_Coord h = elm_label_wrap_height_get (this["eo"]);
+            return Integer(h);
+        }
+
+        setter wrapHeight(_height) {
+            elm_label_wrap_height_set(this["eo"], (Evas_Coord)(_height));
+        }
+
+        getter fontSize() {
+            int fs = 0;
+            // TODO : Not implemented in EFL
+            //elm_label_fontsize_get(this["eo"], &fs);
+            return Integer(fs);
+        }
+
+        setter fontSize(_fs) {
+            elm_label_fontsize_set(this["eo"], _fs);
+        }
+
+        getter textAlign() {
+            // TODO : Not implemented in EFL
+            return String("center");
+        }
+
+        setter textAlign(_align) {
+            elm_label_text_align_set(this["eo"],_align);
+        }
+
+        getter ellipsis() {
+            // TODO : Not implemented in EFL
+            //bool ellipsis = elm_label_ellipsis_get(this["eo"]);
+            return Value(false);
+        }
+
+        setter ellipsis(_ellipsis) {
+            elm_label_ellipsis_set(this["eo"], _ellipsis);
+        }
+
+
+
     }
 
     class Entry : EvasObject {

@@ -419,15 +419,15 @@ static void _Elm_Win_title(v8::Local<v8::String>, v8::Local<v8::Value> _title, c
 static v8::Handle<v8::Value> _Elm_Win_autodel(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
     #line 184 "src/modules/Elm.gear"
-    bool autodel = elm_win_autodel_get(This["eo"]);
-    return Value(autodel);
+    bool _autodel = elm_win_autodel_get(This["eo"]);
+    return Value(_autodel);
 }
 
-static void _Elm_Win_autodel(v8::Local<v8::String>, v8::Local<v8::Value> _autodel, const v8::AccessorInfo &args) {
+static void _Elm_Win_autodel(v8::Local<v8::String>, v8::Local<v8::Value> __autodel, const v8::AccessorInfo &args) {
     Value This(args.This());
     #line 188 "src/modules/Elm.gear"
-    Value autodel(_autodel);
-    elm_win_autodel_set(This["eo"], autodel);
+    Value _autodel(__autodel);
+    elm_win_autodel_set(This["eo"], _autodel);
 }
 
 static v8::Handle<v8::Value> _Elm_Background_Background(const v8::Arguments &args) {
@@ -696,7 +696,7 @@ static void _Elm_Background_group(v8::Local<v8::String>, v8::Local<v8::Value> _g
     elm_bg_file_set(This["eo"], NULL, group.to<String>());
 }
 
-static v8::Handle<v8::Value> _Elm_Background_option(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+static v8::Handle<v8::Value> _Elm_Background_bgOption(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
     #line 261 "src/modules/Elm.gear"
     int option;
@@ -704,12 +704,12 @@ static v8::Handle<v8::Value> _Elm_Background_option(v8::Local<v8::String>, const
     return Integer(option);
 }
 
-static void _Elm_Background_option(v8::Local<v8::String>, v8::Local<v8::Value> __option, const v8::AccessorInfo &args) {
+static void _Elm_Background_bgOption(v8::Local<v8::String>, v8::Local<v8::Value> __option, const v8::AccessorInfo &args) {
     Value This(args.This());
     #line 266 "src/modules/Elm.gear"
     Value _option(__option);
-    Elm_Bg_Option opt = (Elm_Bg_Option)(_option.to<int>());
-    elm_bg_option_set(This["eo"], opt);
+    Elm_Bg_Option _opt = (Elm_Bg_Option)(_option.to<int>());
+    elm_bg_option_set(This["eo"], _opt);
 }
 
 static v8::Handle<v8::Value> _Elm_Box_Box(const v8::Arguments &args) {
@@ -1372,9 +1372,14 @@ static void _Elm_Button_onClick(v8::Local<v8::String>, v8::Local<v8::Value> _arg
 
 static v8::Handle<v8::Value> _Elm_Radio_Radio(const v8::Arguments &args) {
     Value This(args.This());
-    #line 365 "src/modules/Elm.gear"
-    
-    return undefined;
+    if(args.Length() >= 1) {
+        #line 366 "src/modules/Elm.gear"
+        Value parent(args[0]);
+        This["eo"] = elm_radio_add(parent["eo"]);
+        evas_object_show(This["eo"]);
+        return undefined;
+    }
+    THROW_ERROR("Invalid call to Elm.Radio");
 }
 
 static v8::Handle<v8::Value> _Elm_Radio_x(v8::Local<v8::String>, const v8::AccessorInfo &args) {
@@ -1549,49 +1554,321 @@ static void _Elm_Radio_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visi
 
 static v8::Handle<v8::Value> _Elm_Radio_group(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 367 "src/modules/Elm.gear"
+    #line 372 "src/modules/Elm.gear"
+    // TODO : Not implemented in EFL
+    //elm_radio_group_get(This["eo"]);
     return This["eo"];
 }
 
 static void _Elm_Radio_group(v8::Local<v8::String>, v8::Local<v8::Value> _group, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 370 "src/modules/Elm.gear"
+    #line 377 "src/modules/Elm.gear"
     Value group(_group);
     elm_radio_group_add(This["eo"], group["eo"]);
 }
 
 static v8::Handle<v8::Value> _Elm_Radio_state(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 375 "src/modules/Elm.gear"
+    #line 382 "src/modules/Elm.gear"
     int state = elm_radio_state_value_get(This["eo"]);
     return Integer(state);
 }
 
 static void _Elm_Radio_state(v8::Local<v8::String>, v8::Local<v8::Value> __state, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 379 "src/modules/Elm.gear"
+    #line 386 "src/modules/Elm.gear"
     Value _state(__state);
     elm_radio_state_value_set(This["eo"], _state);
 }
 
 static v8::Handle<v8::Value> _Elm_Radio_value(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 384 "src/modules/Elm.gear"
+    #line 391 "src/modules/Elm.gear"
     int value = elm_radio_value_get(This["eo"]);
     return Integer(value);
 }
 
 static void _Elm_Radio_value(v8::Local<v8::String>, v8::Local<v8::Value> __value, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 388 "src/modules/Elm.gear"
+    #line 395 "src/modules/Elm.gear"
     Value _value(__value);
     elm_radio_value_set(This["eo"], _value);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_Label(const v8::Arguments &args) {
+    Value This(args.This());
+    if(args.Length() >= 1) {
+        #line 403 "src/modules/Elm.gear"
+        Value parent(args[0]);
+        This["eo"] = elm_label_add(parent["eo"]);
+        evas_object_show(This["eo"]);
+        return undefined;
+    }
+    THROW_ERROR("Invalid call to Elm.Label");
+}
+
+static v8::Handle<v8::Value> _Elm_Label_x(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 47 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(x);
+}
+
+static void _Elm_Label_x(v8::Local<v8::String>, v8::Local<v8::Value> __x, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 52 "src/modules/Elm.gear"
+    Value _x(__x);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_move(This["eo"], _x, y);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_y(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 59 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(y);
+}
+
+static void _Elm_Label_y(v8::Local<v8::String>, v8::Local<v8::Value> __y, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 64 "src/modules/Elm.gear"
+    Value _y(__y);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_move(This["eo"], x, _y);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_height(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 71 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(height);
+}
+
+static void _Elm_Label_height(v8::Local<v8::String>, v8::Local<v8::Value> __height, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 76 "src/modules/Elm.gear"
+    Value _height(__height);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_resize(This["eo"], width, _height);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_width(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 83 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(width);
+}
+
+static void _Elm_Label_width(v8::Local<v8::String>, v8::Local<v8::Value> __width, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 88 "src/modules/Elm.gear"
+    Value _width(__width);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_resize(This["eo"], _width, height);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_label(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 95 "src/modules/Elm.gear"
+    return String(elm_object_text_get(This["eo"]));
+}
+
+static void _Elm_Label_label(v8::Local<v8::String>, v8::Local<v8::Value> _label, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 98 "src/modules/Elm.gear"
+    Value label(_label);
+    elm_object_text_set(This["eo"], label.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Label_text(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 103 "src/modules/Elm.gear"
+    return String(elm_object_text_get(This["eo"]));
+}
+
+static void _Elm_Label_text(v8::Local<v8::String>, v8::Local<v8::Value> _text, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 106 "src/modules/Elm.gear"
+    Value text(_text);
+    elm_object_text_set(This["eo"], text.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Label_scale(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 111 "src/modules/Elm.gear"
+    return Number(elm_object_scale_get(This["eo"]));
+}
+
+static void _Elm_Label_scale(v8::Local<v8::String>, v8::Local<v8::Value> _scale, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 114 "src/modules/Elm.gear"
+    Value scale(_scale);
+    elm_object_scale_set(This["eo"], scale);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_xalign(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 119 "src/modules/Elm.gear"
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    return Number(x);
+}
+
+static void _Elm_Label_xalign(v8::Local<v8::String>, v8::Local<v8::Value> __x, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 124 "src/modules/Elm.gear"
+    Value _x(__x);
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    evas_object_size_hint_align_set(This["eo"], _x, y);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_yalign(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 131 "src/modules/Elm.gear"
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    return Number(y);
+}
+
+static void _Elm_Label_yalign(v8::Local<v8::String>, v8::Local<v8::Value> __y, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 136 "src/modules/Elm.gear"
+    Value _y(__y);
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    evas_object_size_hint_align_set(This["eo"], x, _y);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_style(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 143 "src/modules/Elm.gear"
+    return String(elm_object_style_get(This["eo"]));
+}
+
+static void _Elm_Label_style(v8::Local<v8::String>, v8::Local<v8::Value> _style, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 146 "src/modules/Elm.gear"
+    Value style(_style);
+    elm_object_style_set(This["eo"], style.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Label_visible(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 151 "src/modules/Elm.gear"
+    return Value(evas_object_visible_get(This["eo"]));
+}
+
+static void _Elm_Label_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visible, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 154 "src/modules/Elm.gear"
+    Value visible(_visible);
+    if(visible)
+        evas_object_show(This["eo"]);
+    else
+        evas_object_hide(This["eo"]);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_wrap(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 409 "src/modules/Elm.gear"
+    int wrap = elm_label_line_wrap_get (This["eo"]);
+    return Integer(wrap);
+}
+
+static void _Elm_Label_wrap(v8::Local<v8::String>, v8::Local<v8::Value> __wrap, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 413 "src/modules/Elm.gear"
+    Value _wrap(__wrap);
+    Elm_Wrap_Type _wt = (Elm_Wrap_Type)(_wrap.to<int>());
+    elm_label_line_wrap_set(This["eo"], _wt);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_wrapWidth(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 419 "src/modules/Elm.gear"
+    Evas_Coord w = elm_label_wrap_width_get (This["eo"]);
+    return Integer(w);
+}
+
+static void _Elm_Label_wrapWidth(v8::Local<v8::String>, v8::Local<v8::Value> __wrap, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 423 "src/modules/Elm.gear"
+    Value _wrap(__wrap);
+    elm_label_wrap_width_set(This["eo"], (Evas_Coord)(_wrap));
+}
+
+static v8::Handle<v8::Value> _Elm_Label_wrapHeight(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 428 "src/modules/Elm.gear"
+    Evas_Coord h = elm_label_wrap_height_get (This["eo"]);
+    return Integer(h);
+}
+
+static void _Elm_Label_wrapHeight(v8::Local<v8::String>, v8::Local<v8::Value> __height, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 432 "src/modules/Elm.gear"
+    Value _height(__height);
+    elm_label_wrap_height_set(This["eo"], (Evas_Coord)(_height));
+}
+
+static v8::Handle<v8::Value> _Elm_Label_fontSize(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 437 "src/modules/Elm.gear"
+    int fs = 0;
+    // TODO : Not implemented in EFL
+    //elm_label_fontsize_get(This["eo"], &fs);
+    return Integer(fs);
+}
+
+static void _Elm_Label_fontSize(v8::Local<v8::String>, v8::Local<v8::Value> __fs, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 443 "src/modules/Elm.gear"
+    Value _fs(__fs);
+    elm_label_fontsize_set(This["eo"], _fs);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_textAlign(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 448 "src/modules/Elm.gear"
+    // TODO : Not implemented in EFL
+    return String("center");
+}
+
+static void _Elm_Label_textAlign(v8::Local<v8::String>, v8::Local<v8::Value> __align, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 452 "src/modules/Elm.gear"
+    Value _align(__align);
+    elm_label_text_align_set(This["eo"],_align);
+}
+
+static v8::Handle<v8::Value> _Elm_Label_ellipsis(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 457 "src/modules/Elm.gear"
+    // TODO : Not implemented in EFL
+    //bool ellipsis = elm_label_ellipsis_get(This["eo"]);
+    return Value(false);
+}
+
+static void _Elm_Label_ellipsis(v8::Local<v8::String>, v8::Local<v8::Value> __ellipsis, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 462 "src/modules/Elm.gear"
+    Value _ellipsis(__ellipsis);
+    elm_label_ellipsis_set(This["eo"], _ellipsis);
 }
 
 static v8::Handle<v8::Value> _Elm_Entry_Entry(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 396 "src/modules/Elm.gear"
+        #line 472 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_entry_add(parent["eo"]);
         evas_object_show(This["eo"]);
@@ -1772,7 +2049,7 @@ static void _Elm_Entry_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visi
 
 static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 407 "src/modules/Elm.gear"
+    #line 483 "src/modules/Elm.gear"
     const char *entry;
     entry = elm_entry_entry_get(This["eo"]);
     return String(entry);
@@ -1780,7 +2057,7 @@ static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::A
 
 static void _Elm_Entry_entry(v8::Local<v8::String>, v8::Local<v8::Value> _text, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 401 "src/modules/Elm.gear"
+    #line 477 "src/modules/Elm.gear"
     Value text(_text);
     This["entry"] = text;
     elm_entry_entry_set(This["eo"], text);
@@ -1798,7 +2075,7 @@ static v8::Handle<v8::Value> _Elm_toString(const v8::Arguments &args) {
 }
 
 
-#line 1801 "src/modules/Elm.cc"
+#line 2078 "src/modules/Elm.cc"
 static void _setup_Elm(Value _exports) {
     v8::Handle<v8::FunctionTemplate> _Elm_EvasObject = v8::FunctionTemplate::New(_Elm_EvasObject_EvasObject);
     _Elm_EvasObject->SetClassName(String("EvasObject"));
@@ -1849,7 +2126,7 @@ static void _setup_Elm(Value _exports) {
     _Elm_Background->PrototypeTemplate()->SetAccessor(String("blue"), _Elm_Background_blue, _Elm_Background_blue);
     _Elm_Background->PrototypeTemplate()->SetAccessor(String("file"), _Elm_Background_file, _Elm_Background_file);
     _Elm_Background->PrototypeTemplate()->SetAccessor(String("group"), _Elm_Background_group, _Elm_Background_group);
-    _Elm_Background->PrototypeTemplate()->SetAccessor(String("option"), _Elm_Background_option, _Elm_Background_option);
+    _Elm_Background->PrototypeTemplate()->SetAccessor(String("bgOption"), _Elm_Background_bgOption, _Elm_Background_bgOption);
     _exports["Background"] = _Elm_Background->GetFunction();
     v8::Handle<v8::FunctionTemplate> _Elm_Box = v8::FunctionTemplate::New(_Elm_Box_Box);
     _Elm_Box->SetClassName(String("Box"));
@@ -1918,6 +2195,26 @@ static void _setup_Elm(Value _exports) {
     _Elm_Radio->PrototypeTemplate()->SetAccessor(String("state"), _Elm_Radio_state, _Elm_Radio_state);
     _Elm_Radio->PrototypeTemplate()->SetAccessor(String("value"), _Elm_Radio_value, _Elm_Radio_value);
     _exports["Radio"] = _Elm_Radio->GetFunction();
+    v8::Handle<v8::FunctionTemplate> _Elm_Label = v8::FunctionTemplate::New(_Elm_Label_Label);
+    _Elm_Label->SetClassName(String("Label"));
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("x"), _Elm_Label_x, _Elm_Label_x);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("y"), _Elm_Label_y, _Elm_Label_y);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("height"), _Elm_Label_height, _Elm_Label_height);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("width"), _Elm_Label_width, _Elm_Label_width);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("label"), _Elm_Label_label, _Elm_Label_label);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("text"), _Elm_Label_text, _Elm_Label_text);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("scale"), _Elm_Label_scale, _Elm_Label_scale);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("xalign"), _Elm_Label_xalign, _Elm_Label_xalign);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("yalign"), _Elm_Label_yalign, _Elm_Label_yalign);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("style"), _Elm_Label_style, _Elm_Label_style);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("visible"), _Elm_Label_visible, _Elm_Label_visible);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("wrap"), _Elm_Label_wrap, _Elm_Label_wrap);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("wrapWidth"), _Elm_Label_wrapWidth, _Elm_Label_wrapWidth);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("wrapHeight"), _Elm_Label_wrapHeight, _Elm_Label_wrapHeight);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("fontSize"), _Elm_Label_fontSize, _Elm_Label_fontSize);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("textAlign"), _Elm_Label_textAlign, _Elm_Label_textAlign);
+    _Elm_Label->PrototypeTemplate()->SetAccessor(String("ellipsis"), _Elm_Label_ellipsis, _Elm_Label_ellipsis);
+    _exports["Label"] = _Elm_Label->GetFunction();
     v8::Handle<v8::FunctionTemplate> _Elm_Entry = v8::FunctionTemplate::New(_Elm_Entry_Entry);
     _Elm_Entry->SetClassName(String("Entry"));
     _Elm_Entry->PrototypeTemplate()->SetAccessor(String("x"), _Elm_Entry_x, _Elm_Entry_x);
