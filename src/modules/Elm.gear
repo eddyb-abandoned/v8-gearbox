@@ -333,6 +333,24 @@ module Elm {
             elm_button_autorepeat_set(this["eo"], autorepeat);
         }
 
+        getter autorepeat_init_timeout() {
+            double arit = elm_button_autorepeat_initial_timeout_get(this["eo"]);
+            return Number(arit);
+        }
+
+        setter autorepeat_init_timeout(_arit) {
+            elm_button_autorepeat_initial_timeout_set(this["eo"], _arit);
+        }
+
+        getter autorepeat_gap_timeout() {
+            double argt = elm_button_autorepeat_gap_timeout_get(this["eo"]);
+            return Number(argt);
+        }
+
+        setter autorepeat_gap_timeout(_argt) {
+            elm_button_autorepeat_gap_timeout_set(this["eo"], _argt);
+        }
+
         setter onClick(arg) {
             this["_onClick"] = arg;
             evas_object_smart_callback_add(this["eo"], "clicked", elmOnClick, new Value(this));

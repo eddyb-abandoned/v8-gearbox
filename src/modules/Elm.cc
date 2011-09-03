@@ -1326,15 +1326,45 @@ static void _Elm_Button_autorepeat(v8::Local<v8::String>, v8::Local<v8::Value> _
     elm_button_autorepeat_set(This["eo"], autorepeat);
 }
 
+static v8::Handle<v8::Value> _Elm_Button_autorepeat_init_timeout(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 337 "src/modules/Elm.gear"
+    double arit = elm_button_autorepeat_initial_timeout_get(This["eo"]);
+            return Number(arit);
+    return undefined;
+}
+
+static void _Elm_Button_autorepeat_init_timeout(v8::Local<v8::String>, v8::Local<v8::Value> __arit, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 341 "src/modules/Elm.gear"
+    Value _arit(__arit);
+    elm_button_autorepeat_initial_timeout_set(This["eo"], _arit);
+}
+
+static v8::Handle<v8::Value> _Elm_Button_autorepeat_gap_timeout(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 346 "src/modules/Elm.gear"
+    double argt = elm_button_autorepeat_gap_timeout_get(This["eo"]);
+            return Number(argt);
+    return undefined;
+}
+
+static void _Elm_Button_autorepeat_gap_timeout(v8::Local<v8::String>, v8::Local<v8::Value> __argt, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 350 "src/modules/Elm.gear"
+    Value _argt(__argt);
+    elm_button_autorepeat_gap_timeout_set(This["eo"], _argt);
+}
+
 static v8::Handle<v8::Value> _Elm_Button_onClick(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 342 "src/modules/Elm.gear"
+    #line 360 "src/modules/Elm.gear"
     return This["_onClick"];
 }
 
 static void _Elm_Button_onClick(v8::Local<v8::String>, v8::Local<v8::Value> _arg, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 336 "src/modules/Elm.gear"
+    #line 354 "src/modules/Elm.gear"
     Value arg(_arg);
     This["_onClick"] = arg;
     evas_object_smart_callback_add(This["eo"], "clicked", elmOnClick, new Value(This));
@@ -1343,7 +1373,7 @@ static void _Elm_Button_onClick(v8::Local<v8::String>, v8::Local<v8::Value> _arg
 static v8::Handle<v8::Value> _Elm_Entry_Entry(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 349 "src/modules/Elm.gear"
+        #line 367 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_entry_add(parent["eo"]);
         evas_object_show(This["eo"]);
@@ -1524,7 +1554,7 @@ static void _Elm_Entry_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visi
 
 static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 360 "src/modules/Elm.gear"
+    #line 378 "src/modules/Elm.gear"
     const char *entry;
     entry = elm_entry_entry_get(This["eo"]);
     return String(entry);
@@ -1532,7 +1562,7 @@ static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::A
 
 static void _Elm_Entry_entry(v8::Local<v8::String>, v8::Local<v8::Value> _text, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 354 "src/modules/Elm.gear"
+    #line 372 "src/modules/Elm.gear"
     Value text(_text);
     This["entry"] = text;
     elm_entry_entry_set(This["eo"], text);
@@ -1550,7 +1580,7 @@ static v8::Handle<v8::Value> _Elm_toString(const v8::Arguments &args) {
 }
 
 
-#line 1553 "src/modules/Elm.cc"
+#line 1583 "src/modules/Elm.cc"
 static void _setup_Elm(Value _exports) {
     v8::Handle<v8::FunctionTemplate> _Elm_EvasObject = v8::FunctionTemplate::New(_Elm_EvasObject_EvasObject);
     _Elm_EvasObject->SetClassName(String("EvasObject"));
@@ -1649,6 +1679,8 @@ static void _setup_Elm(Value _exports) {
     _Elm_Button->PrototypeTemplate()->SetAccessor(String("style"), _Elm_Button_style, _Elm_Button_style);
     _Elm_Button->PrototypeTemplate()->SetAccessor(String("visible"), _Elm_Button_visible, _Elm_Button_visible);
     _Elm_Button->PrototypeTemplate()->SetAccessor(String("autorepeat"), _Elm_Button_autorepeat, _Elm_Button_autorepeat);
+    _Elm_Button->PrototypeTemplate()->SetAccessor(String("autorepeat_init_timeout"), _Elm_Button_autorepeat_init_timeout, _Elm_Button_autorepeat_init_timeout);
+    _Elm_Button->PrototypeTemplate()->SetAccessor(String("autorepeat_gap_timeout"), _Elm_Button_autorepeat_gap_timeout, _Elm_Button_autorepeat_gap_timeout);
     _Elm_Button->PrototypeTemplate()->SetAccessor(String("onClick"), _Elm_Button_onClick, _Elm_Button_onClick);
     _exports["Button"] = _Elm_Button->GetFunction();
     v8::Handle<v8::FunctionTemplate> _Elm_Entry = v8::FunctionTemplate::New(_Elm_Entry_Entry);
