@@ -6,3 +6,39 @@ Radio: Multiple inheritance for Icon.
 Label: Text Colour how to pass 3 params.
 Flip : interaction_direction, hitsize, perspective and front_get
 Bubble : Icon
+
+Pending Widget List
+-------------------
+List
+Calendar
+Menu
+Table
+DiskSelector
+AnchorBlock
+CtxPopUp
+FileSelectorButton
+FileSelectorEntry
+FileSelector
+FlipSelector
+Hover
+Hoversel
+Icon
+IMage
+Index
+Inwin
+Map
+Mapbuf
+Notify
+Pager
+Panel
+Photocam
+MapRoute
+Seperator
+Slider
+SlideShow
+Spinner
+Thumb
+Toggle
+Toolbar
+Tooltips
+Video
