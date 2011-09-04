@@ -982,6 +982,47 @@ module Elm {
 
     }
 
+    class Pane : EvasObject {
+
+        function Pane(parent) {
+            this["eo"] = elm_panes_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter contentLeft() {
+            return Value(elm_panes_content_left_get(this["eo"]));
+        }
+
+        setter contentLeft(_left) {
+            elm_panes_content_left_set(this["eo"], _left["eo"]);
+        }
+
+        getter contentRight() {
+            return Value(elm_panes_content_right_get(this["eo"]));
+        }
+
+        setter contentRight(_right) {
+            elm_panes_content_right_set(this["eo"], _right["eo"]);
+        }
+
+        getter leftSize() {
+            return Number(elm_panes_content_left_size_get(this["eo"]));
+        }
+
+        setter leftSize(_ls) {
+            elm_panes_content_left_size_set(this["eo"], (double)(_ls.to<int>()));
+        }
+
+        getter horizontal() {
+            return Number(elm_panes_horizontal_get(this["eo"]));
+        }
+
+        setter leftSize(_h) {
+            elm_panes_horizontal_set(this["eo"], (double)(_h.to<int>()));
+        }
+
+    }
+
     class Entry : EvasObject {
 
         function Entry(parent) {
