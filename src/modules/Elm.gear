@@ -215,7 +215,7 @@ module Elm {
 
         getter green() {
             int g;
-            elm_bg_color_get(this["eo"], NULL, NULL, &g);
+            elm_bg_color_get(this["eo"], NULL, &g, NULL);
             return Integer(g);
         }
 
@@ -227,7 +227,7 @@ module Elm {
 
         getter blue() {
             int b;
-            elm_bg_color_get(this["eo"], NULL, &b, NULL);
+            elm_bg_color_get(this["eo"], NULL, NULL, &b);
             return Integer(b);
         }
 
@@ -1047,6 +1047,65 @@ module Elm {
         }
 
     }
+
+    class ColorSelector : EvasObject {
+    
+        function ColorSelector(parent) {
+            this["eo"] = elm_colorselector_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+
+        getter red() {
+            int r;
+            elm_colorselector_color_get(this["eo"], &r, NULL, NULL, NULL);
+            return Integer(r);
+        }
+
+        setter red(_r) {
+            int r, g, b, a;
+            elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
+            elm_colorselector_color_set(this["eo"], _r, g, b, a);
+        }
+
+        getter green() {
+            int g;
+            elm_colorselector_color_get(this["eo"], NULL, &g, NULL, NULL);
+            return Integer(g);
+        }
+
+        setter green(_g) {
+            int r, g, b, a;
+            elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
+            elm_colorselector_color_set(this["eo"], r, _g, b, a);
+        }
+
+        getter blue() {
+            int b;
+            elm_colorselector_color_get(this["eo"], NULL, NULL, &b, NULL);
+            return Integer(b);
+        }
+
+        setter blue(_b) {
+            int r, g, b, a;
+            elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
+            elm_colorselector_color_set(this["eo"], r, g, _b, a);
+        }
+
+        getter alpha() {
+            int a;
+            elm_colorselector_color_get(this["eo"], NULL, NULL, NULL, &a);
+            return Integer(a);
+        }
+
+        setter alpha(_a) {
+            int r, g, b, a;
+            elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
+            elm_colorselector_color_set(this["eo"], r, g, b, _a);
+        }
+
+        
+
+    } 
 
     class Entry : EvasObject {
 
