@@ -26,6 +26,10 @@ top {
     void elmOnClick(void *_this, Evas_Object *eo, void *event_info) {
         (*reinterpret_cast<Value*>(_this))["_onClick"]();
     }
+
+    void elmOnChanged(void *_this, Evas_Object *eo, void *event_info) {
+        (*reinterpret_cast<Value*>(_this))["_onChanged"]();
+    }
 }
 
 module Elm {
@@ -1101,6 +1105,15 @@ module Elm {
             int r, g, b, a;
             elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
             elm_colorselector_color_set(this["eo"], r, g, b, _a);
+        }
+
+        setter onChanged(arg) {
+            this["_onChanged"] = arg;
+            evas_object_smart_callback_add(this["eo"], "changed", elmOnChanged, new Value(this));
+        }
+
+        getter onChanged() {
+            return this["_onChanged"];
         }
 
         
