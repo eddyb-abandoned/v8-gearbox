@@ -1023,6 +1023,31 @@ module Elm {
 
     }
 
+    class Bubble : EvasObject {
+
+        function Bubble(parent) {
+            this["eo"] = elm_bubble_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+        
+        getter content() {
+            return Value(elm_bubble_content_get(this["eo"]));
+        }
+
+        setter content(_c) {
+            elm_bubble_content_set(this["eo"], _c["eo"]);
+        }
+        
+        getter corner() {
+            return String(elm_bubble_corner_get(this["eo"]));
+        }
+
+        setter corner(_c) {
+            elm_bubble_corner_set(this["eo"], _c.to<String>());
+        }
+
+    }
+
     class Entry : EvasObject {
 
         function Entry(parent) {
