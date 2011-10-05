@@ -17,6 +17,9 @@
 #ifndef V8_GEARBOX_SHELL_H
 #define V8_GEARBOX_SHELL_H
 
+#include <functional>
+
+// DEPRECATED Apache module.
 #ifndef GEARBOX_APACHE_MOD
     #include <cstdio>
     #define errprintf(...) std::fprintf(stderr, __VA_ARGS__)
@@ -33,5 +36,10 @@
     #define _STR_NEWLINE "<br>"
     #define _STR_SPACE "&nbsp;"
 #endif
+
+namespace Gearbox {
+    /// Custom mainLoop handler.
+    extern std::function<void()> g_pMainLoop;
+}
 
 #endif

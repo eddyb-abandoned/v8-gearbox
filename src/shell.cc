@@ -20,6 +20,8 @@
 using namespace Gearbox;
 using namespace Modules;
 
+std::function<void()> Gearbox::g_pMainLoop;
+
 #ifndef GEARBOX_APACHE_MOD
 
 #include <cstdlib>
@@ -114,6 +116,10 @@ int main(int argc, char* argv[]) {
             
             // Run the script
             context.runScript(source, arg);
+            
+            // Specific mainLoop handlers.
+            if(g_pMainLoop)
+                g_pMainLoop();
             
             // Stop if there are exceptions
             if(tryCatch.hasCaught())
