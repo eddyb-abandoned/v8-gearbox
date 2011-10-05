@@ -135,46 +135,6 @@ namespace Gearbox {
             Index m_Index;
     };
     
-    class ValueList {
-        public:
-            ValueList() : m_nValues(0) {}
-            ~ValueList() {
-                if(m_nValues)
-                    delete [] m_phValues;
-            }
-            
-            template <class First, class... Last>
-            void add(First first, Last... last) {
-                push(first);
-                add(last...);
-            }
-            
-            void add() {}
-            
-            v8::Handle<v8::Value> *values() {
-                return m_phValues;
-            }
-            
-            size_t numValues() {
-                return m_nValues;
-            }
-            
-        private:
-            void push(v8::Handle<v8::Value> value) {
-                v8::Handle<v8::Value> *phOldValues = m_phValues;
-                m_phValues = new v8::Handle<v8::Value> [m_nValues + 1];
-                
-                for(size_t i = 0; i < m_nValues; i++)
-                    m_phValues[i] = phOldValues[i];
-                
-               m_phValues[m_nValues++] = value;
-            }
-            //void push(Value);
-            
-            v8::Handle<v8::Value> *m_phValues;
-            size_t m_nValues;
-    };
-    
     /** A class for every kind of JavaScript value (Objects, Arrays, Functions, Numbers, Strings) */
     class Value {
         public:
@@ -433,6 +393,45 @@ bool operator OP(Primitive that) { \
             }
             
         private:
+        
+            class ValueList {
+                public:
+                    ValueList() : m_nValues(0) {}
+                    ~ValueList() {
+                        if(m_nValues)
+                            delete [] m_phValues;
+                    }
+                    
+                    template <class First, class... Last>
+                    void add(First first, Last... last) {
+                        push(first);
+                        add(last...);
+                    }
+                    
+                    void add() {}
+                    
+                    v8::Handle<v8::Value> *values() {
+                        return m_phValues;
+                    }
+                    
+                    size_t numValues() {
+                        return m_nValues;
+                    }
+                    
+                private:
+                    void push(Value value) {
+                        v8::Handle<v8::Value> *phOldValues = m_phValues;
+                        m_phValues = new v8::Handle<v8::Value> [m_nValues + 1];
+                        
+                        for(size_t i = 0; i < m_nValues; i++)
+                            m_phValues[i] = phOldValues[i];
+                        
+                        m_phValues[m_nValues++] = value;
+                    }
+                    
+                    v8::Handle<v8::Value> *m_phValues;
+                    size_t m_nValues;
+            };
             
             static void weakCallback(v8::Persistent<v8::Value>, void*);
             static const v8::PropertyAttribute v8PropertyInternal = static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontEnum | v8::DontDelete);
