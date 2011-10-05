@@ -592,7 +592,7 @@ static v8::Handle<v8::Value> _GL_light(const v8::Arguments &args) {
 
 static v8::Handle<v8::Value> _GL_material(const v8::Arguments &args) {
     if(args.Length() >= 6) {
-        #line 437 "src/modules/GL.gear"
+        #line 442 "src/modules/GL.gear"
         Value which(args[0]), type(args[1]), r(args[2]), g(args[3]), b(args[4]), a(args[5]);
         /*
         // Create light components
@@ -613,12 +613,19 @@ static v8::Handle<v8::Value> _GL_material(const v8::Arguments &args) {
         glMaterialfv(which, type, material);
         return GLError();
     }
+
+    if(args.Length() >= 3) {
+        #line 437 "src/modules/GL.gear"
+        Value which(args[0]), type(args[1]), val(args[2]);
+        glMaterialf(which, type, val);
+        return GLError();
+    }
     THROW_ERROR("Invalid call to GL.material");
 }
 
 static v8::Handle<v8::Value> _GL_begin(const v8::Arguments &args) {
     if(args.Length() >= 1) {
-        #line 458 "src/modules/GL.gear"
+        #line 463 "src/modules/GL.gear"
         Value what(args[0]);
         glBegin(what);
         //return GLError();
@@ -628,14 +635,14 @@ static v8::Handle<v8::Value> _GL_begin(const v8::Arguments &args) {
 }
 
 static v8::Handle<v8::Value> _GL_end(const v8::Arguments &args) {
-    #line 464 "src/modules/GL.gear"
+    #line 469 "src/modules/GL.gear"
     glEnd();
     return GLError();
 }
 
 static v8::Handle<v8::Value> _GL_vertex(const v8::Arguments &args) {
     if(args.Length() >= 3) {
-        #line 468 "src/modules/GL.gear"
+        #line 473 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
         glVertex3d(x, y, z);
         //return GLError();
@@ -646,7 +653,7 @@ static v8::Handle<v8::Value> _GL_vertex(const v8::Arguments &args) {
 
 static v8::Handle<v8::Value> _GL_normal(const v8::Arguments &args) {
     if(args.Length() >= 3) {
-        #line 473 "src/modules/GL.gear"
+        #line 478 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]), z(args[2]);
         glNormal3d(x, y, z);
         //return GLError();
@@ -657,7 +664,7 @@ static v8::Handle<v8::Value> _GL_normal(const v8::Arguments &args) {
 
 static v8::Handle<v8::Value> _GL_rasterPos(const v8::Arguments &args) {
     if(args.Length() >= 2) {
-        #line 478 "src/modules/GL.gear"
+        #line 483 "src/modules/GL.gear"
         Value x(args[0]), y(args[1]);
         glRasterPos2d(x, y);
         return GLError();
@@ -671,7 +678,7 @@ static v8::Handle<v8::Value> _GL_toString(const v8::Arguments &args) {
 }
 
 
-#line 674 "src/modules/GL.cc"
+#line 681 "src/modules/GL.cc"
 static void _setup_GL(Value _exports) {
     _exports["initWindow"] = Function(_GL_initWindow, "initWindow");
     _exports["mainLoop"] = Function(_GL_mainLoop, "mainLoop");

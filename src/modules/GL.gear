@@ -434,6 +434,11 @@ module GL {
         return GLError();
     }
     
+    function material(which, type, val) {
+        glMaterialf(which, type, val);
+        return GLError();
+    }
+    
     function material(which, type, r, g, b, a) {
         /*
         // Create light components
