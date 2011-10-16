@@ -1116,9 +1116,15 @@ module Elm {
             return this["_onChanged"];
         }
 
-        
-
     } 
+
+    class Calendar : EvasObject {
+
+        function Calendar(parent) {
+            this["eo"] = elm_calendar_add(parent["eo"]);
+            evas_object_show(this["eo"]);
+        }
+    }
 
     class Entry : EvasObject {
 

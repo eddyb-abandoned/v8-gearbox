@@ -5057,10 +5057,192 @@ static void _Elm_ColorSelector_onChanged(v8::Local<v8::String>, v8::Local<v8::Va
     evas_object_smart_callback_add(This["eo"], "changed", elmOnChanged, new Value(This));
 }
 
+static v8::Handle<v8::Value> _Elm_Calendar_Calendar(const v8::Arguments &args) {
+    Value This(args.This());
+    if(args.Length() >= 1) {
+        #line 1123 "src/modules/Elm.gear"
+        Value parent(args[0]);
+        This["eo"] = elm_calendar_add(parent["eo"]);
+        evas_object_show(This["eo"]);
+        return undefined;
+    }
+    THROW_ERROR("Invalid call to Elm.Calendar");
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_x(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 51 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(x);
+}
+
+static void _Elm_Calendar_x(v8::Local<v8::String>, v8::Local<v8::Value> __x, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 56 "src/modules/Elm.gear"
+    Value _x(__x);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_move(This["eo"], _x, y);
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_y(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 63 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(y);
+}
+
+static void _Elm_Calendar_y(v8::Local<v8::String>, v8::Local<v8::Value> __y, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 68 "src/modules/Elm.gear"
+    Value _y(__y);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_move(This["eo"], x, _y);
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_height(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 75 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(height);
+}
+
+static void _Elm_Calendar_height(v8::Local<v8::String>, v8::Local<v8::Value> __height, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 80 "src/modules/Elm.gear"
+    Value _height(__height);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_resize(This["eo"], width, _height);
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_width(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 87 "src/modules/Elm.gear"
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    return Number(width);
+}
+
+static void _Elm_Calendar_width(v8::Local<v8::String>, v8::Local<v8::Value> __width, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 92 "src/modules/Elm.gear"
+    Value _width(__width);
+    Evas_Coord x, y, width, height;
+    evas_object_geometry_get(This["eo"], &x, &y, &width, &height);
+    evas_object_resize(This["eo"], _width, height);
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_label(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 99 "src/modules/Elm.gear"
+    return String(elm_object_text_get(This["eo"]));
+}
+
+static void _Elm_Calendar_label(v8::Local<v8::String>, v8::Local<v8::Value> _label, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 102 "src/modules/Elm.gear"
+    Value label(_label);
+    elm_object_text_set(This["eo"], label.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_text(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 107 "src/modules/Elm.gear"
+    return String(elm_object_text_get(This["eo"]));
+}
+
+static void _Elm_Calendar_text(v8::Local<v8::String>, v8::Local<v8::Value> _text, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 110 "src/modules/Elm.gear"
+    Value text(_text);
+    elm_object_text_set(This["eo"], text.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_scale(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 115 "src/modules/Elm.gear"
+    return Number(elm_object_scale_get(This["eo"]));
+}
+
+static void _Elm_Calendar_scale(v8::Local<v8::String>, v8::Local<v8::Value> _scale, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 118 "src/modules/Elm.gear"
+    Value scale(_scale);
+    elm_object_scale_set(This["eo"], scale);
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_xalign(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 123 "src/modules/Elm.gear"
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    return Number(x);
+}
+
+static void _Elm_Calendar_xalign(v8::Local<v8::String>, v8::Local<v8::Value> __x, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 128 "src/modules/Elm.gear"
+    Value _x(__x);
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    evas_object_size_hint_align_set(This["eo"], _x, y);
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_yalign(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 135 "src/modules/Elm.gear"
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    return Number(y);
+}
+
+static void _Elm_Calendar_yalign(v8::Local<v8::String>, v8::Local<v8::Value> __y, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 140 "src/modules/Elm.gear"
+    Value _y(__y);
+    double x, y;
+    evas_object_size_hint_align_get(This["eo"], &x, &y);
+    evas_object_size_hint_align_set(This["eo"], x, _y);
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_style(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 147 "src/modules/Elm.gear"
+    return String(elm_object_style_get(This["eo"]));
+}
+
+static void _Elm_Calendar_style(v8::Local<v8::String>, v8::Local<v8::Value> _style, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 150 "src/modules/Elm.gear"
+    Value style(_style);
+    elm_object_style_set(This["eo"], style.to<String>());
+}
+
+static v8::Handle<v8::Value> _Elm_Calendar_visible(v8::Local<v8::String>, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 155 "src/modules/Elm.gear"
+    return Value(evas_object_visible_get(This["eo"]));
+}
+
+static void _Elm_Calendar_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visible, const v8::AccessorInfo &args) {
+    Value This(args.This());
+    #line 158 "src/modules/Elm.gear"
+    Value visible(_visible);
+    if(visible)
+        evas_object_show(This["eo"]);
+    else
+        evas_object_hide(This["eo"]);
+}
+
 static v8::Handle<v8::Value> _Elm_Entry_Entry(const v8::Arguments &args) {
     Value This(args.This());
     if(args.Length() >= 1) {
-        #line 1125 "src/modules/Elm.gear"
+        #line 1131 "src/modules/Elm.gear"
         Value parent(args[0]);
         This["eo"] = elm_entry_add(parent["eo"]);
         evas_object_show(This["eo"]);
@@ -5241,7 +5423,7 @@ static void _Elm_Entry_visible(v8::Local<v8::String>, v8::Local<v8::Value> _visi
 
 static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 1136 "src/modules/Elm.gear"
+    #line 1142 "src/modules/Elm.gear"
     const char *entry;
     entry = elm_entry_entry_get(This["eo"]);
     return String(entry);
@@ -5249,7 +5431,7 @@ static v8::Handle<v8::Value> _Elm_Entry_entry(v8::Local<v8::String>, const v8::A
 
 static void _Elm_Entry_entry(v8::Local<v8::String>, v8::Local<v8::Value> _text, const v8::AccessorInfo &args) {
     Value This(args.This());
-    #line 1130 "src/modules/Elm.gear"
+    #line 1136 "src/modules/Elm.gear"
     Value text(_text);
     This["entry"] = text;
     elm_entry_entry_set(This["eo"], text);
@@ -5267,7 +5449,7 @@ static v8::Handle<v8::Value> _Elm_toString(const v8::Arguments &args) {
 }
 
 
-#line 5270 "src/modules/Elm.cc"
+#line 5452 "src/modules/Elm.cc"
 static void _setup_Elm(Value _exports) {
     v8::Handle<v8::FunctionTemplate> _Elm_EvasObject = v8::FunctionTemplate::New(_Elm_EvasObject_EvasObject);
     _Elm_EvasObject->SetClassName(String("EvasObject"));
@@ -5648,6 +5830,20 @@ static void _setup_Elm(Value _exports) {
     _Elm_ColorSelector->PrototypeTemplate()->SetAccessor(String("alpha"), _Elm_ColorSelector_alpha, _Elm_ColorSelector_alpha);
     _Elm_ColorSelector->PrototypeTemplate()->SetAccessor(String("onChanged"), _Elm_ColorSelector_onChanged, _Elm_ColorSelector_onChanged);
     _exports["ColorSelector"] = _Elm_ColorSelector->GetFunction();
+    v8::Handle<v8::FunctionTemplate> _Elm_Calendar = v8::FunctionTemplate::New(_Elm_Calendar_Calendar);
+    _Elm_Calendar->SetClassName(String("Calendar"));
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("x"), _Elm_Calendar_x, _Elm_Calendar_x);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("y"), _Elm_Calendar_y, _Elm_Calendar_y);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("height"), _Elm_Calendar_height, _Elm_Calendar_height);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("width"), _Elm_Calendar_width, _Elm_Calendar_width);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("label"), _Elm_Calendar_label, _Elm_Calendar_label);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("text"), _Elm_Calendar_text, _Elm_Calendar_text);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("scale"), _Elm_Calendar_scale, _Elm_Calendar_scale);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("xalign"), _Elm_Calendar_xalign, _Elm_Calendar_xalign);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("yalign"), _Elm_Calendar_yalign, _Elm_Calendar_yalign);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("style"), _Elm_Calendar_style, _Elm_Calendar_style);
+    _Elm_Calendar->PrototypeTemplate()->SetAccessor(String("visible"), _Elm_Calendar_visible, _Elm_Calendar_visible);
+    _exports["Calendar"] = _Elm_Calendar->GetFunction();
     v8::Handle<v8::FunctionTemplate> _Elm_Entry = v8::FunctionTemplate::New(_Elm_Entry_Entry);
     _Elm_Entry->SetClassName(String("Entry"));
     _Elm_Entry->PrototypeTemplate()->SetAccessor(String("x"), _Elm_Entry_x, _Elm_Entry_x);
