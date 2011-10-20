@@ -51,7 +51,7 @@ else:
     env.Append(CPPPATH = '#src')
     env.Append(LINKFLAGS = '-Wl,--no-warn-search-mismatch')
     env.Append(CXXFLAGS = '-std=c++0x -O3 -fno-var-tracking-assignments')
-    env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut', 'SDL'])
+    env.Append(LIBS = ['v8', 'readline', 'GL', 'GLU', 'glut', 'SDL', 'tinfo', 'ncurses'])
 
 # Pretty output
 if sys.platform == 'win32' or not hasattr(os.environ, 'TERM') or os.environ['TERM'] == 'dumb':
