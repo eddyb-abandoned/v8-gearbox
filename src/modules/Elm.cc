@@ -3264,7 +3264,7 @@ static void _Elm_Check_state(v8::Local<v8::String>, v8::Local<v8::Value> __state
     Value This(args.This());
     #line 716 "src/modules/Elm.gear"
     Value _state(__state);
-    elm_check_state_set(This["eo"], (Eina_Bool)(_state.to<int>()));
+    elm_check_state_set(This["eo"], _state.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_Clock_Clock(const v8::Arguments &args) {
@@ -3511,7 +3511,7 @@ static void _Elm_Clock_edit(v8::Local<v8::String>, v8::Local<v8::Value> __ed, co
     Value This(args.This());
     #line 769 "src/modules/Elm.gear"
     Value _ed(__ed);
-    elm_clock_edit_set(This["eo"], (Eina_Bool)_ed.to<int>());
+    elm_clock_edit_set(This["eo"], _ed.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_Clock_digitEdit(v8::Local<v8::String>, const v8::AccessorInfo &args) {
@@ -3550,7 +3550,7 @@ static void _Elm_Clock_showSeconds(v8::Local<v8::String>, v8::Local<v8::Value> _
     Value This(args.This());
     #line 793 "src/modules/Elm.gear"
     Value _secs(__secs);
-    elm_clock_show_seconds_set(This["eo"], (Eina_Bool)(_secs.to<int>()));
+    elm_clock_show_seconds_set(This["eo"], _secs.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_Clock_interval(v8::Local<v8::String>, const v8::AccessorInfo &args) {
@@ -3758,7 +3758,7 @@ static void _Elm_ProgressBar_pulse(v8::Local<v8::String>, v8::Local<v8::Value> _
     Value This(args.This());
     #line 818 "src/modules/Elm.gear"
     Value _pulse(__pulse);
-    elm_progressbar_pulse_set(This["eo"], (Eina_Bool)(_pulse.to<int>()));
+    elm_progressbar_pulse_set(This["eo"], _pulse.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_ProgressBar_value(v8::Local<v8::String>, const v8::AccessorInfo &args) {
@@ -3810,7 +3810,7 @@ static void _Elm_ProgressBar_horizontal(v8::Local<v8::String>, v8::Local<v8::Val
     Value This(args.This());
     #line 850 "src/modules/Elm.gear"
     Value _value(__value);
-    elm_progressbar_horizontal_set(This["eo"], (Eina_Bool)(_value.to<int>()));
+    elm_progressbar_horizontal_set(This["eo"], _value.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_ProgressBar_inverted(v8::Local<v8::String>, const v8::AccessorInfo &args) {
@@ -3823,7 +3823,7 @@ static void _Elm_ProgressBar_inverted(v8::Local<v8::String>, v8::Local<v8::Value
     Value This(args.This());
     #line 858 "src/modules/Elm.gear"
     Value _value(__value);
-    elm_progressbar_inverted_set(This["eo"], (Eina_Bool)(_value.to<int>()));
+    elm_progressbar_inverted_set(This["eo"], _value.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_Photo_Photo(const v8::Arguments &args) {
@@ -4047,7 +4047,7 @@ static void _Elm_Photo_fill(v8::Local<v8::String>, v8::Local<v8::Value> __value,
     Value This(args.This());
     #line 893 "src/modules/Elm.gear"
     Value _value(__value);
-    elm_photo_fill_inside_set(This["eo"], (Eina_Bool)(_value.to<int>()));
+    elm_photo_fill_inside_set(This["eo"], _value.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_Photo_editable(v8::Local<v8::String>, const v8::AccessorInfo &args) {
@@ -4061,7 +4061,7 @@ static void _Elm_Photo_editable(v8::Local<v8::String>, v8::Local<v8::Value> __va
     Value This(args.This());
     #line 902 "src/modules/Elm.gear"
     Value _value(__value);
-    elm_photo_editable_set(This["eo"], (Eina_Bool)(_value.to<int>()));
+    elm_photo_editable_set(This["eo"], _value.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_Spinner_Spinner(const v8::Arguments &args) {
@@ -4329,7 +4329,7 @@ static void _Elm_Spinner_wrap(v8::Local<v8::String>, v8::Local<v8::Value> __wrap
     Value This(args.This());
     #line 967 "src/modules/Elm.gear"
     Value _wrap(__wrap);
-    elm_spinner_wrap_set(This["eo"], (Eina_Bool)(_wrap.to<int>()));
+    elm_spinner_wrap_set(This["eo"], _wrap.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_Spinner_editable(v8::Local<v8::String>, const v8::AccessorInfo &args) {
@@ -4342,7 +4342,7 @@ static void _Elm_Spinner_editable(v8::Local<v8::String>, v8::Local<v8::Value> __
     Value This(args.This());
     #line 975 "src/modules/Elm.gear"
     Value _editable(__editable);
-    elm_spinner_editable_set(This["eo"], (Eina_Bool)(_editable.to<int>()));
+    elm_spinner_editable_set(This["eo"], _editable.to<Eina_Bool>());
 }
 
 static v8::Handle<v8::Value> _Elm_Spinner_interval(v8::Local<v8::String>, const v8::AccessorInfo &args) {
@@ -4355,7 +4355,7 @@ static void _Elm_Spinner_interval(v8::Local<v8::String>, v8::Local<v8::Value> __
     Value This(args.This());
     #line 983 "src/modules/Elm.gear"
     Value _interval(__interval);
-    elm_spinner_interval_set(This["eo"], (double)(_interval.to<int>()));
+    elm_spinner_interval_set(This["eo"], _interval.to<double>());
 }
 
 static v8::Handle<v8::Value> _Elm_Pane_Pane(const v8::Arguments &args) {

@@ -714,7 +714,7 @@ module Elm {
         }
 
         set state(_state) {
-            elm_check_state_set(this["eo"], (Eina_Bool)(_state.to<int>()));
+            elm_check_state_set(this["eo"], _state.to<Eina_Bool>());
         }
     }
 
@@ -767,7 +767,7 @@ module Elm {
         }
 
         set edit(_ed) {
-            elm_clock_edit_set(this["eo"], (Eina_Bool)_ed.to<int>());
+            elm_clock_edit_set(this["eo"], _ed.to<Eina_Bool>());
         }
 
         get digitEdit() {
@@ -791,7 +791,7 @@ module Elm {
         }
 
         set showSeconds(_secs) {
-            elm_clock_show_seconds_set(this["eo"], (Eina_Bool)(_secs.to<int>()));
+            elm_clock_show_seconds_set(this["eo"], _secs.to<Eina_Bool>());
         }
 
         get interval() {
@@ -816,7 +816,7 @@ module Elm {
         }
 
         set pulse(_pulse) {
-            elm_progressbar_pulse_set(this["eo"], (Eina_Bool)(_pulse.to<int>()));
+            elm_progressbar_pulse_set(this["eo"], _pulse.to<Eina_Bool>());
         }
 
         get value() {
@@ -848,7 +848,7 @@ module Elm {
         }
 
         set horizontal(_value) {
-            elm_progressbar_horizontal_set(this["eo"], (Eina_Bool)(_value.to<int>()));
+            elm_progressbar_horizontal_set(this["eo"], _value.to<Eina_Bool>());
         }
 
         get inverted() {
@@ -856,7 +856,7 @@ module Elm {
         }
 
         set inverted(_value) {
-            elm_progressbar_inverted_set(this["eo"], (Eina_Bool)(_value.to<int>()));
+            elm_progressbar_inverted_set(this["eo"], _value.to<Eina_Bool>());
         }
     }
 
@@ -891,7 +891,7 @@ module Elm {
         }
 
         set fill(_value) {
-            elm_photo_fill_inside_set(this["eo"], (Eina_Bool)(_value.to<int>()));
+            elm_photo_fill_inside_set(this["eo"], _value.to<Eina_Bool>());
         }
 
         get editable() {
@@ -900,7 +900,7 @@ module Elm {
         }
 
         set editable(_value) {
-            elm_photo_editable_set(this["eo"], (Eina_Bool)(_value.to<int>()));
+            elm_photo_editable_set(this["eo"], _value.to<Eina_Bool>());
         }
 
     }
@@ -965,7 +965,7 @@ module Elm {
         }
 
         set wrap(_wrap) {
-            elm_spinner_wrap_set(this["eo"], (Eina_Bool)(_wrap.to<int>()));
+            elm_spinner_wrap_set(this["eo"], _wrap.to<Eina_Bool>());
         }
 
         get editable() {
@@ -973,7 +973,7 @@ module Elm {
         }
 
         set editable(_editable) {
-            elm_spinner_editable_set(this["eo"], (Eina_Bool)(_editable.to<int>()));
+            elm_spinner_editable_set(this["eo"], _editable.to<Eina_Bool>());
         }
 
         get interval() {
@@ -981,7 +981,7 @@ module Elm {
         }
 
         set interval(_interval) {
-            elm_spinner_interval_set(this["eo"], (double)(_interval.to<int>()));
+            elm_spinner_interval_set(this["eo"], _interval.to<double>());
         }
 
     }
