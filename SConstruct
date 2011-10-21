@@ -64,7 +64,7 @@ if sys.platform == 'win32' or not hasattr(os.environ, 'TERM') or os.environ['TER
     env['NMCOMSTR']   =    '  Creating map $SOURCES -> $TARGET'
     env['DOCCOMSTR']  =    '   Documenting $SOURCES -> $TARGET'
     env['TARCOMSTR']  =    '      Creating $SOURCES -> $TARGET'
-    env['JSCCCOMSTR']  =   '     Compiling $SOURCES -> $TARGET'
+    env['AZE2JSCOMSTR']  = '    Converting $SOURCES -> $TARGET'
     env['GEAR2CCCOMSTR']  ='    Converting $SOURCES -> $TARGETS'
 else:
     env['CCCOMSTR']   =    '     Compiling \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
@@ -76,13 +76,13 @@ else:
     env['NMCOMSTR']   =    '  Creating map \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
     env['DOCCOMSTR']  =    '   Documenting \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
     env['TARCOMSTR']  =    '      Creating \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
-    env['JSCCCOMSTR']   =  '     Compiling \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
+    env['AZE2JSCOMSTR']  = '    Converting \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGET\033[0m'
     env['GEAR2CCCOMSTR']  ='    Converting \033[32m$SOURCES\033[0m\033[1m -> \033[0m\033[32m$TARGETS\033[0m'
     
 env['BUILD_DIR'] = 'build'
 env['GEARBOX'] = env['BUILD_DIR'] + os.sep + 'gearbox' + env['PROGSUFFIX']
 env['GEARBOX_EXISTS'] = os.path.exists(env['GEARBOX'])
-env['BUILDERS']['JsCC'] = Builder(action=Action(env['GEARBOX']+' gear2cc'+os.sep+'jscc.js -o $TARGET -p v8 -t gear2cc'+os.sep+'driver_v8.js_ $SOURCE', cmdstr=env['JSCCCOMSTR']))
+env['BUILDERS']['Aze2JS'] = Builder(action=Action(env['GEARBOX']+' gear2cc'+os.sep+'aze2js.js $SOURCE $TARGET', cmdstr=env['AZE2JSCOMSTR']))
 env['BUILDERS']['Gear2CC'] = Builder(action=Action(env['GEARBOX']+' gear2cc'+os.sep+'gear2cc.js $SOURCE', cmdstr=env['GEAR2CCCOMSTR']))
 
 SConscript('src/SConscript', variant_dir = env['BUILD_DIR'], exports = ['env'], duplicate = 0)

@@ -47,115 +47,115 @@ module Elm {
 
     class EvasObject {
 
-        getter x() {
+        get x() {
             Evas_Coord x, y, width, height;
             evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
             return Number(x);
         }
 
-        setter x(_x) {
+        set x(_x) {
             Evas_Coord x, y, width, height;
             evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
             evas_object_move(this["eo"], _x, y);
         }
 
-        getter y() {
+        get y() {
             Evas_Coord x, y, width, height;
             evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
             return Number(y);
         }
 
-        setter y(_y) {
+        set y(_y) {
             Evas_Coord x, y, width, height;
             evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
             evas_object_move(this["eo"], x, _y);
         }
 
-        getter height() {
+        get height() {
             Evas_Coord x, y, width, height;
             evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
             return Number(height);
         }
 
-        setter height(_height) {
+        set height(_height) {
             Evas_Coord x, y, width, height;
             evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
             evas_object_resize(this["eo"], width, _height);
         }
 
-        getter width() {
+        get width() {
             Evas_Coord x, y, width, height;
             evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
             return Number(width);
         }
 
-        setter width(_width) {
+        set width(_width) {
             Evas_Coord x, y, width, height;
             evas_object_geometry_get(this["eo"], &x, &y, &width, &height);
             evas_object_resize(this["eo"], _width, height);
         }
 
-        getter label() {
+        get label() {
             return String(elm_object_text_get(this["eo"]));
         }
 
-        setter label(label) {
+        set label(label) {
             elm_object_text_set(this["eo"], label.to<String>());
         }
 
-        getter text() {
+        get text() {
             return String(elm_object_text_get(this["eo"]));
         }
 
-        setter text(text) {
+        set text(text) {
             elm_object_text_set(this["eo"], text.to<String>());
         }
 
-        getter scale() {
+        get scale() {
             return Number(elm_object_scale_get(this["eo"]));
         }
 
-        setter scale(scale) {
+        set scale(scale) {
             elm_object_scale_set(this["eo"], scale);
         }
 
-        getter xalign() {
+        get xalign() {
             double x, y;
             evas_object_size_hint_align_get(this["eo"], &x, &y);
             return Number(x);
         }
 
-        setter xalign(_x) {
+        set xalign(_x) {
             double x, y;
             evas_object_size_hint_align_get(this["eo"], &x, &y);
             evas_object_size_hint_align_set(this["eo"], _x, y);
         }
 
-        getter yalign() {
+        get yalign() {
             double x, y;
             evas_object_size_hint_align_get(this["eo"], &x, &y);
             return Number(y);
         }
 
-        setter yalign(_y) {
+        set yalign(_y) {
             double x, y;
             evas_object_size_hint_align_get(this["eo"], &x, &y);
             evas_object_size_hint_align_set(this["eo"], x, _y);
         }
 
-        getter style() {
+        get style() {
             return String(elm_object_style_get(this["eo"]));
         }
 
-        setter style(style) {
+        set style(style) {
             elm_object_style_set(this["eo"], style.to<String>());
         }
 
-        getter visible() {
+        get visible() {
              return Value(evas_object_visible_get(this["eo"]));
         }
 
-        setter visible(visible) {
+        set visible(visible) {
             if(visible)
                 evas_object_show(this["eo"]);
             else
@@ -176,20 +176,20 @@ module Elm {
             evas_object_resize(this["eo"], width, height);
         }
 
-        getter title() {
+        get title() {
             return String(elm_win_title_get(this["eo"]));
         }
 
-        setter title(title) {
+        set title(title) {
             elm_win_title_set(this["eo"], title.to<String>());
         }
 
-        getter autodel() {
+        get autodel() {
             bool _autodel = elm_win_autodel_get(this["eo"]);
             return Value(_autodel);
         }
 
-        setter autodel(_autodel) {
+        set autodel(_autodel) {
             elm_win_autodel_set(this["eo"], _autodel);
         }
 
@@ -205,69 +205,69 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter red() {
+        get red() {
             int r;
             elm_bg_color_get(this["eo"], &r, NULL, NULL);
             return Integer(r);
         }
 
-        setter red(_r) {
+        set red(_r) {
             int r, g, b;
             elm_bg_color_get(this["eo"], &r, &g, &b);
             elm_bg_color_set(this["eo"], _r, g, b);
         }
 
-        getter green() {
+        get green() {
             int g;
             elm_bg_color_get(this["eo"], NULL, &g, NULL);
             return Integer(g);
         }
 
-        setter green(_g) {
+        set green(_g) {
             int r, g, b;
             elm_bg_color_get(this["eo"], &r, &g, &b);
             elm_bg_color_set(this["eo"], r, _g, b);
         }
 
-        getter blue() {
+        get blue() {
             int b;
             elm_bg_color_get(this["eo"], NULL, NULL, &b);
             return Integer(b);
         }
 
-        setter blue(_b) {
+        set blue(_b) {
             int r, g, b;
             elm_bg_color_get(this["eo"], &r, &g, &b);
             elm_bg_color_set(this["eo"], r, g, _b);
         }
 
-        getter file() {
+        get file() {
             const char *file, *group;
             elm_bg_file_get(this["eo"], &file, &group);
             return String(file);
         }
 
-        setter file(file) {
+        set file(file) {
             elm_bg_file_set(this["eo"], file.to<String>(), NULL);
         }
         
-        getter group() {
+        get group() {
             const char *file, *group;
             elm_bg_file_get(this["eo"], &file, &group);
             return String(group);
         }
         
-        setter group(group) {
+        set group(group) {
             elm_bg_file_set(this["eo"], NULL, group.to<String>());
         }
         
-        getter bgOption() {
+        get bgOption() {
             int option;
             option = elm_bg_option_get(this["eo"]);
             return Integer(option); 
         }
         
-        setter bgOption(_option) {
+        set bgOption(_option) {
             Elm_Bg_Option _opt = (Elm_Bg_Option)(_option.to<int>());
             elm_bg_option_set(this["eo"], _opt);
         }
@@ -284,19 +284,19 @@ module Elm {
             elm_box_pack_end(this["eo"], child["eo"]);
         }
 
-        getter homogenous() {
+        get homogenous() {
             return Value(elm_box_homogeneous_get(this["eo"]));
         }
 
-        setter homogenous(homogenous) {
+        set homogenous(homogenous) {
             elm_box_homogeneous_set(this["eo"], homogenous);
         }
 
-        getter horizontal() {
+        get horizontal() {
             return Value(elm_box_horizontal_get(this["eo"]));
         }
 
-        setter horizontal(horizontal) {
+        set horizontal(horizontal) {
             elm_box_horizontal_set(this["eo"], horizontal);
         }
 
@@ -309,85 +309,85 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter file() {
+        get file() {
             const char *file, *group;
             elm_icon_file_get(this["eo"], &file, &group);
             return String(file);
         }
 
-        setter file(file) {
+        set file(file) {
             elm_icon_file_set(this["eo"], file.to<String>(), NULL);
         }
 
-        getter scaleDown() {
+        get scaleDown() {
             Eina_Bool sd, su;
             elm_icon_scale_get(this["eo"], &su, &sd);
             return Integer(sd);
         }
 
-        setter scaleDown(_sd) {
+        set scaleDown(_sd) {
             Eina_Bool sd, su;
             elm_icon_scale_get(this["eo"], &su, &sd);
             elm_icon_scale_set(this["eo"], su, _sd);
         }
 
-        getter scaleUp() {
+        get scaleUp() {
             Eina_Bool sd, su;
             elm_icon_scale_get(this["eo"], &su, &sd);
             return Integer(su);
         }
 
-        setter scaleUp(_su) {
+        set scaleUp(_su) {
             Eina_Bool sd, su;
             elm_icon_scale_get(this["eo"], &su, &sd);
             elm_icon_scale_set(this["eo"], _su, sd);
         }
 
-        getter prescale() {
+        get prescale() {
             return Integer(elm_icon_prescale_get(this["eo"]));
         }
 
-        setter prescale(_arit) {
+        set prescale(_arit) {
             elm_icon_prescale_set(this["eo"], _arit);
         }
 
-        getter animated() {
+        get animated() {
             return Integer(elm_icon_animated_get(this["eo"]));
         }
 
-        setter animated(_anim) {
+        set animated(_anim) {
             elm_icon_animated_set(this["eo"], _anim);
         }
 
-        getter animPlay() {
+        get animPlay() {
             return Integer(elm_icon_animated_play_get(this["eo"]));
         }
 
-        setter animPlay(_ap) {
+        set animPlay(_ap) {
             elm_icon_animated_play_set(this["eo"], _ap);
         }
 
-        getter smooth() {
+        get smooth() {
             return Integer(elm_icon_smooth_get(this["eo"]));
         }
 
-        setter smooth(_smooth) {
+        set smooth(_smooth) {
             elm_icon_smooth_set(this["eo"], _smooth);
         }
 
-        getter standard() {
+        get standard() {
             return String(elm_icon_standard_get(this["eo"]));
         }
 
-        setter standard(_std) {
+        set standard(_std) {
             elm_icon_standard_set(this["eo"],_std);
         }
 
-        getter fillOutside() {
+        get fillOutside() {
             return Integer(elm_icon_fill_outside_get(this["eo"]));
         }
 
-        setter fillOutside(_fo) {
+        set fillOutside(_fo) {
             elm_icon_fill_outside_set(this["eo"], _fo);
         }
 
@@ -400,39 +400,39 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter autorepeat() {
+        get autorepeat() {
             bool autorepeat = elm_button_autorepeat_get(this["eo"]);
             return Integer(autorepeat);
         }
 
-        setter autorepeat(autorepeat) {
+        set autorepeat(autorepeat) {
             elm_button_autorepeat_set(this["eo"], autorepeat);
         }
 
-        getter autorepeatInitTimeout() {
+        get autorepeatInitTimeout() {
             double arit = elm_button_autorepeat_initial_timeout_get(this["eo"]);
             return Number(arit);
         }
 
-        setter autorepeatInitTimeout(_arit) {
+        set autorepeatInitTimeout(_arit) {
             elm_button_autorepeat_initial_timeout_set(this["eo"], _arit);
         }
 
-        getter autorepeatGapTimeout() {
+        get autorepeatGapTimeout() {
             double argt = elm_button_autorepeat_gap_timeout_get(this["eo"]);
             return Number(argt);
         }
 
-        setter autorepeatGapTimeout(_argt) {
+        set autorepeatGapTimeout(_argt) {
             elm_button_autorepeat_gap_timeout_set(this["eo"], _argt);
         }
 
-        setter onClick(arg) {
+        set onClick(arg) {
             this["_onClick"] = arg;
             evas_object_smart_callback_add(this["eo"], "clicked", elmOnClick, new Value(this));
         }
 
-        getter onClick() {
+        get onClick() {
             return this["_onClick"];
         }
     }
@@ -444,31 +444,31 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter group() {
+        get group() {
             // TODO : Not implemented in EFL
             //elm_radio_group_get(this["eo"]);
             return this["eo"];
         }
         
-        setter group(group) {
+        set group(group) {
             elm_radio_group_add(this["eo"], group["eo"]);
         }
 
-        getter state() {
+        get state() {
             int state = elm_radio_state_value_get(this["eo"]);
             return Integer(state);
         }
 
-        setter state(_state) {
+        set state(_state) {
             elm_radio_state_value_set(this["eo"], _state);
         }
 
-        getter value() {
+        get value() {
             int value = elm_radio_value_get(this["eo"]);
             return Integer(value);
         }
 
-        setter value(_value) {
+        set value(_value) {
             elm_radio_value_set(this["eo"], _value);
         }
         
@@ -481,61 +481,61 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter wrap() {
+        get wrap() {
             int wrap = elm_label_line_wrap_get (this["eo"]);
             return Integer(wrap);
         }
 
-        setter wrap(_wrap) {
+        set wrap(_wrap) {
             Elm_Wrap_Type _wt = (Elm_Wrap_Type)(_wrap.to<int>());
             elm_label_line_wrap_set(this["eo"], _wt);
         }
 
-        getter wrapWidth() {
+        get wrapWidth() {
             Evas_Coord w = elm_label_wrap_width_get (this["eo"]);
             return Integer(w);
         }
 
-        setter wrapWidth(_wrap) {
+        set wrapWidth(_wrap) {
             elm_label_wrap_width_set(this["eo"], (Evas_Coord)(_wrap));
         }
 
-        getter wrapHeight() {
+        get wrapHeight() {
             Evas_Coord h = elm_label_wrap_height_get (this["eo"]);
             return Integer(h);
         }
 
-        setter wrapHeight(_height) {
+        set wrapHeight(_height) {
             elm_label_wrap_height_set(this["eo"], (Evas_Coord)(_height));
         }
 
-        getter fontSize() {
+        get fontSize() {
             int fs = 0;
             // TODO : Not implemented in EFL
             //elm_label_fontsize_get(this["eo"], &fs);
             return Integer(fs);
         }
 
-        setter fontSize(_fs) {
+        set fontSize(_fs) {
             elm_label_fontsize_set(this["eo"], _fs);
         }
 
-        getter textAlign() {
+        get textAlign() {
             // TODO : Not implemented in EFL
             return String("center");
         }
 
-        setter textAlign(_align) {
+        set textAlign(_align) {
             elm_label_text_align_set(this["eo"],_align);
         }
 
-        getter ellipsis() {
+        get ellipsis() {
             // TODO : Not implemented in EFL
             //bool ellipsis = elm_label_ellipsis_get(this["eo"]);
             return Value(false);
         }
 
-        setter ellipsis(_ellipsis) {
+        set ellipsis(_ellipsis) {
             elm_label_ellipsis_set(this["eo"], _ellipsis);
         }
 
@@ -548,19 +548,19 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter front() {
+        get front() {
             return Value(elm_flip_content_front_get(this["eo"]));
         }
 
-        setter front(_front) {
+        set front(_front) {
             elm_flip_content_front_set(this["eo"], _front);
         }
 
-        getter back() {
+        get back() {
             return Value(elm_flip_content_back_get(this["eo"]));
         }
 
-        setter back(_back) {
+        set back(_back) {
             elm_flip_content_back_set(this["eo"], _back);
         }
 
@@ -568,11 +568,11 @@ module Elm {
             elm_flip_go(this["eo"], (Elm_Flip_Mode)(mode.to<int>()));
         }
 
-        getter interaction() {
+        get interaction() {
             return Integer(elm_flip_interaction_get(this["eo"]));
         }
         
-        setter interaction(_interact) {
+        set interaction(_interact) {
             elm_flip_interaction_set (this["eo"], (Elm_Flip_Interaction)(_interact.to<int>()));
         }
 
@@ -585,35 +585,35 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter selectedLabel() {
+        get selectedLabel() {
             return String(elm_actionslider_selected_label_get(this["eo"]));
         }
 
-        setter selectedLabel(_sl) {
+        set selectedLabel(_sl) {
             // TODO : Not implemented in EFL
         }
 
-        getter indicatorPos() {
+        get indicatorPos() {
             return Integer(elm_actionslider_indicator_pos_get(this["eo"]));
         }
 
-        setter indicatorPos(_ip) {
+        set indicatorPos(_ip) {
             elm_actionslider_indicator_pos_set(this["eo"], (Elm_Actionslider_Pos)(_ip.to<int>()));
         }
 
-        getter enabledPos() {
+        get enabledPos() {
             return Integer(elm_actionslider_enabled_pos_get(this["eo"]));
         }
 
-        setter enabledPos(_ip) {
+        set enabledPos(_ip) {
             elm_actionslider_enabled_pos_set(this["eo"], (Elm_Actionslider_Pos)(_ip.to<int>()));
         }
 
-        getter magnetPos() {
+        get magnetPos() {
             return Integer(elm_actionslider_magnet_pos_get(this["eo"]));
         }
 
-        setter magnetPos(_ip) {
+        set magnetPos(_ip) {
             elm_actionslider_magnet_pos_set(this["eo"], (Elm_Actionslider_Pos)(_ip.to<int>()));
         }
 
@@ -626,57 +626,57 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter content() {
+        get content() {
             return Value(elm_scroller_content_get(this["eo"]));
         }
 
-        setter content(_content) {
+        set content(_content) {
             elm_scroller_content_set(this["eo"], _content["eo"]);
         }
 
-        getter hBounce() {
+        get hBounce() {
             Eina_Bool hb, vb;
             elm_scroller_bounce_get(this["eo"], &hb, &vb);
             return Integer(hb);
         }
 
-        setter hBounce(_hb) {
+        set hBounce(_hb) {
             Eina_Bool hb, vb;
             elm_scroller_bounce_get(this["eo"], &hb, &vb);
             elm_scroller_bounce_set(this["eo"], _hb.to<int>(), vb);
         }
 
-        getter vBounce() {
+        get vBounce() {
             Eina_Bool hb, vb;
             elm_scroller_bounce_get(this["eo"], &hb, &vb);
             return Integer(vb);
         }
 
-        setter vBounce(_vb) {
+        set vBounce(_vb) {
             Eina_Bool hb, vb;
             elm_scroller_bounce_get(this["eo"], &hb, &vb);
             elm_scroller_bounce_set(this["eo"], hb, _vb.to<int>());
         }
 
-        getter xPolicy() {
+        get xPolicy() {
             Elm_Scroller_Policy xp, yp;
             elm_scroller_policy_get(this["eo"], &xp, &yp);
             return Integer(xp);
         }
 
-        setter xPolicy(_xp) {
+        set xPolicy(_xp) {
             Elm_Scroller_Policy xp, yp;
             elm_scroller_policy_get(this["eo"], &xp, &yp);
             elm_scroller_policy_set(this["eo"], (Elm_Scroller_Policy)(_xp.to<int>()), yp);
         }
 
-        getter yPolicy() {
+        get yPolicy() {
             Elm_Scroller_Policy xp, yp;
             elm_scroller_policy_get(this["eo"], &xp, &yp);
             return Integer(yp);
         }
 
-        setter yPolicy(_yp) {
+        set yPolicy(_yp) {
             Elm_Scroller_Policy xp, yp;
             elm_scroller_policy_get(this["eo"], &xp, &yp);
             elm_scroller_policy_set(this["eo"], xp, (Elm_Scroller_Policy)(_yp.to<int>()));
@@ -709,11 +709,11 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter state() {
+        get state() {
             return Integer(elm_check_state_get(this["eo"]));
         }
 
-        setter state(_state) {
+        set state(_state) {
             elm_check_state_set(this["eo"], (Eina_Bool)(_state.to<int>()));
         }
     }
@@ -725,80 +725,80 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter hour() {
+        get hour() {
             int h,m,s;
             elm_clock_time_get(this["eo"], &h, &m, &s);
             return Integer(h);
         }
 
-        setter hour(_h) {
+        set hour(_h) {
             int h,m,s;
             elm_clock_time_get(this["eo"], &h, &m, &s);
             elm_clock_time_set(this["eo"], _h.to<int>(), m, s); 
         }
 
-        getter minute() {
+        get minute() {
             int h,m,s;
             elm_clock_time_get(this["eo"], &h, &m, &s);
             return Integer(m);
         }
 
-        setter minute(_m) {
+        set minute(_m) {
             int h,m,s;
             elm_clock_time_get(this["eo"], &h, &m, &s);
             elm_clock_time_set(this["eo"], h, _m.to<int>(), s); 
         }
 
-        getter second() {
+        get second() {
             int h,m,s;
             elm_clock_time_get(this["eo"], &h, &m, &s);
             return Integer(s);
         }
 
-        setter second(_s) {
+        set second(_s) {
             int h,m,s;
             elm_clock_time_get(this["eo"], &h, &m, &s);
             elm_clock_time_set(this["eo"], h, m, _s.to<int>());
         }
 
-        getter edit() {
+        get edit() {
             Eina_Bool ed;
             return Integer(elm_clock_edit_get(this["eo"]));
         }
 
-        setter edit(_ed) {
+        set edit(_ed) {
             elm_clock_edit_set(this["eo"], (Eina_Bool)_ed.to<int>());
         }
 
-        getter digitEdit() {
+        get digitEdit() {
             return Integer(elm_clock_digit_edit_get(this["eo"]));
         }
 
-        setter digitEdit(_de) {
+        set digitEdit(_de) {
             elm_clock_digit_edit_set(this["eo"], (Elm_Clock_Digedit)(_de.to<int>()));
         }
 
-        getter showAMPM() {
+        get showAMPM() {
             return Integer(elm_clock_show_am_pm_get(this["eo"]));
         }
 
-        setter showAMPM(_ampm) {
+        set showAMPM(_ampm) {
             elm_clock_show_am_pm_set(this["eo"], (Elm_Clock_Digedit)(_ampm.to<int>()));
         }
 
-        getter showSeconds() {
+        get showSeconds() {
             return Integer(elm_clock_show_seconds_get(this["eo"]));
         }
 
-        setter showSeconds(_secs) {
+        set showSeconds(_secs) {
             elm_clock_show_seconds_set(this["eo"], (Eina_Bool)(_secs.to<int>()));
         }
 
-        getter interval() {
+        get interval() {
             return Number(elm_clock_interval_get(this["eo"]));
         }
 
-        setter interval(_intvl) {
+        set interval(_intvl) {
             elm_clock_interval_set(this["eo"], (double)(_intvl.to<int>()));
         }
 
@@ -811,51 +811,51 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter pulse() {
+        get pulse() {
             return Integer(elm_progressbar_pulse_get(this["eo"]));
         }
 
-        setter pulse(_pulse) {
+        set pulse(_pulse) {
             elm_progressbar_pulse_set(this["eo"], (Eina_Bool)(_pulse.to<int>()));
         }
 
-        getter value() {
+        get value() {
             return Integer(elm_progressbar_value_get(this["eo"]));
         }
 
-        setter value(_value) {
+        set value(_value) {
             elm_progressbar_value_set(this["eo"], (double)(_value.to<int>()));
         }
 
-        getter spanSize() {
+        get spanSize() {
             return Integer(elm_progressbar_span_size_get(this["eo"]));
         }
 
-        setter spanSize(_ss) {
+        set spanSize(_ss) {
             elm_progressbar_span_size_set(this["eo"], (Evas_Coord)(_ss.to<int>()));
         }
 
-        getter unitFormat() {
+        get unitFormat() {
             return String(elm_progressbar_unit_format_get(this["eo"]));
         }
 
-        setter unitFormat(_value) {
+        set unitFormat(_value) {
             elm_progressbar_unit_format_set(this["eo"], _value);
         }
 
-        getter horizontal() {
+        get horizontal() {
             return Integer(elm_progressbar_horizontal_get(this["eo"]));
         }
 
-        setter horizontal(_value) {
+        set horizontal(_value) {
             elm_progressbar_horizontal_set(this["eo"], (Eina_Bool)(_value.to<int>()));
         }
 
-        getter inverted() {
+        get inverted() {
             return Integer(elm_progressbar_inverted_get(this["eo"]));
         }
 
-        setter inverted(_value) {
+        set inverted(_value) {
             elm_progressbar_inverted_set(this["eo"], (Eina_Bool)(_value.to<int>()));
         }
     }
@@ -867,39 +867,39 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter image() {
+        get image() {
             // TODO : Not implemented in EFL
             return String("");
         }
 
-        setter image(_image) {
+        set image(_image) {
             elm_photo_file_set(this["eo"], _image);
         }
 
-        getter size() {
+        get size() {
             // TODO : Not implemented in EFL
             return Integer(0);
         }
 
-        setter size(_value) {
+        set size(_value) {
             elm_photo_size_set(this["eo"], (_value.to<int>()));
         }
 
-        getter fill() {
+        get fill() {
             // TODO : Not implemented in EFL
             return Integer(0);
         }
 
-        setter fill(_value) {
+        set fill(_value) {
             elm_photo_fill_inside_set(this["eo"], (Eina_Bool)(_value.to<int>()));
         }
 
-        getter editable() {
+        get editable() {
             // TODO : Not implemented in EFL
             return Integer(0);
         }
 
-        setter editable(_value) {
+        set editable(_value) {
             elm_photo_editable_set(this["eo"], (Eina_Bool)(_value.to<int>()));
         }
 
@@ -912,75 +912,75 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter labelFormat() {
+        get labelFormat() {
             return String(elm_spinner_label_format_get(this["eo"]));
         }
 
-        setter labelFormat(_value) {
+        set labelFormat(_value) {
             elm_spinner_label_format_set(this["eo"], _value);
         }
 
-        getter min() {
+        get min() {
             double min, max;
             elm_spinner_min_max_get(this["eo"], &min, &max);
             return Number(min);
         }
 
-        setter min(_min) {
+        set min(_min) {
             double min, max;
             elm_spinner_min_max_get(this["eo"], &min, &max);
             elm_spinner_min_max_set(this["eo"], _min, max);
         }
 
-        getter max() {
+        get max() {
             double min, max;
             elm_spinner_min_max_get(this["eo"], &min, &max);
             return Number(max);
         }
 
-        setter max(_max) {
+        set max(_max) {
             double min, max;
             elm_spinner_min_max_get(this["eo"], &min, &max);
             elm_spinner_min_max_set(this["eo"], min, _max);
         }
 
-        getter step() {
+        get step() {
             return Number(elm_spinner_step_get(this["eo"]));
         }
 
-        setter step(_step) {
+        set step(_step) {
             elm_spinner_step_set(this["eo"], (double)(_step.to<int>()));
         }
 
-        getter value() {
+        get value() {
             return Number(elm_spinner_value_get(this["eo"]));
         }
 
-        setter value(_value) {
+        set value(_value) {
             elm_spinner_value_set(this["eo"], (double)(_value.to<int>()));
         }
 
-        getter wrap() {
+        get wrap() {
             return Integer(elm_spinner_wrap_get(this["eo"]));
         }
 
-        setter wrap(_wrap) {
+        set wrap(_wrap) {
             elm_spinner_wrap_set(this["eo"], (Eina_Bool)(_wrap.to<int>()));
         }
 
-        getter editable() {
+        get editable() {
             return Integer(elm_spinner_editable_get(this["eo"]));
         }
 
-        setter editable(_editable) {
+        set editable(_editable) {
             elm_spinner_editable_set(this["eo"], (Eina_Bool)(_editable.to<int>()));
         }
 
-        getter interval() {
+        get interval() {
             return Number(elm_spinner_interval_get(this["eo"]));
         }
 
-        setter interval(_interval) {
+        set interval(_interval) {
             elm_spinner_interval_set(this["eo"], (double)(_interval.to<int>()));
         }
 
@@ -993,35 +993,35 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter contentLeft() {
+        get contentLeft() {
             return Value(elm_panes_content_left_get(this["eo"]));
         }
 
-        setter contentLeft(_left) {
+        set contentLeft(_left) {
             elm_panes_content_left_set(this["eo"], _left["eo"]);
         }
 
-        getter contentRight() {
+        get contentRight() {
             return Value(elm_panes_content_right_get(this["eo"]));
         }
 
-        setter contentRight(_right) {
+        set contentRight(_right) {
             elm_panes_content_right_set(this["eo"], _right["eo"]);
         }
 
-        getter leftSize() {
+        get leftSize() {
             return Number(elm_panes_content_left_size_get(this["eo"]));
         }
 
-        setter leftSize(_ls) {
+        set leftSize(_ls) {
             elm_panes_content_left_size_set(this["eo"], (double)(_ls.to<int>()));
         }
 
-        getter horizontal() {
+        get horizontal() {
             return Number(elm_panes_horizontal_get(this["eo"]));
         }
 
-        setter leftSize(_h) {
+        set leftSize(_h) {
             elm_panes_horizontal_set(this["eo"], (double)(_h.to<int>()));
         }
 
@@ -1034,19 +1034,19 @@ module Elm {
             evas_object_show(this["eo"]);
         }
         
-        getter content() {
+        get content() {
             return Value(elm_bubble_content_get(this["eo"]));
         }
 
-        setter content(_c) {
+        set content(_c) {
             elm_bubble_content_set(this["eo"], _c["eo"]);
         }
         
-        getter corner() {
+        get corner() {
             return String(elm_bubble_corner_get(this["eo"]));
         }
 
-        setter corner(_c) {
+        set corner(_c) {
             elm_bubble_corner_set(this["eo"], _c.to<String>());
         }
 
@@ -1059,60 +1059,60 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        getter red() {
+        get red() {
             int r;
             elm_colorselector_color_get(this["eo"], &r, NULL, NULL, NULL);
             return Integer(r);
         }
 
-        setter red(_r) {
+        set red(_r) {
             int r, g, b, a;
             elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
             elm_colorselector_color_set(this["eo"], _r, g, b, a);
         }
 
-        getter green() {
+        get green() {
             int g;
             elm_colorselector_color_get(this["eo"], NULL, &g, NULL, NULL);
             return Integer(g);
         }
 
-        setter green(_g) {
+        set green(_g) {
             int r, g, b, a;
             elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
             elm_colorselector_color_set(this["eo"], r, _g, b, a);
         }
 
-        getter blue() {
+        get blue() {
             int b;
             elm_colorselector_color_get(this["eo"], NULL, NULL, &b, NULL);
             return Integer(b);
         }
 
-        setter blue(_b) {
+        set blue(_b) {
             int r, g, b, a;
             elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
             elm_colorselector_color_set(this["eo"], r, g, _b, a);
         }
 
-        getter alpha() {
+        get alpha() {
             int a;
             elm_colorselector_color_get(this["eo"], NULL, NULL, NULL, &a);
             return Integer(a);
         }
 
-        setter alpha(_a) {
+        set alpha(_a) {
             int r, g, b, a;
             elm_colorselector_color_get(this["eo"], &r, &g, &b, &a);
             elm_colorselector_color_set(this["eo"], r, g, b, _a);
         }
 
-        setter onChanged(arg) {
+        set onChanged(arg) {
             this["_onChanged"] = arg;
             evas_object_smart_callback_add(this["eo"], "changed", elmOnChanged, new Value(this));
         }
 
-        getter onChanged() {
+        get onChanged() {
             return this["_onChanged"];
         }
 
@@ -1133,12 +1133,12 @@ module Elm {
             evas_object_show(this["eo"]);
         }
 
-        setter entry(text) {
+        set entry(text) {
             this["entry"] = text;
             elm_entry_entry_set(this["eo"], text);
         }
 
-        getter entry() {
+        get entry() {
             const char *entry;
             entry = elm_entry_entry_get(this["eo"]);
             return String(entry);

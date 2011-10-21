@@ -12,7 +12,7 @@ gearboxSources = [
 # Invocation of gear2cc in case gearbox exists
 if env['GEARBOX_EXISTS'] and not env['USING_CROSSMINGW']:
     # Make sure we have gear2cc built
-    gear2cc = env.JsCC('#gear2cc/gear2cc.js', '#gear2cc/gear2cc.par')
+    gear2cc = env.Aze2JS('#gear2cc/gear2cc.js', '#gear2cc/gear2cc.aze')
     
     # Build all gear files
     for gearFile in Glob('modules/*.gear', strings=True):
@@ -20,7 +20,9 @@ if env['GEARBOX_EXISTS'] and not env['USING_CROSSMINGW']:
         gear = env.Gear2CC(['#src/'+gearBase+'.cc', '#src/'+gearBase+'.h'], gearFile)
         env.Depends(gear, gear2cc)
         env.Precious(gear)
-        gearboxSources += Glob(gearBase+'.cc')
+        gear_cc = Glob(gearBase+'.cc')
+        gearboxSources += gear_cc
+        env.Depends(gear_cc, gear) # FIXME Fails to work
 else:
     gearboxSources += Glob('modules/*.cc')
 
